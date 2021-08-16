@@ -1,6 +1,6 @@
 [![Kitsu](https://www.cg-wire.com/en/images/kitsu.png)](https://kitsu.cg-wire.com)
 
-# Kitsu Publisher, Collaboration Platform for Animation Studios
+# Kitsu Publisher, send your files right from your DCC
 
 Kitsu is a web application to share the progress of your productions and 
 validate your deliveries. It improves the communication between all stakeholders. 
@@ -13,6 +13,14 @@ directly from their tools.
 
 [![Build
 badge](https://travis-ci.com/cgwire/kitsu.svg?branch=master)](https://travis-ci.com/cgwire/kitsu-publisher)
+
+## Documentation 
+
+Planned DCCs:
+
+* Blender
+* Toonboom Harmony
+* Unreal Engine
 
 ## Documentation 
 
