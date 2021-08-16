@@ -1,0 +1,25 @@
+{
+  "name": "kitsu-publisher",
+  "version": "0.0.1",
+  "main": "main.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "electron:start": "electron ."
+  },
+  "dependencies": {
+    "bulma": "0.9.3",
+    "vue": "^3.0.5",
+    "vue-router": "4.0.11",
+    "vuex": "4.0.2"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "1.4.0",
+    "@vue/compiler-sfc": "^3.0.5",
+    "electron": "13.1.9",
+    "sass": "1.37.5",
+    "sass-loader": "12.1.0",
+    "vite": "^2.4.4"
+  }
+}

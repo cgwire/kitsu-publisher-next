@@ -1,0 +1,79 @@
+@charset "utf-8";
+
+$black: #202225;
+$dark-grey-lightest: #5E6169;
+$dark-grey-lighter: #4E5159;
+$dark-grey-lightmore: #46494F;
+$dark-grey-light: #3D4048;
+$dark-grey: #25282E;
+$dark-grey-2: #36393F;
+$dark-grey-strong: #222427;
+$dark-grey-stronger: #121417;
+$purple-grey: #4A4A6F;
+$white-grey: #EEE;
+$white-grey-light: #F9F9F9;
+$white: #FEFEFE;
+$light-grey-light: #DDD;
+$light-grey: #CCC;
+$mid-grey: #56595F;
+$orange: #F57F77;
+$orange-carrot: #E67E22;
+$orange-light: #FFEAEA;
+$grey: #999;
+$grey-strong: #666;
+$green: #00B242;
+$dark-green: #008732;
+$light-green: #67BE4B;
+$light-green-light: #CCFFCC;
+$light-green-lightest: #F0FFF0;
+$red: #FF3860;
+$dark-red: #DA002C;
+$pink-light: #FFC9D0;
+$pink: #FF69C0;
+$pink-strong: #FF49A0;
+$light-purple: #F1E4FF;
+$purple: #CFD1FF;
+$purple-strong: #8F91EB;
+$dark-purple: #5E60BA;
+$dark-purple-strong: #4A4A6F;
+$blue-light: #92A9FA;
+$blue: #7289DA;
+
+
+:root {
+  --background: #FFFFFF;
+  --background-alt: #F6F6F6;
+  --background-rgb: 255, 255, 255;
+  --background-alt-rgb: 246, 246, 246;
+  --background-hover: #E1E4FF;
+  --background-hover-rgb: 240, 255, 240;
+  --background-tag:  #EEE;
+  --background-tag-button: #F9F9F9; 
+  --background-selectable: #E1E4FF;
+  --background-selectable-selectable: #CFD1FF;
+  --background-selected: #CFD1FF;
+  --border: #DBDBDB;
+  --border-rgb: 219, 219, 219;
+  --border-alt: #DBDBDB;
+  --box-shadow: #DDD;
+  --text: #7A7A7A;
+}
+
+.dark {
+  --background: #36393F;
+  --background-rgb: 54, 57, 63;
+  --background-alt: #46494F;
+  --background-alt-rgb: 70, 73, 79;
+  --background-hover: #5E6169;
+  --background-hover-rgb: 94, 97, 105;
+  --background-tag:  #36393F; 
+  --background-tag-button: #4E5159; 
+  --background-selectable: #7E80CA;
+  --background-selectable-selectable: #878B97;
+  --background-selected: #5E60BA;
+  --border: #25282E;
+  --border-rgb: 37, 40, 46;
+  --border-alt: #666666;
+  --box-shadow: #2226;
+  --text: #EEEEEE;
+}
