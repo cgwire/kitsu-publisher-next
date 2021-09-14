@@ -1,3 +1,4 @@
+import path from 'path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
@@ -9,5 +10,7 @@ export default defineConfig({
         additionalData: '@import "./src/styles/variables.scss";'
       }
     }
-  }
+  },
+  base: path.join(__dirname, './dist/'),
 })
+
