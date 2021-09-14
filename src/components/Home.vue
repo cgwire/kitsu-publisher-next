@@ -1,5 +1,5 @@
 <template>
-  <img alt="Kitsu logo" src="src/assets/logo.png" />
+  <img alt="Kitsu logo" src="/src/assets/logo.png" />
   <h1>Kitsu Publisher</h1>
   <button class="button" type="button" @click="state.count++">
     count is: {{ state.count }}
