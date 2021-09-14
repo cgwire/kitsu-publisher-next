@@ -1,12 +1,20 @@
 {
   "name": "kitsu-publisher",
   "version": "0.0.1",
-  "main": "main.js",
+  "description": "Desktop publisher for Kitsu",
+  "author": "CGWire <contact@cg-wire.com>",
+  "repository": "https://github.com/cgwire/kitsu",
+  "main": "./electron/main.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "electron:start": "electron ./electron/main.js",
+    "electron:watch": "node scripts/watch.js",
+    "preelectron:build": "cross-env MODE=production npm run vite:build",
+    "electron:build": "electron-builder build --config electron-builder.config.js --dir --config.asar=false",
+    "pretest": "npm run build",
     "serve": "vite preview",
-    "electron:start": "electron ."
+    "test": "node tests/app.spec.js",
+    "vite:build": "vite build",
+    "vite:dev": "vite"
   },
   "dependencies": {
     "bulma": "0.9.3",
@@ -17,9 +25,35 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "1.4.0",
     "@vue/compiler-sfc": "^3.0.5",
+    "browserslist": "^4.17.0",
+    "cross-env": "^7.0.3",
     "electron": "13.1.9",
+    "electron-builder": "^22.11.7",
     "sass": "1.37.5",
     "sass-loader": "12.1.0",
     "vite": "^2.4.4"
-  }
+  },
+  "build": {
+    "appId": "com.cg-wire.kitsu-publisher",
+    "productName": "Kitsu Publisher",
+    "copyright": "Copyleft © 2021 ${CGWire}",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist_electron"
+    }
+  },
+  "browserslist": [
+    "Chrome 91"
+  ]
 }
