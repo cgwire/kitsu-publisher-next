@@ -9,8 +9,7 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-
-  win.loadFile('dist/index.html')
+  win.loadFile(['production', 'development'].includes(process.env.MODE) ? 'dist/index.html' : path.join(__dirname, '..', 'dist', 'index.html'))
 }
 
 app.whenReady().then(() => {
