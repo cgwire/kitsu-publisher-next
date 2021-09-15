@@ -15,6 +15,7 @@ const config = {
   files: [
     './dist/**',
     './electron/**',
+    './buildResources/icon.*'
   ],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION,
