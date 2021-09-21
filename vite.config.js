@@ -11,6 +11,12 @@ export default defineConfig({
       }
     }
   },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+    extensions: ['.vue', '.js']
+  },
   base: path.join(__dirname, './dist/'),
 })
 
