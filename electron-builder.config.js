@@ -1,6 +1,8 @@
 if (process.env.VITE_APP_VERSION === undefined) {
-  const now = new Date;
-  process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${now.getUTCMonth() + 1}.${now.getUTCDate()}-${now.getUTCHours() * 60 + now.getUTCMinutes()}`;
+  const now = new Date();
+  process.env.VITE_APP_VERSION = `${now.getUTCFullYear() - 2000}.${
+    now.getUTCMonth() + 1
+  }.${now.getUTCDate()}-${now.getUTCHours() * 60 + now.getUTCMinutes()}`;
 }
 
 /**
@@ -9,14 +11,10 @@ if (process.env.VITE_APP_VERSION === undefined) {
  */
 const config = {
   directories: {
-    output: 'build',
-    buildResources: 'buildResources',
+    output: "build",
+    buildResources: "buildResources",
   },
-  files: [
-    './dist/**',
-    './electron/**',
-    './buildResources/icon.*'
-  ],
+  files: ["./dist/**", "./electron/**", "./buildResources/icon.*"],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION,
   },

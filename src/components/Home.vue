@@ -7,13 +7,16 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
+import { reactive } from "vue";
 
 defineProps({
-  msg: String
-})
+  msg: {
+    type: String,
+    default: "",
+  },
+});
 
-const state = reactive({ count: 0 })
+const state = reactive({ count: 0 });
 </script>
 
 <style lang="scss" scoped>

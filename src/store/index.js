@@ -1,14 +1,14 @@
-import { createStore } from 'vuex'
+import { createStore } from "vuex";
 
-import tasks from '/src/store/modules/tasks'
+import tasks from "/src/store/modules/tasks";
 
 const modules = {
-  tasks
-}
+  tasks,
+};
 
 const store = createStore({
-  strict: process.env.NODE_ENV !== 'production',
-  modules
-})
+  strict: process.env.NODE_ENV !== "production",
+  modules,
+});
 
-export default store
+export default store;

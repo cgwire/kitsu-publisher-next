@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import Main from './components/Main.vue'
+import Main from "./components/Main.vue";
 </script>
 
 <style lang="scss">
@@ -26,7 +26,7 @@ body {
   height: 100%;
   min-height: 100%;
   width: 100%;
-  background: #EEE;
+  background: #eee;
   overflow: auto;
 }
 
