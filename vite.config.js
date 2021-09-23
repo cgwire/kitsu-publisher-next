@@ -3,6 +3,7 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import eslintPlugin from "vite-plugin-eslint";
 
+console.log(process.env.MODE)
 export default defineConfig({
   plugins: [vue(), eslintPlugin()],
   css: {
@@ -16,7 +17,8 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    extensions: [".vue", ".js"],
+    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
   },
-  base: path.join(__dirname, "./dist/"),
+  base:
+  ["production", "development"].includes(process.env.MODE) ? path.join(__dirname, "./dist/") : "/",
 });
