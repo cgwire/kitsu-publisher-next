@@ -18,6 +18,8 @@ export default defineConfig({
     },
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
   },
-  base:
-  ["production", "development"].includes(process.env.MODE) ? path.join(__dirname, "./dist/") : "/",
+  server: {
+    open: true,
+  },
+  base: "./",
 });

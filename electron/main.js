@@ -7,13 +7,13 @@ function createWindow() {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: true,
     },
   });
-  win.loadFile(
-    ["production", "development"].includes(process.env.MODE)
-      ? "dist/index.html"
-      : path.join(__dirname, "..", "dist", "index.html")
-  );
+  if (process.env.MODE === "development") {
+    win.loadURL("http://localhost:3000");
+    win.webContents.openDevTools();
+  } else win.loadFile(path.join(__dirname, "../dist/index.html"));
 }
 
 app.whenReady().then(() => {
