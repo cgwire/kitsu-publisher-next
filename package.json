@@ -15,8 +15,8 @@
     "test": "node tests/app.spec.js",
     "vite:build": "vite build",
     "vite:dev": "vite",
-    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src electron scripts",
-    "format": "prettier .  --write"
+    "lint": "eslint --ext .js,.vue,.ts --ignore-path .gitignore --fix .",
+    "format": "prettier --ignore-path .gitignore . --write"
   },
   "dependencies": {
     "bulma": "0.9.3",

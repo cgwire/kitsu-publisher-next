@@ -3,7 +3,6 @@ import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import eslintPlugin from "vite-plugin-eslint";
 
-console.log(process.env.MODE)
 export default defineConfig({
   plugins: [vue(), eslintPlugin()],
   css: {
