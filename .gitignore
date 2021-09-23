@@ -29,7 +29,6 @@ build/Release
 # Dependency directories
 node_modules
 jspm_packages
-package-lock.json
 
 # Optional npm cache directory
 .npm
@@ -49,7 +48,6 @@ test/test-bundle.js
 
 TODO
 QA
-package-lock.json
 .idea/
 release.sh
 tests/test-bundle.js
