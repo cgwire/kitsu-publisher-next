@@ -15,11 +15,14 @@
 import { mapGetters, mapActions } from 'vuex'
 import Spinner from './components/widgets/Spinner.vue'
 import crisp from './lib/crisp'
+
 export default {
   name: 'app',
+  
   components: {
     Spinner
   },
+
   computed: {
     ...mapGetters([
       'assetMap',
