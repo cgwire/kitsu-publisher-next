@@ -15,11 +15,22 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "vue": '@vue/compat',
     },
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
   },
   server: {
     open: true,
+    proxy: {
+      '/api': {
+        target: process.env.KITSU_API_TARGET || 'http://localhost:5000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      },
+      '/socket.io': {
+        target: process.env.KITSU_EVENT_TARGET || 'http://127.0.0.1:5001',
+      }
+    }
   },
   base: "./",
 });
