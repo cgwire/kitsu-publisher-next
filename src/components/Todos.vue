@@ -1,0 +1,440 @@
+<template>
+  <div class="columns fixed-page">
+    <div class="column main-column">
+      <div class="todos page">
+        <div class="task-tabs tabs">
+          <ul>
+            <li :class="{ 'is-active': isTabActive('todos') }">
+              <router-link
+                :to="{
+                  name: 'todos',
+                }"
+              >
+                {{ $t("tasks.current") }}
+              </router-link>
+            </li>
+            <li
+              :class="{ 'is-active': isTabActive('done') }"
+              @click="selectTab('done')"
+            >
+              <router-link
+                :to="{
+                  name: 'todos-tab',
+                  params: { tab: 'done' },
+                }"
+              >
+                {{ $t("tasks.done") }} ({{ displayedDoneTasks.length }})
+              </router-link>
+            </li>
+            <li
+              :class="{ 'is-active': isTabActive('timesheets') }"
+              @click="selectTab('timesheets')"
+            >
+              <router-link
+                :to="{
+                  name: 'todos-tab',
+                  params: { tab: 'timesheets' },
+                }"
+              >
+                {{ $t("timesheets.title") }}
+              </router-link>
+            </li>
+          </ul>
+        </div>
+
+        <todos-list
+          v-if="isTabActive('todos')"
+          ref="todo-list"
+          :tasks="sortedTasks"
+          :is-loading="isTodosLoading"
+          :is-error="isTodosLoadingError"
+          :selection-grid="todoSelectionGrid"
+          @scroll="setTodoListScrollPosition"
+        />
+
+        <div v-if="isTabActive('done')">&nbsp;</div>
+        <todos-list
+          v-if="isTabActive('done')"
+          ref="done-list"
+          :tasks="displayedDoneTasks"
+          :is-loading="isTodosLoading"
+          :is-error="isTodosLoadingError"
+          :done="true"
+        />
+      </div>
+    </div>
+
+    <div v-if="nbSelectedTasks === 1" class="column side-column">
+      <task-info :task="selectedTasks.values().next().value" />
+    </div>
+  </div>
+</template>
+
+<script>
+import { mapGetters, mapActions } from "vuex";
+import moment from "moment-timezone";
+import firstBy from "thenby";
+
+import { parseDate } from "@/lib/time";
+import TodosList from "@/components/lists/TodosList";
+
+export default {
+  name: "Todos",
+
+  components: {
+    TodosList,
+  },
+
+  data() {
+    return {
+      activeTab: "todos",
+      currentFilter: "all_tasks",
+      currentSort: "priority",
+      filterOptions: ["all_tasks", "due_this_week"].map((name) => ({
+        label: name,
+        value: name,
+      })),
+      selectedDate: moment().format("YYYY-MM-DD"),
+      sortOptions: [
+        "entity_name",
+        "priority",
+        "task_status_short_name",
+        "due_date",
+        "estimation",
+        "last_comment_date",
+      ].map((name) => ({ label: name, value: name })),
+    };
+  },
+
+  mounted() {
+    this.updateActiveTab();
+    if (this.todosSearchText.length > 0) {
+      this.$refs["todos-search-field"].setValue(this.todosSearchText);
+    }
+    this.$nextTick(() => {
+      this.loadTodos({
+        date: this.selectedDate,
+        callback: () => {
+          if (this.todoList) {
+            this.$nextTick(() => {
+              this.todoList.setScrollPosition(this.todoListScrollPosition);
+            });
+          }
+          this.resizeHeaders();
+        },
+      });
+    });
+  },
+
+  afterDestroy() {
+    this.$store.commit("USER_LOAD_TODOS_END", {
+      tasks: [],
+      userFilters: {},
+      taskTypeMap: this.taskTypeMap,
+    });
+  },
+
+  computed: {
+    ...mapGetters([
+      "displayedDoneTasks",
+      "displayedTodos",
+      "isTodosLoading",
+      "isTodosLoadingError",
+      "nbSelectedTasks",
+      "selectedTasks",
+      "taskTypeMap",
+      "todosSearchText",
+      "timeSpentMap",
+      "timeSpentTotal",
+      "todoListScrollPosition",
+      "todoSelectionGrid",
+      "todoSearchQueries",
+      "user",
+    ]),
+
+    loggableTodos() {
+      return this.sortedTasks.filter((task) => {
+        return this.taskTypeMap.get(task.task_type_id).allow_timelog;
+      });
+    },
+
+    loggableDoneTasks() {
+      return this.displayedDoneTasks.filter((task) => {
+        return this.taskTypeMap.get(task.task_type_id).allow_timelog;
+      });
+    },
+
+    todoList() {
+      return this.$refs["todo-list"];
+    },
+
+    haveDoneList() {
+      return this.$refs["done-list"];
+    },
+
+    sortedTasks() {
+      const isName = this.currentSort === "entity_name";
+      const isPriority = this.currentSort === "priority";
+      const isDueDate = this.currentSort === "due_date";
+      const tasks =
+        this.currentFilter === "all_tasks"
+          ? [...this.displayedTodos]
+          : this.displayedTodos.filter((t) => {
+              const dueDate = parseDate(t.due_date);
+              return moment().startOf("week").isSame(dueDate, "week");
+            });
+      if (isName) {
+        return tasks.sort(
+          firstBy("project_name")
+            .thenBy("task_type_name")
+            .thenBy("full_entity_name")
+        );
+      } else if (isPriority) {
+        return tasks.sort(
+          firstBy("priority", -1)
+            .thenBy((a, b) => {
+              if (!a.due_date) return 1;
+              else if (!b.due_date) return -1;
+              else return a.due_date.localeCompare(b.due_date);
+            })
+            .thenBy("project_name")
+            .thenBy("task_type_name")
+            .thenBy("entity_name")
+        );
+      } else if (isDueDate) {
+        return tasks.sort(
+          firstBy((a, b) => {
+            if (!a.due_date) return 1;
+            else if (!b.due_date) return -1;
+            else return a.due_date.localeCompare(b.due_date);
+          })
+            .thenBy("project_name")
+            .thenBy("task_type_name")
+            .thenBy("entity_name")
+        );
+      } else {
+        return tasks.sort(
+          firstBy(this.currentSort, -1)
+            .thenBy("project_name")
+            .thenBy("task_type_name")
+            .thenBy("entity_name")
+        );
+      }
+    },
+  },
+
+  methods: {
+    ...mapActions([
+      "loadTodos",
+      "loadOpenProductions",
+      "removeTodoSearch",
+      "saveTodoSearch",
+      "setDayOff",
+      "setTodoListScrollPosition",
+      "setTodosSearch",
+      "setTimeSpent",
+      "unsetDayOff",
+    ]),
+
+    isTabActive(tab) {
+      return this.activeTab === tab;
+    },
+
+    resizeHeaders() {
+      this.$nextTick(() => {
+        if (this.todoList) this.todoList.resizeHeaders();
+        if (this.haveDoneList) this.haveDoneList.resizeHeaders();
+      });
+    },
+
+    selectTab(tab) {
+      this.activeTab = tab;
+      this.resizeHeaders();
+      setTimeout(() => {
+        if (this.$refs["todos-search-field"]) {
+          this.$refs["todos-search-field"].focus();
+        }
+      }, 300);
+    },
+
+    updateActiveTab() {
+      if (["done", "timesheets"].includes(this.$route.params.tab)) {
+        this.activeTab = this.$route.params.tab;
+      } else {
+        this.activeTab = "todos";
+      }
+    },
+
+    onSearchChange(text) {
+      this.setTodosSearch(text);
+    },
+
+    changeSearch(searchQuery) {
+      this.$refs["todos-search-field"].setValue(searchQuery.search_query);
+      this.$refs["todos-search-field"].$emit(
+        "change",
+        searchQuery.search_query
+      );
+    },
+
+    saveSearchQuery(searchQuery) {
+      this.saveTodoSearch(searchQuery)
+        .then(() => {})
+        .catch((err) => {
+          if (err) console.error(err);
+        });
+    },
+
+    removeSearchQuery(searchQuery) {
+      this.removeTodoSearch(searchQuery)
+        .then(() => {})
+        .catch((err) => {
+          if (err) console.error(err);
+        });
+    },
+
+    onDateChanged(date) {
+      this.selectedDate = moment(date).format("YYYY-MM-DD");
+      this.loadTodos({
+        date: this.selectedDate,
+        forced: true,
+      });
+    },
+
+    onSetDayOff() {
+      const dayOff = {
+        personId: this.user.id,
+        date: this.selectedDate,
+      };
+      this.setDayOff(dayOff);
+    },
+
+    onUnsetDayOff() {
+      const dayOff = {
+        personId: this.user.id,
+        date: this.selectedDate,
+      };
+      this.unsetDayOff(dayOff);
+      this.loadTodos({
+        forced: true,
+        date: this.selectedDate,
+      });
+    },
+
+    onTimeSpentChange(timeSpentInfo) {
+      timeSpentInfo.personId = this.user.id;
+      timeSpentInfo.date = this.selectedDate;
+      this.setTimeSpent(timeSpentInfo);
+    },
+
+    onAssignation(eventData) {
+      if (this.user.id === eventData.person_id) {
+        this.loadOpenProductions(() => {
+          this.loadTodos({
+            forced: true,
+            date: this.selectedDate,
+            callback: () => {
+              if (this.todoList) {
+                this.$nextTick(() => {
+                  this.todoList.setScrollPosition(this.todoListScrollPosition);
+                });
+              }
+              this.resizeHeaders();
+            },
+          });
+        });
+      }
+    },
+  },
+
+  socket: {
+    events: {
+      "task:assign"(eventData) {
+        this.onAssignation(eventData);
+      },
+
+      "task:unassign"(eventData) {
+        this.onAssignation(eventData);
+      },
+    },
+  },
+
+  watch: {
+    $route() {
+      this.updateActiveTab();
+    },
+  },
+
+  metaInfo() {
+    return {
+      title: `${this.$t("tasks.my_tasks")} - Kitsu`,
+    };
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.task-tabs {
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 1.1em;
+
+  ul {
+    margin-left: 0;
+  }
+}
+
+.data-list {
+  margin-top: 0;
+}
+
+.search-field {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.query-list {
+  margin-bottom: 2em;
+}
+
+.dark .main-column {
+  border-right: 3px solid $grey-strong;
+}
+
+.data-list {
+  margin-top: 0;
+}
+
+.level {
+  align-items: flex-start;
+}
+
+.todos {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns {
+  display: flex;
+  flex-direction: row;
+  padding: 0;
+}
+
+.column {
+  overflow-y: auto;
+  padding: 0;
+}
+
+.main-column {
+  border-right: 3px solid $light-grey;
+}
+
+.push-right {
+  flex: 1;
+  text-align: right;
+}
+
+.field {
+  margin-bottom: 0;
+}
+</style>

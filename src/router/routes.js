@@ -1,5 +1,47 @@
-import Home from "/src/components/Home.vue";
+import auth from "../lib/auth";
+import lang from "../lib/lang";
+import timezone from "../lib/timezone";
+import init from "../lib/init";
 
-const routes = [{ path: "/", component: Home, name: "home" }];
+import store from "../store/";
+
+import Todos from "../components/Todos";
+import Login from "../components/Login";
+
+const ServerDown = () => import("../components/ServerDown");
+
+const routes = [
+  {
+    path: "",
+    alias: "/",
+    component: Todos,
+    name: "todos",
+    beforeEnter: (to, from, next) => {
+      auth.requireAuth(to, from, (nextPath) => {
+        timezone.setTimezone();
+        lang.setLocale();
+        init((err) => {
+          store.commit("DATA_LOADING_END");
+          if (err) {
+            next({ name: "server-down" });
+          } else {
+            next({ name: "todos" });
+          }
+        });
+      });
+    },
+    children: [{ path: ":tab", component: Todos, name: "todos-tab" }],
+  },
+  {
+    path: "/login",
+    component: Login,
+    name: "login",
+  },
+  {
+    path: "/server-down",
+    component: ServerDown,
+    name: "server-down",
+  },
+];
 
 export default routes;
