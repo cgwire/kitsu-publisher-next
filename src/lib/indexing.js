@@ -2,25 +2,25 @@
  * Build a simple index based on entry names.
  */
 export const buildNameIndex = (entries, split = true) => {
-  const index = Object.create(null);
-  const entryIndex = Object.create(null);
+  const index = Object.create(null)
+  const entryIndex = Object.create(null)
   entries.forEach((entry) => {
     if (entry) {
-      let words;
+      let words
       if (entry.name) {
         if (split) {
-          words = entry.name.split(" ");
+          words = entry.name.split(' ')
         } else {
-          words = [entry.name];
+          words = [entry.name]
         }
       } else {
-        words = [];
+        words = []
       }
-      indexWords(index, entryIndex, entry, words);
+      indexWords(index, entryIndex, entry, words)
     }
-  });
-  return index;
-};
+  })
+  return index
+}
 
 /*
  * Generate an index to find task type easily.
@@ -28,21 +28,21 @@ export const buildNameIndex = (entries, split = true) => {
 export const buildTaskTypeIndex = (taskTypes) => {
   const sortedTaskTypes = [...taskTypes].sort((a, b) =>
     a.name.localeCompare(b.name)
-  );
-  return buildNameIndex(sortedTaskTypes, false);
-};
+  )
+  return buildNameIndex(sortedTaskTypes, false)
+}
 
 /*
  * Generate an index to find task status easily.
  */
 export const buildTaskStatusIndex = (taskStatuses) => {
-  const taskStatusShortNameIndex = {};
+  const taskStatusShortNameIndex = {}
   taskStatuses.forEach((taskStatus) => {
-    const shortName = taskStatus.short_name.toLowerCase();
-    taskStatusShortNameIndex[shortName] = taskStatus;
-  });
-  return taskStatusShortNameIndex;
-};
+    const shortName = taskStatus.short_name.toLowerCase()
+    taskStatusShortNameIndex[shortName] = taskStatus
+  })
+  return taskStatusShortNameIndex
+}
 
 /*
  * Generate an index to find task easily. Search will be based on the task
@@ -50,23 +50,23 @@ export const buildTaskStatusIndex = (taskStatuses) => {
  * The result is an array of tasks.
  */
 export const buildTaskIndex = (tasks) => {
-  const index = Object.create(null);
-  const taskIndex = Object.create(null);
+  const index = Object.create(null)
+  const taskIndex = Object.create(null)
   tasks.forEach((task) => {
     const stringToIndex = task.full_entity_name
-      .replace(/_/g, " ")
-      .replace(/-/g, " ");
+      .replace(/_/g, ' ')
+      .replace(/-/g, ' ')
     const words = stringToIndex
-      .split(" ")
+      .split(' ')
       .concat([
         task.task_type_name,
         task.task_status_short_name,
-        task.project_name,
-      ]);
-    indexWords(index, taskIndex, task, words);
-  });
-  return index;
-};
+        task.project_name
+      ])
+    indexWords(index, taskIndex, task, words)
+  })
+  return index
+}
 
 /*
  * Generate an index to find task easily. Search will be based on the task
@@ -74,22 +74,20 @@ export const buildTaskIndex = (tasks) => {
  * The result is an array of tasks.
  */
 export const buildSupervisorTaskIndex = (tasks, personMap, taskStatusMap) => {
-  const index = Object.create(null);
-  const taskIndex = Object.create(null);
+  const index = Object.create(null)
+  const taskIndex = Object.create(null)
   tasks.forEach((task) => {
-    const stringToIndex = task.entity_name
-      .replace(/_/g, " ")
-      .replace(/-/g, " ");
-    const taskStatus = taskStatusMap.get(task.task_status_id);
-    const words = stringToIndex.split(" ").concat([taskStatus.short_name]);
+    const stringToIndex = task.entity_name.replace(/_/g, ' ').replace(/-/g, ' ')
+    const taskStatus = taskStatusMap.get(task.task_status_id)
+    const words = stringToIndex.split(' ').concat([taskStatus.short_name])
     task.assignees.forEach((personId) => {
-      const person = personMap.get(personId);
-      if (person) words.push(person.first_name, person.last_name);
-    });
-    indexWords(index, taskIndex, task, words);
-  });
-  return index;
-};
+      const person = personMap.get(personId)
+      if (person) words.push(person.first_name, person.last_name)
+    })
+    indexWords(index, taskIndex, task, words)
+  })
+  return index
+}
 
 /*
  * Generate an index to find asset easily. Search will be based on the asse
@@ -97,19 +95,19 @@ export const buildSupervisorTaskIndex = (tasks, personMap, taskStatusMap) => {
  * Results are arrays of assets.
  */
 export const buildAssetIndex = (entries) => {
-  const index = Object.create(null);
-  const assetIndex = Object.create(null);
+  const index = Object.create(null)
+  const assetIndex = Object.create(null)
   entries.forEach((asset) => {
-    const stringToIndex = asset.name.replace(/_/g, " ").replace(/-/g, " ");
-    const assetTypeWords = asset.asset_type_name.split(" ");
+    const stringToIndex = asset.name.replace(/_/g, ' ').replace(/-/g, ' ')
+    const assetTypeWords = asset.asset_type_name.split(' ')
     const words = stringToIndex
-      .split(" ")
+      .split(' ')
       .concat(assetTypeWords)
-      .concat([asset.name]);
-    indexWords(index, assetIndex, asset, words);
-  });
-  return index;
-};
+      .concat([asset.name])
+    indexWords(index, assetIndex, asset, words)
+  })
+  return index
+}
 
 /*
  * Generate an index to find shot easily. Search will be based on the episode,
@@ -117,14 +115,14 @@ export const buildAssetIndex = (entries) => {
  * Results are arrays of shots.
  */
 export const buildShotIndex = (shots) => {
-  const index = Object.create(null);
-  const shotIndex = Object.create(null);
+  const index = Object.create(null)
+  const shotIndex = Object.create(null)
   shots.forEach((shot) => {
-    const words = [shot.name, shot.sequence_name, shot.episode_name];
-    indexWords(index, shotIndex, shot, words);
-  });
-  return index;
-};
+    const words = [shot.name, shot.sequence_name, shot.episode_name]
+    indexWords(index, shotIndex, shot, words)
+  })
+  return index
+}
 
 /*
  * Generate an index to find sequence easily. Search will be based on the
@@ -132,14 +130,14 @@ export const buildShotIndex = (shots) => {
  * Results are arrays of sequences.
  */
 export const buildSequenceIndex = (sequences) => {
-  const index = Object.create(null);
-  const sequenceIndex = Object.create(null);
+  const index = Object.create(null)
+  const sequenceIndex = Object.create(null)
   sequences.forEach((sequence) => {
-    const words = [sequence.name, sequence.episode_name];
-    indexWords(index, sequenceIndex, sequence, words);
-  });
-  return index;
-};
+    const words = [sequence.name, sequence.episode_name]
+    indexWords(index, sequenceIndex, sequence, words)
+  })
+  return index
+}
 
 /*
  * Generate an index to find episode easily. Search will be based on the
@@ -147,14 +145,14 @@ export const buildSequenceIndex = (sequences) => {
  * Results are arrays of episodes.
  */
 export const buildEpisodeIndex = (episodes) => {
-  const index = Object.create(null);
-  const episodeIndex = Object.create(null);
+  const index = Object.create(null)
+  const episodeIndex = Object.create(null)
   episodes.forEach((episode) => {
-    const words = [episode.name];
-    indexWords(index, episodeIndex, episode, words);
-  });
-  return index;
-};
+    const words = [episode.name]
+    indexWords(index, episodeIndex, episode, words)
+  })
+  return index
+}
 
 /*
  * Run a non case sensitive search on given index. It accepts different search
@@ -162,41 +160,41 @@ export const buildEpisodeIndex = (episodes) => {
  * modeling=wip) are ignored. The result is the intersection of queries.
  */
 export const indexSearch = (index, keywords) => {
-  if (!keywords) keywords = [];
+  if (!keywords) keywords = []
   const results = keywords
     .map((query) => indexSearchWord(index, query))
-    .filter((result) => result !== null);
+    .filter((result) => result !== null)
 
   if (results.length > 0) {
-    return results.reduce(resultIntersection, [...results[0]]);
+    return results.reduce(resultIntersection, [...results[0]])
   } else {
-    return null;
+    return null
   }
-};
+}
 
 /*
  * Turn an array of sets in an array which is the intersection of elements of
  * all sets.
  */
 const resultIntersection = (a, b) => {
-  return a.filter((x) => b.has(x));
-};
+  return a.filter((x) => b.has(x))
+}
 
 /*
  * Return search result for a given word and a given index. Empty word or task
  * type queries are returned as null.
  */
 const indexSearchWord = (index, word) => {
-  if (word && word.indexOf("=") < 0) {
+  if (word && word.indexOf('=') < 0) {
     if (index[word.toLowerCase()]) {
-      return new Set(index[word.toLowerCase()]);
+      return new Set(index[word.toLowerCase()])
     } else {
-      return new Set([]);
+      return new Set([])
     }
   } else {
-    return null;
+    return null
   }
-};
+}
 
 /*
  * Index all words in given index. An intermediary index is required
@@ -205,21 +203,21 @@ const indexSearchWord = (index, word) => {
  */
 const indexWords = (index, entryIndex, entry, words) => {
   for (const word of words) {
-    let currentString = "";
+    let currentString = ''
     if (word) {
       for (const character of word) {
-        currentString += character.toLowerCase();
+        currentString += character.toLowerCase()
         if (index[currentString] === undefined) {
-          index[currentString] = [];
-          entryIndex[currentString] = Object.create(null);
+          index[currentString] = []
+          entryIndex[currentString] = Object.create(null)
         }
 
         if (!entryIndex[currentString][entry.id]) {
-          index[currentString].push(entry);
-          entryIndex[currentString][entry.id] = true;
+          index[currentString].push(entry)
+          entryIndex[currentString][entry.id] = true
         }
       }
     }
   }
-  return index;
-};
+  return index
+}

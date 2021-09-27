@@ -9,7 +9,7 @@
               scope="col"
               class="production datatable-row-header datatable-row-header--nobd"
             >
-              {{ $t("tasks.fields.production") }}
+              {{ $t('tasks.fields.production') }}
             </th>
             <th
               ref="th-type"
@@ -17,7 +17,7 @@
               class="type datatable-row-header datatable-row-header--nobd"
               :style="{ left: colTypePosX }"
             >
-              {{ $t("tasks.fields.task_type") }}
+              {{ $t('tasks.fields.task_type') }}
             </th>
             <th
               ref="th-name"
@@ -25,28 +25,28 @@
               class="name datatable-row-header"
               :style="{ left: colNamePosX }"
             >
-              {{ $t("tasks.fields.entity") }}
+              {{ $t('tasks.fields.entity') }}
             </th>
             <th scope="col" class="description">
-              {{ $t("assets.fields.description") }}
+              {{ $t('assets.fields.description') }}
             </th>
             <th scope="col" class="estimation" :title="$t('main.estimation')">
-              {{ $t("main.estimation_short") }}
+              {{ $t('main.estimation_short') }}
             </th>
             <th scope="col" class="estimation">
-              {{ $t("tasks.fields.duration").substring(0, 3) }}.
+              {{ $t('tasks.fields.duration').substring(0, 3) }}.
             </th>
             <th scope="col" class="due-date">
-              {{ $t("tasks.fields.due_date") }}
+              {{ $t('tasks.fields.due_date') }}
             </th>
             <th scope="col" class="status">
-              {{ $t("tasks.fields.task_status") }}
+              {{ $t('tasks.fields.task_status') }}
             </th>
             <th v-if="!done" scope="col" class="last-comment">
-              {{ $t("tasks.fields.last_comment") }}
+              {{ $t('tasks.fields.last_comment') }}
             </th>
             <th v-else scope="col" class="end-date">
-              {{ $t("tasks.fields.end_date") }}
+              {{ $t('tasks.fields.end_date') }}
             </th>
           </tr>
         </thead>
@@ -58,7 +58,7 @@
               'datatable-row': true,
               'datatable-row--selectable': true,
               selected:
-                selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false,
+                selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
             }"
             @click="onLineClicked(i, $event)"
           >
@@ -146,34 +146,34 @@
         <img src="../../assets/illustrations/empty_todo.png" />
       </p>
       <p>
-        {{ $t("people.no_task_assigned") }}
+        {{ $t('people.no_task_assigned') }}
       </p>
     </div>
 
     <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info">
-      {{ tasks.length }} {{ $tc("tasks.tasks", tasks.length) }}
+      {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex'
 
-import { selectionListMixin } from "@/components/mixins/selection";
-import { formatListMixin } from "@/components/mixins/format";
-import { PAGE_SIZE } from "@/lib/pagination";
-import { formatSimpleDate } from "@/lib/time";
+import { selectionListMixin } from '@/components/mixins/selection'
+import { formatListMixin } from '@/components/mixins/format'
+import { PAGE_SIZE } from '@/lib/pagination'
+import { formatSimpleDate } from '@/lib/time'
 
-import EntityThumbnail from "@/components/widgets/EntityThumbnail";
-import DescriptionCell from "@/components/cells/DescriptionCell";
-import LastCommentCell from "@/components/cells/LastCommentCell";
-import ProductionNameCell from "@/components/cells/ProductionNameCell";
-import TaskTypeCell from "@/components/cells/TaskTypeName";
-import TableInfo from "@/components/widgets/TableInfo";
-import ValidationCell from "@/components/cells/ValidationCell";
+import EntityThumbnail from '@/components/widgets/EntityThumbnail'
+import DescriptionCell from '@/components/cells/DescriptionCell'
+import LastCommentCell from '@/components/cells/LastCommentCell'
+import ProductionNameCell from '@/components/cells/ProductionNameCell'
+import TaskTypeCell from '@/components/cells/TaskTypeName'
+import TableInfo from '@/components/widgets/TableInfo'
+import ValidationCell from '@/components/cells/ValidationCell'
 
 export default {
-  name: "TodosList",
+  name: 'TodosList',
 
   components: {
     EntityThumbnail,
@@ -182,41 +182,41 @@ export default {
     ProductionNameCell,
     TableInfo,
     TaskTypeCell,
-    ValidationCell,
+    ValidationCell
   },
   mixins: [formatListMixin, selectionListMixin],
 
-  props: ["done", "tasks", "isLoading", "isError", "selectionGrid"],
+  props: ['done', 'tasks', 'isLoading', 'isError', 'selectionGrid'],
 
   data() {
     return {
       page: 1,
-      colTypePosX: "",
-      colNamePosX: "",
-    };
+      colTypePosX: '',
+      colNamePosX: ''
+    }
   },
 
   mounted() {
-    this.page = 1;
-    this.resizeHeaders();
-    window.addEventListener("keydown", this.onKeyDown, false);
-    this.colTypePosX = this.$refs["th-prod"].offsetWidth + "px";
+    this.page = 1
+    this.resizeHeaders()
+    window.addEventListener('keydown', this.onKeyDown, false)
+    this.colTypePosX = this.$refs['th-prod'].offsetWidth + 'px'
     this.colNamePosX =
-      this.$refs["th-prod"].offsetWidth +
-      this.$refs["th-type"].offsetWidth +
-      "px";
+      this.$refs['th-prod'].offsetWidth +
+      this.$refs['th-type'].offsetWidth +
+      'px'
   },
 
   beforeUnmount() {
-    window.removeEventListener("keydown", this.onKeyDown);
+    window.removeEventListener('keydown', this.onKeyDown)
   },
 
   computed: {
-    ...mapGetters(["nbSelectedTasks", "taskTypeMap", "productionMap"]),
+    ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
 
     displayedTasks() {
-      return this.tasks.slice(0, this.page * PAGE_SIZE);
-    },
+      return this.tasks.slice(0, this.page * PAGE_SIZE)
+    }
   },
 
   methods: {
@@ -224,204 +224,204 @@ export default {
 
     setScrollPosition(scrollPosition) {
       if (this.$refs.body) {
-        this.$refs.body.scrollTop = scrollPosition;
+        this.$refs.body.scrollTop = scrollPosition
       }
     },
 
     formatDate(date) {
-      return date ? formatSimpleDate(date) : "";
+      return date ? formatSimpleDate(date) : ''
     },
 
     onBodyScroll(event, position) {
-      this.$emit("scroll", position.scrollTop);
+      this.$emit('scroll', position.scrollTop)
       const maxHeight =
-        this.$refs.body.scrollHeight - this.$refs.body.offsetHeight;
+        this.$refs.body.scrollHeight - this.$refs.body.offsetHeight
       if (maxHeight < position.scrollTop + 100) {
-        this.page++;
+        this.page++
       }
     },
 
     onLineClicked(i, event) {
-      const ref = "validation-" + i + "-0";
-      const validationCell = this.$refs[ref][0];
-      validationCell.select(event);
+      const ref = 'validation-' + i + '-0'
+      const validationCell = this.$refs[ref][0]
+      validationCell.select(event)
     },
 
     onTaskSelected(validationInfo) {
       if (validationInfo.isShiftKey) {
         if (this.lastSelection) {
-          let startX = this.lastSelection.x;
-          let endX = validationInfo.x;
+          let startX = this.lastSelection.x
+          let endX = validationInfo.x
           if (validationInfo.x < this.lastSelection.x) {
-            startX = validationInfo.x;
-            endX = this.lastSelection.x;
+            startX = validationInfo.x
+            endX = this.lastSelection.x
           }
 
           for (let i = startX; i <= endX; i++) {
-            const ref = "validation-" + i + "-" + 0;
-            const validationCell = this.$refs[ref][0];
+            const ref = 'validation-' + i + '-' + 0
+            const validationCell = this.$refs[ref][0]
             if (!this.selectionGrid[i][0]) {
-              validationCell.select({ ctrlKey: true, isUserClick: false });
+              validationCell.select({ ctrlKey: true, isUserClick: false })
             }
           }
         }
       } else if (!validationInfo.isCtrlKey) {
-        this.$store.commit("CLEAR_SELECTED_TASKS");
+        this.$store.commit('CLEAR_SELECTED_TASKS')
       }
-      this.$store.commit("ADD_SELECTED_TASK", validationInfo);
+      this.$store.commit('ADD_SELECTED_TASK', validationInfo)
 
       if (!validationInfo.isShiftKey && validationInfo.isUserClick) {
-        const x = validationInfo.x;
-        const y = 0;
-        this.lastSelection = { x, y };
-        const ref = "validation-" + x + "-" + y;
-        const validationCell = this.$refs[ref][0];
+        const x = validationInfo.x
+        const y = 0
+        this.lastSelection = { x, y }
+        const ref = 'validation-' + x + '-' + y
+        const validationCell = this.$refs[ref][0]
         this.$nextTick(() => {
-          this.scrollToValidationCell(validationCell);
-        });
+          this.scrollToValidationCell(validationCell)
+        })
       }
     },
 
     onTaskUnselected(validationInfo) {
       if (!validationInfo.isCtrlKey) {
         if (this.nbSelectedTasks === 1) {
-          this.$store.commit("REMOVE_SELECTED_TASK", validationInfo);
+          this.$store.commit('REMOVE_SELECTED_TASK', validationInfo)
         } else {
-          this.$store.commit("CLEAR_SELECTED_TASKS");
-          this.$store.commit("ADD_SELECTED_TASK", validationInfo);
+          this.$store.commit('CLEAR_SELECTED_TASKS')
+          this.$store.commit('ADD_SELECTED_TASK', validationInfo)
         }
       } else {
-        this.$store.commit("REMOVE_SELECTED_TASK", validationInfo);
+        this.$store.commit('REMOVE_SELECTED_TASK', validationInfo)
       }
     },
 
     getTaskType(entry) {
-      const taskType = this.taskTypeMap.get(entry.task_type_id);
-      const production = this.productionMap.get(entry.project_id);
-      taskType.episode_id = entry.episode_id;
+      const taskType = this.taskTypeMap.get(entry.task_type_id)
+      const production = this.productionMap.get(entry.project_id)
+      taskType.episode_id = entry.episode_id
       if (
         production &&
-        production.production_type === "tvshow" &&
+        production.production_type === 'tvshow' &&
         !entry.episode_id
       ) {
-        taskType.episode_id = production.first_episode_id;
+        taskType.episode_id = production.first_episode_id
       }
-      return taskType;
+      return taskType
     },
 
     entityPath(entity) {
-      const entityType = entity.sequence_name ? "shot" : "asset";
+      const entityType = entity.sequence_name ? 'shot' : 'asset'
       const route = {
         name: entityType,
         params: {
-          production_id: entity.project_id,
-        },
-      };
-
-      if (entityType === "asset") {
-        route.params.asset_id = entity.entity_id;
-      } else {
-        route.params.shot_id = entity.entity_id;
+          production_id: entity.project_id
+        }
       }
 
-      const production = this.productionMap.get(entity.project_id);
-      let episodeId = entity.episode_id;
-      if (production && production.production_type === "tvshow" && !episodeId) {
-        if (entityType === "shot") {
-          episodeId = production.first_episode_id;
+      if (entityType === 'asset') {
+        route.params.asset_id = entity.entity_id
+      } else {
+        route.params.shot_id = entity.entity_id
+      }
+
+      const production = this.productionMap.get(entity.project_id)
+      let episodeId = entity.episode_id
+      if (production && production.production_type === 'tvshow' && !episodeId) {
+        if (entityType === 'shot') {
+          episodeId = production.first_episode_id
         } else {
-          episodeId = "main";
+          episodeId = 'main'
         }
       }
 
       if (episodeId) {
-        route.name = `episode-${entityType}`;
-        route.params.episode_id = episodeId;
+        route.name = `episode-${entityType}`
+        route.params.episode_id = episodeId
       }
 
-      return route;
+      return route
     },
 
     onKeyDown(event) {
       const lastSelection = this.lastSelection
         ? this.lastSelection
-        : { x: 0, y: 0 };
-      const i = lastSelection.x;
-      const j = lastSelection.y;
-      let validationCell = null;
+        : { x: 0, y: 0 }
+      const i = lastSelection.x
+      const j = lastSelection.y
+      let validationCell = null
       if (event.ctrlKey || event.metaKey) {
         if (event.keyCode === 37) {
-          validationCell = this.select(i, j - 1);
+          validationCell = this.select(i, j - 1)
         } else if (event.keyCode === 38) {
-          validationCell = this.select(i - 1, j);
+          validationCell = this.select(i - 1, j)
         } else if (event.keyCode === 39) {
-          validationCell = this.select(i, j + 1);
+          validationCell = this.select(i, j + 1)
         } else if (event.keyCode === 40) {
-          validationCell = this.select(i + 1, j);
+          validationCell = this.select(i + 1, j)
         }
-        this.scrollToValidationCell(validationCell);
+        this.scrollToValidationCell(validationCell)
       }
     },
 
     scrollToValidationCell(validationCell) {
       if (validationCell) {
-        const margin = 20;
-        const rect = validationCell.$el.getBoundingClientRect();
-        const listRect = this.$refs.body.getBoundingClientRect();
-        const isBelow = rect.bottom > listRect.bottom - margin;
-        const isAbove = rect.top < listRect.top + margin;
-        const isRight = rect.right > listRect.right - margin;
-        const isLeft = rect.left < listRect.left + margin;
+        const margin = 20
+        const rect = validationCell.$el.getBoundingClientRect()
+        const listRect = this.$refs.body.getBoundingClientRect()
+        const isBelow = rect.bottom > listRect.bottom - margin
+        const isAbove = rect.top < listRect.top + margin
+        const isRight = rect.right > listRect.right - margin
+        const isLeft = rect.left < listRect.left + margin
 
         if (isBelow) {
-          const scrollingRequired = rect.bottom - listRect.bottom + margin;
-          this.setScrollPosition(this.$refs.body.scrollTop + scrollingRequired);
+          const scrollingRequired = rect.bottom - listRect.bottom + margin
+          this.setScrollPosition(this.$refs.body.scrollTop + scrollingRequired)
         } else if (isAbove) {
-          const scrollingRequired = listRect.top - rect.top + margin;
-          this.setScrollPosition(this.$refs.body.scrollTop - scrollingRequired);
+          const scrollingRequired = listRect.top - rect.top + margin
+          this.setScrollPosition(this.$refs.body.scrollTop - scrollingRequired)
         }
 
         if (isRight) {
-          const scrollingRequired = rect.right - listRect.right + margin;
+          const scrollingRequired = rect.right - listRect.right + margin
           this.setScrollLeftPosition(
             this.$refs.body.scrollLeft + scrollingRequired
-          );
+          )
         } else if (isLeft) {
-          const scrollingRequired = listRect.left - rect.left + margin;
+          const scrollingRequired = listRect.left - rect.left + margin
           this.setScrollLeftPosition(
             this.$refs.body.scrollLeft - scrollingRequired
-          );
+          )
         }
       }
     },
 
     select(i, j) {
-      const ref = "validation-" + i + "-" + j;
-      const validationCell = this.$refs[ref];
-      if (validationCell) validationCell[0].$el.click();
-      return validationCell ? validationCell[0] : 0;
+      const ref = 'validation-' + i + '-' + j
+      const validationCell = this.$refs[ref]
+      if (validationCell) validationCell[0].$el.click()
+      return validationCell ? validationCell[0] : 0
     },
 
     resizeHeaders() {
-      const tableBody = this.$refs["body-tbody"];
-      const isTableBodyContainLines = tableBody && tableBody.children;
+      const tableBody = this.$refs['body-tbody']
+      const isTableBodyContainLines = tableBody && tableBody.children
       if (isTableBodyContainLines) {
-        const bodyElement = tableBody.children[0];
+        const bodyElement = tableBody.children[0]
         const columnDescriptors = [
-          { index: 1, name: "type" },
-          { index: 3, name: "name" },
-        ];
+          { index: 1, name: 'type' },
+          { index: 3, name: 'name' }
+        ]
         columnDescriptors.forEach((desc) => {
           const width = Math.max(
             bodyElement.children[desc.index].offsetWidth,
             100
-          );
-          this.$refs["th-" + desc.name].style["min-width"] = `${width}px`;
-        });
+          )
+          this.$refs['th-' + desc.name].style['min-width'] = `${width}px`
+        })
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

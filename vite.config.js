@@ -1,23 +1,23 @@
-import path from "path";
-import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
-import eslintPlugin from "vite-plugin-eslint";
+import path from 'path'
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import eslintPlugin from 'vite-plugin-eslint'
 
 export default defineConfig({
   plugins: [vue(), eslintPlugin()],
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: '@import "./src/styles/variables.scss";',
-      },
-    },
+        additionalData: '@import "./src/styles/variables.scss";'
+      }
+    }
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
-      "vue": '@vue/compat',
+      '@': path.resolve(__dirname, './src'),
+      vue: '@vue/compat'
     },
-    extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json", ".vue"],
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
   },
   server: {
     open: true,
@@ -28,9 +28,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       },
       '/socket.io': {
-        target: process.env.KITSU_EVENT_TARGET || 'http://127.0.0.1:5001',
+        target: process.env.KITSU_EVENT_TARGET || 'http://127.0.0.1:5001'
       }
     }
   },
-  base: "./",
-});
+  base: './'
+})

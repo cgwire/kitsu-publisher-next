@@ -1,39 +1,39 @@
-import marked from "marked";
-import sanitizeHTML from "sanitize-html";
-import { formatFrame, formatTime } from "./video";
+import marked from 'marked'
+import sanitizeHTML from 'sanitize-html'
+import { formatFrame, formatTime } from './video'
 
-export const TIME_CODE_REGEX = /v(\d+) (\d+):(\d+)\.(\d+) \((\d+)\)/g;
+export const TIME_CODE_REGEX = /v(\d+) (\d+):(\d+)\.(\d+) \((\d+)\)/g
 
 export const sanitize = (html) => {
   return sanitizeHTML(html, {
-    allowedTags: sanitizeHTML.defaults.allowedTags.concat(["img"]),
+    allowedTags: sanitizeHTML.defaults.allowedTags.concat(['img']),
     allowedAttributes: {
-      a: ["class", "href"],
-      img: ["src"],
-    },
-  });
-};
+      a: ['class', 'href'],
+      img: ['src']
+    }
+  })
+}
 
 export const getTaskTypeStyle = (task) => {
-  let border = "transparent";
-  if (task) border = task.task_type_color;
+  let border = 'transparent'
+  if (task) border = task.task_type_color
   return {
-    "border-left": `4px solid ${border}`,
-  };
-};
+    'border-left': `4px solid ${border}`
+  }
+}
 
-export const renderComment = (input, mentions, personMap, className = "") => {
-  let compiled = marked(input || "");
+export const renderComment = (input, mentions, personMap, className = '') => {
+  let compiled = marked(input || '')
   if (mentions) {
     mentions.forEach((personId) => {
-      const person = personMap.get(personId);
+      const person = personMap.get(personId)
       compiled = compiled.replaceAll(
         `@${person.full_name}`,
         `<a class="mention" href="/people/${person.id}">@${person.full_name}</a>`
-      );
-    });
+      )
+    })
   }
-  compiled = sanitize(compiled);
+  compiled = sanitize(compiled)
 
   return compiled.replaceAll(
     TIME_CODE_REGEX,
@@ -46,15 +46,15 @@ export const renderComment = (input, mentions, personMap, className = "") => {
         data-seconds="${p3}"
         data-milliseconds="${p4}"
         data-frame="${p5}"
-      >${match}</a>`;
+      >${match}</a>`
     }
-  );
-};
+  )
+}
 
 export const renderMarkdown = (input) => {
-  const compiled = marked(input || "");
-  return sanitize(compiled);
-};
+  const compiled = marked(input || '')
+  return sanitize(compiled)
+}
 
 export const replaceTimeWithTimecode = (
   comment,
@@ -63,13 +63,13 @@ export const replaceTimeWithTimecode = (
   fps
 ) => {
   if (comment) {
-    const frame = formatFrame(currentTimeRaw, fps);
-    const formatedTime = formatTime(currentTimeRaw);
+    const frame = formatFrame(currentTimeRaw, fps)
+    const formatedTime = formatTime(currentTimeRaw)
     return comment.replaceAll(
-      "@frame",
+      '@frame',
       `v${currentPreviewRevision} ${formatedTime} (${frame})`
-    );
+    )
   } else {
-    return "";
+    return ''
   }
-};
+}

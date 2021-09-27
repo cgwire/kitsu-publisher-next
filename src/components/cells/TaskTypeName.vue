@@ -5,38 +5,38 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex'
 
-import TaskTypeName from "../widgets/TaskTypeName";
+import TaskTypeName from '../widgets/TaskTypeName'
 
 export default {
-  name: "TaskTypeCell",
+  name: 'TaskTypeCell',
   components: {
-    TaskTypeName,
+    TaskTypeName
   },
 
   props: {
     taskType: {
       type: Object,
-      default: null,
+      default: null
     },
     productionId: {
       type: String,
-      default: null,
-    },
+      default: null
+    }
   },
 
   computed: {
     ...mapGetters([]),
     color() {
-      if (this.entry.color.toUpperCase() === "#000000") return "$grey-strong";
-      else return this.entry.color;
-    },
+      if (this.entry.color.toUpperCase() === '#000000') return '$grey-strong'
+      else return this.entry.color
+    }
   },
   methods: {
-    ...mapActions([]),
-  },
-};
+    ...mapActions([])
+  }
+}
 </script>
 
 <style lang="scss" scoped>

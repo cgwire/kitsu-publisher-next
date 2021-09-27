@@ -14,24 +14,24 @@
 export default {
   props: {
     size: {
-      default: "40px",
-    },
+      default: '40px'
+    }
   },
   computed: {
     innerStyles() {
-      const size = parseInt(this.size);
+      const size = parseInt(this.size)
       return {
-        transform: "scale(" + size / 60 + ")",
-      };
+        transform: 'scale(' + size / 60 + ')'
+      }
     },
     styles() {
       return {
         width: this.size,
-        height: this.size,
-      };
-    },
-  },
-};
+        height: this.size
+      }
+    }
+  }
+}
 </script>
 <style lang="scss" scoped>
 @for $i from 1 through 6 {

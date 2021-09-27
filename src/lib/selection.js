@@ -1,32 +1,32 @@
 export const buildSelectionGrid = (maxX, maxY) => {
-  const result = {};
+  const result = {}
   for (let i = 0; i < maxX; i++) {
-    if (!result[i]) result[i] = {};
+    if (!result[i]) result[i] = {}
     for (let j = 0; j < maxY; j++) {
-      result[i][j] = false;
+      result[i][j] = false
     }
   }
-  return result;
-};
+  return result
+}
 
 export const appendSelectionGrid = (grid, previousX, maxX, maxY) => {
-  const result = { ...grid };
+  const result = { ...grid }
   for (let i = previousX; i < maxX; i++) {
-    if (!result[i]) result[i] = {};
+    if (!result[i]) result[i] = {}
     for (let j = 0; j < maxY; j++) {
-      result[i][j] = false;
+      result[i][j] = false
     }
   }
-  return result;
-};
+  return result
+}
 
 export const clearSelectionGrid = (selectionGrid) => {
-  const maxX = Object.keys(selectionGrid).length;
-  const maxY = selectionGrid[0] ? Object.keys(selectionGrid[0]).length : 0;
+  const maxX = Object.keys(selectionGrid).length
+  const maxY = selectionGrid[0] ? Object.keys(selectionGrid[0]).length : 0
   for (let i = 0; i < maxX; i++) {
     for (let j = 0; j < maxY; j++) {
-      if (selectionGrid[i][j]) selectionGrid[i][j] = false;
+      if (selectionGrid[i][j]) selectionGrid[i][j] = false
     }
   }
-  return selectionGrid;
-};
+  return selectionGrid
+}

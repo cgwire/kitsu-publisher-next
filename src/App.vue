@@ -4,7 +4,7 @@
       class="has-text-centered mt2 loading-info"
       v-if="user && isDataLoading"
     >
-        <span>{{ $t('main.loading_data') }}...</span>
+      <span>{{ $t('main.loading_data') }}...</span>
       <spinner class="mt2" />
     </div>
     <router-view v-else />
@@ -18,7 +18,7 @@ import crisp from './lib/crisp'
 
 export default {
   name: 'app',
-  
+
   components: {
     Spinner
   },
@@ -47,7 +47,7 @@ export default {
       'user'
     ])
   },
-  mounted () {
+  mounted() {
     if (localStorage.getItem('dark-theme') === 'true' && !this.isDarkTheme) {
       this.$store.commit('TOGGLE_DARK_THEME')
       document.documentElement.style.background = '#36393F'
@@ -85,7 +85,7 @@ export default {
       'refreshMetadataDescriptor',
       'removeAsset'
     ]),
-    onAssignation (eventData, assign = true) {
+    onAssignation(eventData, assign = true) {
       const personId = eventData.person_id
       const selectedTaskIds = [eventData.task_id]
       // for entity lists
@@ -104,7 +104,7 @@ export default {
     }
   },
   watch: {
-    isDarkTheme () {
+    isDarkTheme() {
       if (this.isDarkTheme) {
         document.documentElement.style.background = '#36393F'
         document.body.style.background = '#36393F'
@@ -113,7 +113,7 @@ export default {
         document.body.style.background = '#FFF'
       }
     }
-  },
+  }
 }
 </script>
 
@@ -122,7 +122,7 @@ export default {
   font-family: Lato;
   font-style: normal;
   font-weight: 400;
-  src: url(assets/Lato.woff2) format("woff2");
+  src: url(assets/Lato.woff2) format('woff2');
 }
 
 html {

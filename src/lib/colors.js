@@ -1,8 +1,8 @@
-import ColorHash from "color-hash";
-import Color from "@/lib/color2";
+import ColorHash from 'color-hash'
+import Color from '@/lib/color2'
 
-const darkenColorIndex = {};
-const lightenColorIndex = {};
+const darkenColorIndex = {}
+const lightenColorIndex = {}
 
 export default {
   /*
@@ -12,37 +12,37 @@ export default {
    */
   darkenColor(colorHash) {
     if (!darkenColorIndex[colorHash]) {
-      darkenColorIndex[colorHash] = Color(colorHash).darken(0.3).saturate(0.6);
+      darkenColorIndex[colorHash] = Color(colorHash).darken(0.3).saturate(0.6)
     }
-    return darkenColorIndex[colorHash];
+    return darkenColorIndex[colorHash]
   },
 
   /*
    * Convert a string (it can be anything) into a HTML color hash.
    */
   fromString(str, darken = false) {
-    let colorHash = new ColorHash({ lightness: 0.7, saturation: 0.8 });
+    let colorHash = new ColorHash({ lightness: 0.7, saturation: 0.8 })
     if (
       darken ||
-      (localStorage && localStorage.getItem("dark-theme") === "true")
+      (localStorage && localStorage.getItem('dark-theme') === 'true')
     ) {
-      colorHash = new ColorHash({ lightness: 0.6, saturation: 0.8 });
+      colorHash = new ColorHash({ lightness: 0.6, saturation: 0.8 })
     }
-    return colorHash.hex(str);
+    return colorHash.hex(str)
   },
 
   /*
    * Turn hexadecimal color (#FFFFFF) to a RGBa one (rgba(255, 255, 255, 0.3))
    */
   hexToRGBa(hex, alpha) {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
 
     if (alpha) {
-      return "rgba(" + r + ", " + g + ", " + b + ", " + alpha + ")";
+      return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')'
     } else {
-      return "rgb(" + r + ", " + g + ", " + b + ")";
+      return 'rgb(' + r + ', ' + g + ', ' + b + ')'
     }
   },
 
@@ -53,9 +53,9 @@ export default {
    */
   lightenColor(colorHash, level = 0.3) {
     if (!lightenColorIndex[colorHash + level]) {
-      lightenColorIndex[colorHash + level] = Color(colorHash).fade(level);
+      lightenColorIndex[colorHash + level] = Color(colorHash).fade(level)
     }
-    return lightenColorIndex[colorHash + level];
+    return lightenColorIndex[colorHash + level]
   },
 
   /*
@@ -65,12 +65,12 @@ export default {
   validationTextColor(task) {
     if (
       task &&
-      task.task_status_short_name !== "todo" &&
-      task.task_status_short_name !== "wtg"
+      task.task_status_short_name !== 'todo' &&
+      task.task_status_short_name !== 'wtg'
     ) {
-      return "white";
+      return 'white'
     } else {
-      return "#333";
+      return '#333'
     }
-  },
-};
+  }
+}

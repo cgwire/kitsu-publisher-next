@@ -16,30 +16,30 @@
 export default {
   props: {
     size: {
-      default: "40px",
+      default: '40px'
     },
     background: {
-      default: "#41b883",
+      default: '#41b883'
     },
     duration: {
-      default: "1.3s",
-    },
+      default: '1.3s'
+    }
   },
   computed: {
     cubeStyles() {
       return {
         backgroundColor: this.background,
-        animationDuration: this.duration,
-      };
+        animationDuration: this.duration
+      }
     },
     styles() {
       return {
         width: this.size,
-        height: this.size,
-      };
-    },
-  },
-};
+        height: this.size
+      }
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

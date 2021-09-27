@@ -1,16 +1,16 @@
 module.exports = {
   env: {
-    node: true,
+    node: true
   },
-  extends: ["eslint:recommended", "plugin:vue/vue3-recommended", "prettier"],
+  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'prettier'],
   rules: {
-    "no-unused-vars": "off",
-    "vue/no-deprecated-slot-attribute": "off",
+    'no-unused-vars': 'off',
+    'vue/no-deprecated-slot-attribute': 'off'
   },
   globals: {
-    defineProps: "readonly",
-    defineEmits: "readonly",
-    defineExpose: "readonly",
-    withDefaults: "readonly",
-  },
-};
+    defineProps: 'readonly',
+    defineEmits: 'readonly',
+    defineExpose: 'readonly',
+    withDefaults: 'readonly'
+  }
+}

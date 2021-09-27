@@ -1,17 +1,17 @@
-import client from "./client";
-import superagent from "superagent";
+import client from './client'
+import superagent from 'superagent'
 
 export default {
   getCustomActions(callback) {
-    client.get("/api/data/custom-actions", callback);
+    client.get('/api/data/custom-actions', callback)
   },
 
   newCustomAction(customAction) {
     const data = {
       name: customAction.name,
-      url: customAction.url,
-    };
-    return client.ppost("/api/data/custom-actions/", data);
+      url: customAction.url
+    }
+    return client.ppost('/api/data/custom-actions/', data)
   },
 
   updateCustomAction(customAction) {
@@ -19,13 +19,13 @@ export default {
       name: customAction.name,
       url: customAction.url,
       entity_type: customAction.entityType,
-      is_ajax: customAction.isAjax === "true",
-    };
-    return client.pput(`/api/data/custom-actions/${customAction.id}`, data);
+      is_ajax: customAction.isAjax === 'true'
+    }
+    return client.pput(`/api/data/custom-actions/${customAction.id}`, data)
   },
 
   deleteCustomAction(customAction) {
-    return client.pdel(`/api/data/custom-actions/${customAction.id}`);
+    return client.pdel(`/api/data/custom-actions/${customAction.id}`)
   },
 
   postCustomAction(url, data) {
@@ -35,9 +35,9 @@ export default {
         .withCredentials()
         .send(data)
         .end((err, res) => {
-          if (err) reject(err);
-          else resolve();
-        });
-    });
-  },
-};
+          if (err) reject(err)
+          else resolve()
+        })
+    })
+  }
+}

@@ -8,15 +8,15 @@
       height: size + 'px',
       'min-width': size + 'px',
       'min-height': size + 'px',
-      'font-size': person.has_avatar ? 0 : fontSize + 'px',
+      'font-size': person.has_avatar ? 0 : fontSize + 'px'
     }"
   >
     <router-link
       :to="{
         name: 'person',
         params: {
-          person_id: person.id,
-        },
+          person_id: person.id
+        }
       }"
       :title="person.full_name"
       class="avatar-link"
@@ -37,7 +37,7 @@
       background: person.color,
       width: size + 'px',
       height: size + 'px',
-      'font-size': fontSize + 'px',
+      'font-size': fontSize + 'px'
     }"
   >
     <img v-if="person.has_avatar && noCache" :src="avatarPath" />
@@ -50,56 +50,56 @@
 
 <script>
 export default {
-  name: "PersonAvatar",
+  name: 'PersonAvatar',
 
   props: {
     person: {
       type: Object,
       default: () => ({
-        id: "empty",
-        color: "#FFF",
-      }),
+        id: 'empty',
+        color: '#FFF'
+      })
     },
     size: { type: Number, default: 40 },
-    "font-size": { type: Number, default: 18 },
-    "is-link": { type: Boolean, default: true },
-    "no-cache": { type: Boolean, default: false },
+    'font-size': { type: Number, default: 18 },
+    'is-link': { type: Boolean, default: true },
+    'no-cache': { type: Boolean, default: false }
   },
 
   data() {
     return {
-      avatarPath: "",
-      avatarKey: "",
-      initials: "",
-    };
+      avatarPath: '',
+      avatarKey: '',
+      initials: ''
+    }
   },
 
   watch: {
     person() {
-      this.reloadAvatar();
+      this.reloadAvatar()
     },
 
-    "person.uniqueHash"() {
-      this.reloadAvatar();
-    },
+    'person.uniqueHash'() {
+      this.reloadAvatar()
+    }
   },
 
   created() {
-    this.reloadAvatar();
+    this.reloadAvatar()
   },
 
   mounted() {
-    this.initials = this.person.initials;
+    this.initials = this.person.initials
   },
 
   methods: {
     reloadAvatar() {
       this.avatarPath =
-        this.person.avatarPath + "?unique=" + this.person.uniqueHash;
-      this.avatarKey = this.person.id + "-" + this.person.uniqueHash;
-    },
-  },
-};
+        this.person.avatarPath + '?unique=' + this.person.uniqueHash
+      this.avatarKey = this.person.id + '-' + this.person.uniqueHash
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

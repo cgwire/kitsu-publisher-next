@@ -40,80 +40,80 @@
 </template>
 
 <script>
-import { renderMarkdown } from "@/lib/render";
-import { mapGetters, mapActions } from "vuex";
-import stringHelpers from "../../lib/string";
+import { renderMarkdown } from '@/lib/render'
+import { mapGetters, mapActions } from 'vuex'
+import stringHelpers from '../../lib/string'
 
 export default {
-  name: "DescriptionCell",
+  name: 'DescriptionCell',
 
   components: {},
 
   props: {
     editable: {
       type: Boolean,
-      default: false,
+      default: false
     },
     entry: {
       type: Object,
-      default: () => {},
+      default: () => {}
     },
     full: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data() {
     return {
       isEditing: false,
       isOpen: false,
-      timeout: null,
-    };
+      timeout: null
+    }
   },
 
   computed: {
     ...mapGetters([]),
 
     content() {
-      return this.compileMarkdown(this.entry.description);
-    },
+      return this.compileMarkdown(this.entry.description)
+    }
   },
 
   methods: {
     ...mapActions([]),
 
     compileMarkdown(input) {
-      return renderMarkdown(input);
+      return renderMarkdown(input)
     },
 
     shortenText: stringHelpers.shortenText,
 
     onClick(event) {
       if (
-        event.target.className.substring(0, 11) === "description" ||
-        event.target.parentNode.className.substring(0, 11) === "description" ||
+        event.target.className.substring(0, 11) === 'description' ||
+        event.target.parentNode.className.substring(0, 11) === 'description' ||
         event.keyCode === 27
       ) {
-        this.isOpen = !this.isOpen;
+        this.isOpen = !this.isOpen
       }
     },
 
     onDoubleClick() {
       if (this.editable) {
         if (this.isEditing) {
-          const val = this.$refs.text.value;
-          this.$emit("description-changed", val);
+          const val = this.$refs.text.value
+          this.$emit('description-changed', val)
         }
-        this.isEditing = !this.isEditing;
+        this.isEditing = !this.isEditing
         if (this.isEditing) {
           this.$nextTick(() => {
-            this.$refs.text.focus();
-          });
+            this.$refs.text.focus()
+          })
         }
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -189,7 +189,7 @@ td {
 
     border: 0.5rem solid;
     border-color: $white transparent transparent;
-    content: "";
+    content: '';
   }
 }
 

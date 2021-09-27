@@ -22,58 +22,58 @@
         v-else-if="task.last_comment.person"
         class="flexrow-item last-comment no-comment"
       >
-        {{ $t("main.empty_comment") }}
+        {{ $t('main.empty_comment') }}
       </span>
     </div>
   </td>
 </template>
 
 <script>
-import { renderMarkdown } from "@/lib/render";
-import { mapGetters, mapActions } from "vuex";
-import PeopleAvatar from "./../widgets/PeopleAvatar";
+import { renderMarkdown } from '@/lib/render'
+import { mapGetters, mapActions } from 'vuex'
+import PeopleAvatar from './../widgets/PeopleAvatar'
 
 export default {
-  name: "LastCommentCell",
+  name: 'LastCommentCell',
   components: {
-    PeopleAvatar,
+    PeopleAvatar
   },
 
-  props: ["task"],
+  props: ['task'],
 
   data() {
     return {
       isOpen: false,
-      timeout: null,
-    };
+      timeout: null
+    }
   },
 
   computed: {
     ...mapGetters([]),
 
     commentText() {
-      const text = this.task.last_comment.text;
-      const maxLength = 140;
-      let result = text || "";
+      const text = this.task.last_comment.text
+      const maxLength = 140
+      let result = text || ''
       if (text !== undefined && text.length > maxLength) {
-        result = text.slice(0, maxLength) + "...";
+        result = text.slice(0, maxLength) + '...'
       }
-      return result;
-    },
+      return result
+    }
   },
 
   methods: {
     ...mapActions([]),
 
     compileMarkdown(input) {
-      return renderMarkdown(input);
+      return renderMarkdown(input)
     },
 
     onClick() {
-      this.isOpen = !this.isOpen;
-    },
-  },
-};
+      this.isOpen = !this.isOpen
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

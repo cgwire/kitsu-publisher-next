@@ -13,7 +13,7 @@
           width: size + 'px',
           height: size + 'px',
           'font-size': size - 15 + 'px',
-          'line-height': size + 'px',
+          'line-height': size + 'px'
         }"
       >
         <span v-if="!entry.has_avatar">
@@ -36,7 +36,7 @@
           width: size + 'px',
           height: size + 'px',
           'font-size': size - 15 + 'px',
-          'line-height': size + 'px',
+          'line-height': size + 'px'
         }"
       >
         <span v-if="!entry.has_avatar">
@@ -54,41 +54,41 @@
 </template>
 
 <script>
-import colors from "../../lib/colors.js";
-import { mapGetters, mapActions } from "vuex";
+import colors from '../../lib/colors.js'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: "ProductionNameCell",
+  name: 'ProductionNameCell',
 
   props: {
     entry: {
       default: () => {},
-      type: Object,
+      type: Object
     },
     size: {
       default: 40,
-      type: Number,
+      type: Number
     },
     onlyAvatar: {
       default: false,
-      type: Boolean,
+      type: Boolean
     },
     withAvatar: {
       default: true,
-      type: Boolean,
+      type: Boolean
     },
     lastProductionScreen: {
-      default: "assets",
-      type: String,
+      default: 'assets',
+      type: String
     },
     isTooltip: {
       default: false,
-      type: Boolean,
+      type: Boolean
     },
     noLink: {
       default: false,
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
 
   computed: {
@@ -98,32 +98,30 @@ export default {
       const route = {
         name: this.lastProductionScreen,
         params: {
-          production_id: this.entry.id,
-        },
-      };
-      if (this.entry.first_episode_id) {
-        route.name = `episode-${this.lastProductionScreen}`;
-        route.params.episode_id = this.entry.first_episode_id;
+          production_id: this.entry.id
+        }
       }
-      return route;
+      if (this.entry.first_episode_id) {
+        route.name = `episode-${this.lastProductionScreen}`
+        route.params.episode_id = this.entry.first_episode_id
+      }
+      return route
     },
 
     productionInfo() {
-      const fps = this.entry ? this.entry.fps : null;
-      const ratio = this.entry ? this.entry.ratio : null;
-      const resolution = this.entry ? this.entry.resolution : null;
-      const infos = [];
-      if (fps) infos.push(`${this.$t("productions.fields.fps")}: ${fps}`);
-      if (ratio) infos.push(`${this.$t("productions.fields.ratio")}: ${ratio}`);
+      const fps = this.entry ? this.entry.fps : null
+      const ratio = this.entry ? this.entry.ratio : null
+      const resolution = this.entry ? this.entry.resolution : null
+      const infos = []
+      if (fps) infos.push(`${this.$t('productions.fields.fps')}: ${fps}`)
+      if (ratio) infos.push(`${this.$t('productions.fields.ratio')}: ${ratio}`)
       if (resolution) {
-        infos.push(
-          `${this.$t("productions.fields.resolution")}: ${resolution}`
-        );
+        infos.push(`${this.$t('productions.fields.resolution')}: ${resolution}`)
       }
       if (infos.length > 0 && this.isTooltip) {
-        return infos.join("<br>");
+        return infos.join('<br>')
       } else {
-        return "";
+        return ''
       }
     },
 
@@ -131,29 +129,29 @@ export default {
       return {
         content: this.productionInfo,
         delay: {
-          hide: 5000,
-        },
-      };
-    },
+          hide: 5000
+        }
+      }
+    }
   },
 
   methods: {
     ...mapActions([]),
 
     generateAvatar(entry) {
-      const firstLetter = entry.name.length > 0 ? entry.name[0] : "P";
-      return firstLetter.toUpperCase();
+      const firstLetter = entry.name.length > 0 ? entry.name[0] : 'P'
+      return firstLetter.toUpperCase()
     },
 
     getAvatarColor(entry) {
-      return colors.fromString(entry.name);
+      return colors.fromString(entry.name)
     },
 
     getThumbnailPath(production) {
-      return `/api/pictures/thumbnails/projects/${production.id}.png`;
-    },
-  },
-};
+      return `/api/pictures/thumbnails/projects/${production.id}.png`
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

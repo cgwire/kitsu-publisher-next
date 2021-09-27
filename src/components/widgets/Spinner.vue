@@ -8,42 +8,42 @@
 </template>
 
 <script>
-import Origami from "@/components/spinners/Origami.vue";
-import SquareGrid from "@/components/spinners/SquareGrid.vue";
+import Origami from '@/components/spinners/Origami.vue'
+import SquareGrid from '@/components/spinners/SquareGrid.vue'
 
 export default {
-  name: "Spinner",
+  name: 'Spinner',
   components: {
     SquareGrid,
-    Origami,
+    Origami
   },
 
   props: {
     isWhite: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isProcessing: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isStylish: {
       type: Boolean,
-      default: false,
+      default: false
     },
     size: {
-      type: Number,
-    },
+      type: Number
+    }
   },
 
   computed: {
     sizeStyle: function () {
       return {
-        width: this.size ? this.size + "px" : "auto",
-      };
-    },
-  },
-};
+        width: this.size ? this.size + 'px' : 'auto'
+      }
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

@@ -8,31 +8,31 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import PeopleAvatar from "../widgets/PeopleAvatar";
-import PeopleName from "../widgets/PeopleName";
+import { mapGetters, mapActions } from 'vuex'
+import PeopleAvatar from '../widgets/PeopleAvatar'
+import PeopleName from '../widgets/PeopleName'
 
 export default {
-  name: "PeopleNameCell",
+  name: 'PeopleNameCell',
   components: {
     PeopleName,
-    PeopleAvatar,
+    PeopleAvatar
   },
 
   props: {
     person: {
       type: Object,
-      required: true,
-    },
+      required: true
+    }
   },
 
   computed: {
-    ...mapGetters([]),
+    ...mapGetters([])
   },
   methods: {
-    ...mapActions([]),
-  },
-};
+    ...mapActions([])
+  }
+}
 </script>
 
 <style lang="scss" scoped>

@@ -1,12 +1,12 @@
-import superagent from "superagent";
-import errors from "../../lib/errors";
+import superagent from 'superagent'
+import errors from '../../lib/errors'
 
 const client = {
   get(path, callback) {
     superagent.get(path).end((err, res) => {
       // if (res.statusCode === 401) return errors.backToLogin()
-      callback(err, res.body);
-    });
+      callback(err, res.body)
+    })
   },
 
   post(path, data, callback) {
@@ -14,9 +14,9 @@ const client = {
       .post(path)
       .send(data)
       .end((err, res) => {
-        if (res.statusCode === 401) return errors.backToLogin();
-        callback(err, res.body);
-      });
+        if (res.statusCode === 401) return errors.backToLogin()
+        callback(err, res.body)
+      })
   },
 
   put(path, data, callback) {
@@ -24,25 +24,25 @@ const client = {
       .put(path)
       .send(data)
       .end((err, res) => {
-        if (res.statusCode === 401) return errors.backToLogin();
-        callback(err, res.body);
-      });
+        if (res.statusCode === 401) return errors.backToLogin()
+        callback(err, res.body)
+      })
   },
 
   del(path, callback) {
     superagent.del(path).end((err, res) => {
-      if (res.statusCode === 401) return errors.backToLogin();
-      callback(err, res.body);
-    });
+      if (res.statusCode === 401) return errors.backToLogin()
+      callback(err, res.body)
+    })
   },
 
   pget(path) {
     return new Promise((resolve, reject) => {
       client.get(path, (err, model) => {
-        if (err) reject(err);
-        else resolve(model);
-      });
-    });
+        if (err) reject(err)
+        else resolve(model)
+      })
+    })
   },
 
   ppost(path, data, callback) {
@@ -52,14 +52,14 @@ const client = {
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
-            errors.backToLogin();
-            reject(err);
+            errors.backToLogin()
+            reject(err)
           } else {
-            if (err) reject(err);
-            else resolve(res.body);
+            if (err) reject(err)
+            else resolve(res.body)
           }
-        });
-    });
+        })
+    })
   },
 
   pput(path, data, callback) {
@@ -69,39 +69,39 @@ const client = {
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
-            errors.backToLogin();
-            reject(err);
+            errors.backToLogin()
+            reject(err)
           } else {
-            if (err) reject(err);
-            else resolve(res.body);
+            if (err) reject(err)
+            else resolve(res.body)
           }
-        });
-    });
+        })
+    })
   },
 
   pdel(path, callback) {
     return new Promise((resolve, reject) => {
       superagent.del(path).end((err, res) => {
         if (res.statusCode === 401) {
-          errors.backToLogin();
-          reject(err);
+          errors.backToLogin()
+          reject(err)
         } else {
-          if (err) reject(err);
-          else resolve(res.body);
+          if (err) reject(err)
+          else resolve(res.body)
         }
-      });
-    });
+      })
+    })
   },
 
   getModel(modelName, modelId) {
-    const path = `/api/data/${modelName}/${modelId}`;
-    return client.pget(path);
+    const path = `/api/data/${modelName}/${modelId}`
+    return client.pget(path)
   },
 
   getEvents(after, before) {
-    const path = `/api/data/events/last?after=${after}&before=${before}&page_size=100000`;
-    return client.pget(path);
-  },
-};
+    const path = `/api/data/events/last?after=${after}&before=${before}&page_size=100000`
+    return client.pget(path)
+  }
+}
 
-export default client;
+export default client

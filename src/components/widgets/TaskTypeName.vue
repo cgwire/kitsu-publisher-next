@@ -21,59 +21,58 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: "TaskTypeName",
+  name: 'TaskTypeName',
   components: {},
 
   props: {
     taskType: {
       type: Object,
-      default: null,
+      default: null
     },
     productionId: {
       type: String,
-      default: null,
+      default: null
     },
     deletable: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
 
   computed: {
     ...mapGetters([]),
 
     color() {
-      if (this.taskType.color.toUpperCase() === "#000000")
-        return "$grey-strong";
-      else return this.taskType.color;
+      if (this.taskType.color.toUpperCase() === '#000000') return '$grey-strong'
+      else return this.taskType.color
     },
 
     taskTypePath() {
       const route = {
-        name: "task-type",
+        name: 'task-type',
         params: {
           production_id: this.productionId,
           task_type_id: this.taskType.id,
-          type: this.taskType.for_shots ? "shots" : "assets",
-        },
-      };
+          type: this.taskType.for_shots ? 'shots' : 'assets'
+        }
+      }
 
       if (this.taskType.episode_id || this.$route.params.episode_id) {
-        route.name = "episode-task-type";
+        route.name = 'episode-task-type'
         route.params.episode_id =
-          this.taskType.episode_id || this.$route.params.episode_id;
+          this.taskType.episode_id || this.$route.params.episode_id
       }
-      return route;
-    },
+      return route
+    }
   },
 
   methods: {
-    ...mapActions([]),
-  },
-};
+    ...mapActions([])
+  }
+}
 </script>
 
 <style lang="scss" scoped>

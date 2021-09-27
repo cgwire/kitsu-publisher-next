@@ -2,16 +2,16 @@ import {
   buildTaskTypeIndex,
   buildTaskStatusIndex,
   buildNameIndex,
-  indexSearch,
-} from "./indexing";
-import string from "./string";
+  indexSearch
+} from './indexing'
+import string from './string'
 
-const UNION_REGEX = /\+\(.*\)/;
+const UNION_REGEX = /\+\(.*\)/
 const EQUAL_REGEX =
-  /\[([^[]*)\]=\[([^[]*)\]|([^ ]*)=\[([^[]*)\]|([^ ]*)=([^ ]*)|\[([^[]*)\]=([^ ]*)/g;
-const EQUAL_ASSET_TYPE_REGEX = /type=\[([^[]*)\]|type=([^ ]*)|type=([^ ]*)/g;
+  /\[([^[]*)\]=\[([^[]*)\]|([^ ]*)=\[([^[]*)\]|([^ ]*)=([^ ]*)|\[([^[]*)\]=([^ ]*)/g
+const EQUAL_ASSET_TYPE_REGEX = /type=\[([^[]*)\]|type=([^ ]*)|type=([^ ]*)/g
 const EQUAL_PEOPLE_DEPARTMENT_REGEX =
-  /department=\[([^[]*)\]|department=([^ ]*)|department=([^ ]*)/g;
+  /department=\[([^[]*)\]|department=([^ ]*)|department=([^ ]*)/g
 
 /*
  * Look in the search query for task type filter like anim=wip.
@@ -20,98 +20,98 @@ const EQUAL_PEOPLE_DEPARTMENT_REGEX =
 export const applyFilters = (entries, filters, taskMap) => {
   if (filters && filters.length > 0) {
     const result = entries.filter((entry) => {
-      let isOk = null;
+      let isOk = null
       filters.forEach((filter) => {
-        if (isOk === false && !filters.union) return false;
-        if (isOk === true && filters.union) return true;
-        isOk = applyFiltersFunctions[filter.type](entry, filter, taskMap);
-      });
-      return isOk;
-    });
-    return result;
+        if (isOk === false && !filters.union) return false
+        if (isOk === true && filters.union) return true
+        isOk = applyFiltersFunctions[filter.type](entry, filter, taskMap)
+      })
+      return isOk
+    })
+    return result
   } else {
-    return entries;
+    return entries
   }
-};
+}
 
 const applyFiltersFunctions = {
   assettype(entry, filter, taskMap) {
-    let isOk = true;
-    isOk = filter.assetType && entry.asset_type_id === filter.assetType.id;
-    if (filter.excluding) isOk = !isOk;
-    return isOk;
+    let isOk = true
+    isOk = filter.assetType && entry.asset_type_id === filter.assetType.id
+    if (filter.excluding) isOk = !isOk
+    return isOk
   },
 
   assignation(entry, filter, taskMap) {
-    const task = taskMap.get(entry.validations.get(filter.taskType.id));
+    const task = taskMap.get(entry.validations.get(filter.taskType.id))
     if (filter.assigned) {
-      return task && task.assignees && task.assignees.length > 0;
+      return task && task.assignees && task.assignees.length > 0
     } else {
-      return !task || (task && task.assignees && task.assignees.length === 0);
+      return !task || (task && task.assignees && task.assignees.length === 0)
     }
   },
 
   assignedto(entry, filter, taskMap) {
-    let isOk = false;
+    let isOk = false
     if (entry.tasks) {
       entry.tasks.forEach((taskId) => {
-        const task = taskMap.get(taskId);
-        isOk = isOk || task.assignees.includes(filter.personId);
-      });
+        const task = taskMap.get(taskId)
+        isOk = isOk || task.assignees.includes(filter.personId)
+      })
     }
-    if (filter.excluding) isOk = !isOk;
-    return isOk;
+    if (filter.excluding) isOk = !isOk
+    return isOk
   },
 
   descriptor(entry, filter, taskMap) {
-    let isOk = false;
+    let isOk = false
     if (
       entry.data &&
       entry.data[filter.descriptor.field_name] &&
       filter.values
     ) {
-      let dataValue = entry.data[filter.descriptor.field_name];
-      dataValue = dataValue.toLowerCase();
+      let dataValue = entry.data[filter.descriptor.field_name]
+      dataValue = dataValue.toLowerCase()
       filter.values.forEach((value) => {
-        isOk = isOk || dataValue.indexOf(value.toLowerCase()) >= 0;
-      });
+        isOk = isOk || dataValue.indexOf(value.toLowerCase()) >= 0
+      })
     } else {
-      isOk = false;
+      isOk = false
     }
-    if (filter.excluding) isOk = !isOk;
-    return isOk;
+    if (filter.excluding) isOk = !isOk
+    return isOk
   },
 
   exclusion(entry, filter, taskMap) {
-    return !filter.excludedIds[entry.id];
+    return !filter.excludedIds[entry.id]
   },
 
   status(entry, filter, taskMap) {
-    const task = taskMap.get(entry.validations.get(filter.taskType.id));
-    let isOk = true;
-    isOk = task && filter.taskStatuses.includes(task.task_status_id);
-    if (filter.excluding) isOk = !isOk;
-    return isOk;
+    const task = taskMap.get(entry.validations.get(filter.taskType.id))
+    let isOk = true
+    isOk = task && filter.taskStatuses.includes(task.task_status_id)
+    if (filter.excluding) isOk = !isOk
+    return isOk
   },
 
   thumbnail(entry, filter, taskMap) {
     const hasAvatar =
-      entry.preview_file_id !== "" &&
+      entry.preview_file_id !== '' &&
       entry.preview_file_id !== undefined &&
-      entry.preview_file_id !== null;
-    return filter.excluding ? !hasAvatar : hasAvatar;
+      entry.preview_file_id !== null
+    return filter.excluding ? !hasAvatar : hasAvatar
   },
 
   department(entry, filter, taskMap) {
-    if (!entry.departments) return false;
-    let hasDepartment = false;
+    if (!entry.departments) return false
+    let hasDepartment = false
     filter.values.forEach((value) => {
       hasDepartment =
-        hasDepartment || entry.departments.indexOf(value.id) !== -1;
-    });
-    return filter.excluding ? !hasDepartment : hasDepartment;
-  },
-};
+        hasDepartment || entry.departments.indexOf(value.id) !== -1
+    })
+    return filter.excluding ? !hasDepartment : hasDepartment
+  }
+}
 
 /**
  * Extract keywords from a given text. Remove equality and exclusion
@@ -119,19 +119,17 @@ const applyFiltersFunctions = {
  */
 export const getKeyWords = (queryText) => {
   if (!queryText) {
-    return [];
+    return []
   } else {
     return queryText
-      .replace(UNION_REGEX, "")
-      .replace(EQUAL_REGEX, "")
-      .split(" ")
+      .replace(UNION_REGEX, '')
+      .replace(EQUAL_REGEX, '')
+      .split(' ')
       .filter((query) => {
-        return (
-          query.length > 0 && query[0] !== "-" && query !== "withthumbnail"
-        );
-      });
+        return query.length > 0 && query[0] !== '-' && query !== 'withthumbnail'
+      })
   }
-};
+}
 
 /**
  * Extract excluding keywords from a given text. Remove equality expresions
@@ -139,16 +137,16 @@ export const getKeyWords = (queryText) => {
  */
 export const getExcludingKeyWords = (queryText) => {
   return queryText
-    .replace(UNION_REGEX, "")
-    .replace(EQUAL_REGEX, "")
-    .split(" ")
+    .replace(UNION_REGEX, '')
+    .replace(EQUAL_REGEX, '')
+    .split(' ')
     .filter((keyword) => {
       return (
-        keyword.length > 0 && keyword[0] === "-" && keyword !== "-withthumbnail"
-      );
+        keyword.length > 0 && keyword[0] === '-' && keyword !== '-withthumbnail'
+      )
     })
-    .map((keyword) => keyword.substring(1));
-};
+    .map((keyword) => keyword.substring(1))
+}
 
 /*
  * Build all filters data struct generated by a query and return them as
@@ -165,10 +163,10 @@ export const getFilters = ({
   descriptors = [],
   departments = [],
   persons,
-  query,
+  query
 }) => {
-  const unionExtraction = getUnion(query);
-  query = unionExtraction.query;
+  const unionExtraction = getUnion(query)
+  query = unionExtraction.query
   const filters = [
     ...getAssetTypeFilters(assetTypes, query),
     ...getTaskTypeFilters(taskTypes, taskStatuses, query),
@@ -176,277 +174,277 @@ export const getFilters = ({
     ...getAssignedToFilters(persons, query),
     ...getDepartmentFilters(departments, query),
     ...(getThumbnailFilters(query) || []),
-    ...getExcludingFilters(entryIndex, query),
-  ];
-  filters.union = unionExtraction.union;
-  return filters;
-};
+    ...getExcludingFilters(entryIndex, query)
+  ]
+  filters.union = unionExtraction.union
+  return filters
+}
 
-const getUnion = (query = "") => {
-  const rgxMatches = query.match(UNION_REGEX);
-  let union = false;
+const getUnion = (query = '') => {
+  const rgxMatches = query.match(UNION_REGEX)
+  let union = false
   if (rgxMatches) {
-    union = true;
-    query = rgxMatches[0].substring(2, rgxMatches[0].length - 1);
+    union = true
+    query = rgxMatches[0].substring(2, rgxMatches[0].length - 1)
   }
   return {
     query,
-    union,
-  };
-};
+    union
+  }
+}
 
 /*
  *  Extract filters excluding entities based on their name.
  */
 const getExcludingFilters = (entryIndex, query) => {
-  const filters = [];
-  const excludingKeywords = getExcludingKeyWords(query) || [];
+  const filters = []
+  const excludingKeywords = getExcludingKeyWords(query) || []
   excludingKeywords.forEach((keyword) => {
-    const excludedMap = {};
-    const excludedEntries = indexSearch(entryIndex, [keyword]) || [];
+    const excludedMap = {}
+    const excludedEntries = indexSearch(entryIndex, [keyword]) || []
     excludedEntries.forEach((entry) => {
-      excludedMap[entry.id] = true;
-    });
+      excludedMap[entry.id] = true
+    })
     filters.push({
-      type: "exclusion",
-      excludedIds: excludedMap,
-    });
-  });
-  return filters;
-};
+      type: 'exclusion',
+      excludedIds: excludedMap
+    })
+  })
+  return filters
+}
 
 /*
  *  Extract filters from a query dedicated to task list.
  */
 export const getTaskFilters = (entryIndex, query) => {
-  const filters = [];
-  const excludingKeywords = getExcludingKeyWords(query) || [];
+  const filters = []
+  const excludingKeywords = getExcludingKeyWords(query) || []
   excludingKeywords.forEach((keyword) => {
-    const excludedMap = {};
-    const excludedEntries = indexSearch(entryIndex, [keyword]) || [];
+    const excludedMap = {}
+    const excludedEntries = indexSearch(entryIndex, [keyword]) || []
     excludedEntries.forEach((entry) => {
-      excludedMap[entry.id] = true;
-    });
+      excludedMap[entry.id] = true
+    })
     filters.push({
-      type: "exclusion",
-      excludedIds: excludedMap,
-    });
-  });
-  return filters;
-};
+      type: 'exclusion',
+      excludedIds: excludedMap
+    })
+  })
+  return filters
+}
 
 const cleanParenthesis = (value) => {
-  if (value[0] === "[") {
-    return value.substring(1, value.length - 1);
+  if (value[0] === '[') {
+    return value.substring(1, value.length - 1)
   } else {
-    return value;
+    return value
   }
-};
+}
 
 /*
  * Extract asset type filters (like type=characters from given query.
  */
 export const getAssetTypeFilters = (assetTypes, queryText) => {
-  if (!queryText) return [];
+  if (!queryText) return []
 
-  const results = [];
-  const rgxMatches = queryText.match(EQUAL_ASSET_TYPE_REGEX);
+  const results = []
+  const rgxMatches = queryText.match(EQUAL_ASSET_TYPE_REGEX)
 
   if (rgxMatches) {
     rgxMatches.forEach((rgxMatch) => {
-      const pattern = rgxMatch.split("=");
-      let value = cleanParenthesis(pattern[1]);
-      const excluding = value.startsWith("-");
-      if (excluding) value = value.substring(1);
-      const assetType = assetTypes.find((t) => t.name === value);
+      const pattern = rgxMatch.split('=')
+      let value = cleanParenthesis(pattern[1])
+      const excluding = value.startsWith('-')
+      if (excluding) value = value.substring(1)
+      const assetType = assetTypes.find((t) => t.name === value)
       results.push({
         assetType,
         excluding,
-        type: "assettype",
-      });
-    });
+        type: 'assettype'
+      })
+    })
   }
-  return results;
-};
+  return results
+}
 /*
  * Extract task type filters (like anim=wip or [mode facial]=wip) from given
  * query.
  */
 export const getTaskTypeFilters = (taskTypes, taskStatuses, queryText) => {
-  if (!queryText) return [];
+  if (!queryText) return []
 
-  const results = [];
-  const rgxMatches = queryText.match(EQUAL_REGEX);
+  const results = []
+  const rgxMatches = queryText.match(EQUAL_REGEX)
 
   if (rgxMatches) {
-    const taskTypeNameIndex = buildTaskTypeIndex(taskTypes);
-    const taskStatusShortNameIndex = buildTaskStatusIndex(taskStatuses);
+    const taskTypeNameIndex = buildTaskTypeIndex(taskTypes)
+    const taskStatusShortNameIndex = buildTaskStatusIndex(taskStatuses)
     rgxMatches.forEach((rgxMatch) => {
-      const pattern = rgxMatch.split("=");
-      let value = cleanParenthesis(pattern[1]);
-      const excluding = value.startsWith("-");
-      if (excluding) value = value.substring(1);
-      const taskTypeName = cleanParenthesis(pattern[0]);
-      const taskTypes = taskTypeNameIndex[taskTypeName.toLowerCase()];
+      const pattern = rgxMatch.split('=')
+      let value = cleanParenthesis(pattern[1])
+      const excluding = value.startsWith('-')
+      if (excluding) value = value.substring(1)
+      const taskTypeName = cleanParenthesis(pattern[0])
+      const taskTypes = taskTypeNameIndex[taskTypeName.toLowerCase()]
       if (taskTypes) {
-        if (value === "unassigned") {
+        if (value === 'unassigned') {
           results.push({
             taskType: taskTypes[0],
             assigned: false,
-            type: "assignation",
-          });
-        } else if (value === "assigned") {
+            type: 'assignation'
+          })
+        } else if (value === 'assigned') {
           results.push({
             taskType: taskTypes[0],
             assigned: true,
-            type: "assignation",
-          });
+            type: 'assignation'
+          })
         } else if (value) {
           const values = value
-            .split(",")
+            .split(',')
             .map((shortName) => shortName.toLowerCase())
             .filter((shortName) => taskStatusShortNameIndex[shortName])
-            .map((shortName) => taskStatusShortNameIndex[shortName].id);
+            .map((shortName) => taskStatusShortNameIndex[shortName].id)
           if (values.length > 0) {
             results.push({
               taskType: taskTypes[0],
               taskStatuses: values,
-              type: "status",
-              excluding,
-            });
+              type: 'status',
+              excluding
+            })
           }
         }
       }
-    });
+    })
   }
-  return results;
-};
+  return results
+}
 
 /*
  * Extract metadata filters (like size=big or size=small) from given
  * query.
  */
 export const getDescFilters = (descriptors, queryText) => {
-  if (!queryText) return [];
+  if (!queryText) return []
 
-  const results = [];
-  const rgxMatches = queryText.match(EQUAL_REGEX);
+  const results = []
+  const rgxMatches = queryText.match(EQUAL_REGEX)
 
   if (rgxMatches) {
-    const descriptorNameIndex = buildNameIndex(descriptors, false);
+    const descriptorNameIndex = buildNameIndex(descriptors, false)
     rgxMatches.forEach((rgxMatch) => {
-      const pattern = rgxMatch.split("=");
-      const descriptorName = cleanParenthesis(pattern[0]);
-      if (descriptorName === "type" || descriptorName === "department") return;
+      const pattern = rgxMatch.split('=')
+      const descriptorName = cleanParenthesis(pattern[0])
+      if (descriptorName === 'type' || descriptorName === 'department') return
       const matchedDescriptors =
-        descriptorNameIndex[descriptorName.toLowerCase()];
-      let value = cleanParenthesis(pattern[1]);
-      const excluding = value.startsWith("-");
-      if (excluding) value = value.substring(1);
-      const values = value.split(",");
+        descriptorNameIndex[descriptorName.toLowerCase()]
+      let value = cleanParenthesis(pattern[1])
+      const excluding = value.startsWith('-')
+      if (excluding) value = value.substring(1)
+      const values = value.split(',')
       if (matchedDescriptors) {
         results.push({
           descriptor: matchedDescriptors[0],
           values,
-          type: "descriptor",
-          excluding,
-        });
+          type: 'descriptor',
+          excluding
+        })
       }
-    });
+    })
   }
-  return results;
-};
+  return results
+}
 
 /*
  * Extract department filters (like department=Modeling) from given
  * query.
  */
 export const getDepartmentFilters = (departments, queryText) => {
-  if (!queryText) return [];
+  if (!queryText) return []
 
-  const results = [];
-  const rgxMatches = queryText.match(EQUAL_PEOPLE_DEPARTMENT_REGEX);
+  const results = []
+  const rgxMatches = queryText.match(EQUAL_PEOPLE_DEPARTMENT_REGEX)
 
   if (rgxMatches) {
-    const departmentNameIndex = buildNameIndex(departments, false);
+    const departmentNameIndex = buildNameIndex(departments, false)
 
     rgxMatches.forEach((rgxMatch) => {
-      const pattern = rgxMatch.split("=");
-      let departmentName = cleanParenthesis(pattern[1]);
-      const excluding = departmentName.startsWith("-");
-      if (excluding) departmentName = departmentName.substring(1);
-      const departmentNames = departmentName.split(",");
+      const pattern = rgxMatch.split('=')
+      let departmentName = cleanParenthesis(pattern[1])
+      const excluding = departmentName.startsWith('-')
+      if (excluding) departmentName = departmentName.substring(1)
+      const departmentNames = departmentName.split(',')
 
       const departments = departmentNames
         .map((departmentName) => {
-          const department = departmentNameIndex[departmentName.toLowerCase()];
-          if (department) return department[0];
-          else return null;
+          const department = departmentNameIndex[departmentName.toLowerCase()]
+          if (department) return department[0]
+          else return null
         })
-        .filter((department) => department !== null);
+        .filter((department) => department !== null)
 
       if (departments.length > 0) {
         results.push({
           values: departments,
-          type: "department",
-          excluding,
-        });
+          type: 'department',
+          excluding
+        })
       }
-    });
+    })
   }
-  return results;
-};
+  return results
+}
 
 /*
  * Extract person filters (like size=big or size=small) from given
  * query.
  */
 export const getAssignedToFilters = (persons, queryText) => {
-  if (!queryText) return [];
+  if (!queryText) return []
 
-  const results = [];
-  const rgxMatches = queryText.match(EQUAL_REGEX);
+  const results = []
+  const rgxMatches = queryText.match(EQUAL_REGEX)
   if (rgxMatches) {
     rgxMatches.forEach((rgxMatch) => {
-      const personIndex = new Map();
+      const personIndex = new Map()
       persons.forEach((person) => {
-        const name = string.slugify(person.name.toLowerCase());
-        personIndex.set(name, person);
-      });
-      const pattern = rgxMatch.split("=");
-      if (pattern[0] === "assignedto") {
-        let value = pattern[1];
-        value = cleanParenthesis(value);
-        const excluding = value.startsWith("-");
-        if (excluding) value = value.substring(1);
-        const simplifiedValue = string.slugify(value.toLowerCase());
-        const person = personIndex.get(simplifiedValue);
+        const name = string.slugify(person.name.toLowerCase())
+        personIndex.set(name, person)
+      })
+      const pattern = rgxMatch.split('=')
+      if (pattern[0] === 'assignedto') {
+        let value = pattern[1]
+        value = cleanParenthesis(value)
+        const excluding = value.startsWith('-')
+        if (excluding) value = value.substring(1)
+        const simplifiedValue = string.slugify(value.toLowerCase())
+        const person = personIndex.get(simplifiedValue)
         if (person) {
           results.push({
             personId: person.id,
             value,
-            type: "assignedto",
-            excluding,
-          });
+            type: 'assignedto',
+            excluding
+          })
         }
       }
-    });
+    })
   }
-  return results;
-};
+  return results
+}
 
 export const getThumbnailFilters = (queryText) => {
-  const results = [];
-  if (queryText.indexOf("-withthumbnail") > -1) {
+  const results = []
+  if (queryText.indexOf('-withthumbnail') > -1) {
     results.push({
-      type: "thumbnail",
-      excluding: true,
-    });
-  } else if (queryText.indexOf("withthumbnail") > -1) {
+      type: 'thumbnail',
+      excluding: true
+    })
+  } else if (queryText.indexOf('withthumbnail') > -1) {
     results.push({
-      type: "thumbnail",
-      excluding: false,
-    });
+      type: 'thumbnail',
+      excluding: false
+    })
   }
-  return results;
-};
+  return results
+}

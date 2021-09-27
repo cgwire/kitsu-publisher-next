@@ -1,24 +1,24 @@
-import client from "./client";
+import client from './client'
 
 export default {
   getProductions(callback) {
-    client.get("/api/data/projects/all", callback);
+    client.get('/api/data/projects/all', callback)
   },
 
   getProduction(productionId) {
-    return client.getModel("projects", productionId);
+    return client.getModel('projects', productionId)
   },
 
   getOpenProductions(callback) {
-    client.get("/api/data/projects/open", callback);
+    client.get('/api/data/projects/open', callback)
   },
 
   getProductionStatus(callback) {
-    client.get("/api/data/project-status", callback);
+    client.get('/api/data/project-status', callback)
   },
 
   newProduction(production) {
-    return client.ppost("/api/data/projects/", production);
+    return client.ppost('/api/data/projects/', production)
   },
 
   updateProduction(production) {
@@ -34,9 +34,9 @@ export default {
       end_date: production.end_date,
       man_days: production.man_days,
       nb_episodes: production.nb_episodes,
-      episode_span: production.episode_span,
-    };
-    return client.pput(`/api/data/projects/${production.id}`, data);
+      episode_span: production.episode_span
+    }
+    return client.pput(`/api/data/projects/${production.id}`, data)
   },
 
   postAvatar(productionId, formData, callback) {
@@ -44,53 +44,53 @@ export default {
       `/api/pictures/thumbnails/projects/${productionId}`,
       formData,
       callback
-    );
+    )
   },
 
   deleteProduction(production) {
-    return client.pdel(`/api/data/projects/${production.id}?force=true`);
+    return client.pdel(`/api/data/projects/${production.id}?force=true`)
   },
 
   addPersonToTeam(productionId, personId) {
-    const data = { person_id: personId };
-    return client.ppost(`/api/data/projects/${productionId}/team`, data);
+    const data = { person_id: personId }
+    return client.ppost(`/api/data/projects/${productionId}/team`, data)
   },
 
   removePersonFromTeam(productionId, personId) {
-    return client.pdel(`/api/data/projects/${productionId}/team/${personId}`);
+    return client.pdel(`/api/data/projects/${productionId}/team/${personId}`)
   },
 
   addAssetTypeToProduction(productionId, assetTypeId) {
-    const data = { asset_type_id: assetTypeId };
-    const path = `/api/data/projects/${productionId}/settings/asset-types`;
-    return client.ppost(path, data);
+    const data = { asset_type_id: assetTypeId }
+    const path = `/api/data/projects/${productionId}/settings/asset-types`
+    return client.ppost(path, data)
   },
 
   removeAssetTypeFromProduction(productionId, assetTypeId) {
-    const path = `/api/data/projects/${productionId}/settings/asset-types/${assetTypeId}`;
-    return client.pdel(path);
+    const path = `/api/data/projects/${productionId}/settings/asset-types/${assetTypeId}`
+    return client.pdel(path)
   },
 
   addTaskTypeToProduction(productionId, taskTypeId, priority) {
-    const data = { task_type_id: taskTypeId, priority };
-    const path = `/api/data/projects/${productionId}/settings/task-types`;
-    return client.ppost(path, data);
+    const data = { task_type_id: taskTypeId, priority }
+    const path = `/api/data/projects/${productionId}/settings/task-types`
+    return client.ppost(path, data)
   },
 
   removeTaskTypeFromProduction(productionId, taskTypeId) {
-    const path = `/api/data/projects/${productionId}/settings/task-types/${taskTypeId}`;
-    return client.pdel(path).catch(console.error);
+    const path = `/api/data/projects/${productionId}/settings/task-types/${taskTypeId}`
+    return client.pdel(path).catch(console.error)
   },
 
   addTaskStatusToProduction(productionId, taskStatusId) {
-    const data = { task_status_id: taskStatusId };
-    const path = `/api/data/projects/${productionId}/settings/task-status`;
-    return client.ppost(path, data);
+    const data = { task_status_id: taskStatusId }
+    const path = `/api/data/projects/${productionId}/settings/task-status`
+    return client.ppost(path, data)
   },
 
   removeTaskStatusFromProduction(productionId, taskStatusId) {
-    const path = `/api/data/projects/${productionId}/settings/task-status/${taskStatusId}`;
-    return client.pdel(path);
+    const path = `/api/data/projects/${productionId}/settings/task-status/${taskStatusId}`
+    return client.pdel(path)
   },
 
   addMetadataDescriptor(productionId, descriptor) {
@@ -98,18 +98,18 @@ export default {
       const data = {
         name: descriptor.name,
         choices: descriptor.values,
-        for_client: descriptor.for_client === "true",
-        entity_type: descriptor.entity_type,
-      };
+        for_client: descriptor.for_client === 'true',
+        entity_type: descriptor.entity_type
+      }
       client.post(
         `/api/data/projects/${productionId}/metadata-descriptors`,
         data,
         (err, descriptor) => {
-          if (err) reject(err);
-          else resolve(descriptor);
+          if (err) reject(err)
+          else resolve(descriptor)
         }
-      );
-    });
+      )
+    })
   },
 
   getMetadataDescriptor(productionId, descriptorId) {
@@ -117,11 +117,11 @@ export default {
       client.get(
         `/api/data/projects/${productionId}/metadata-descriptors/${descriptorId}`,
         (err, descriptor) => {
-          if (err) reject(err);
-          else resolve(descriptor);
+          if (err) reject(err)
+          else resolve(descriptor)
         }
-      );
-    });
+      )
+    })
   },
 
   updateMetadataDescriptor(productionId, descriptor) {
@@ -130,18 +130,18 @@ export default {
         id: descriptor.id,
         name: descriptor.name,
         choices: descriptor.values,
-        for_client: descriptor.for_client === "true",
-        entity_type: descriptor.entity_type,
-      };
+        for_client: descriptor.for_client === 'true',
+        entity_type: descriptor.entity_type
+      }
       client.put(
         `/api/data/projects/${productionId}/metadata-descriptors/${descriptor.id}`,
         data,
         (err, descriptor) => {
-          if (err) reject(err);
-          else resolve(descriptor);
+          if (err) reject(err)
+          else resolve(descriptor)
         }
-      );
-    });
+      )
+    })
   },
 
   deleteMetadataDescriptor(productionId, descriptorId) {
@@ -149,10 +149,10 @@ export default {
       client.del(
         `/api/data/projects/${productionId}/metadata-descriptors/${descriptorId}`,
         (err) => {
-          if (err) reject(err);
-          else resolve();
+          if (err) reject(err)
+          else resolve()
         }
-      );
-    });
-  },
-};
+      )
+    })
+  }
+}

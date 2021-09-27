@@ -7,10 +7,10 @@
             <li :class="{ 'is-active': isTabActive('todos') }">
               <router-link
                 :to="{
-                  name: 'todos',
+                  name: 'todos'
                 }"
               >
-                {{ $t("tasks.current") }}
+                {{ $t('tasks.current') }}
               </router-link>
             </li>
             <li
@@ -20,10 +20,10 @@
               <router-link
                 :to="{
                   name: 'todos-tab',
-                  params: { tab: 'done' },
+                  params: { tab: 'done' }
                 }"
               >
-                {{ $t("tasks.done") }} ({{ displayedDoneTasks.length }})
+                {{ $t('tasks.done') }} ({{ displayedDoneTasks.length }})
               </router-link>
             </li>
             <li
@@ -33,10 +33,10 @@
               <router-link
                 :to="{
                   name: 'todos-tab',
-                  params: { tab: 'timesheets' },
+                  params: { tab: 'timesheets' }
                 }"
               >
-                {{ $t("timesheets.title") }}
+                {{ $t('timesheets.title') }}
               </router-link>
             </li>
           </ul>
@@ -71,45 +71,45 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import moment from "moment-timezone";
-import firstBy from "thenby";
+import { mapGetters, mapActions } from 'vuex'
+import moment from 'moment-timezone'
+import firstBy from 'thenby'
 
-import { parseDate } from "@/lib/time";
-import TodosList from "@/components/lists/TodosList";
+import { parseDate } from '@/lib/time'
+import TodosList from '@/components/lists/TodosList'
 
 export default {
-  name: "Todos",
+  name: 'Todos',
 
   components: {
-    TodosList,
+    TodosList
   },
 
   data() {
     return {
-      activeTab: "todos",
-      currentFilter: "all_tasks",
-      currentSort: "priority",
-      filterOptions: ["all_tasks", "due_this_week"].map((name) => ({
+      activeTab: 'todos',
+      currentFilter: 'all_tasks',
+      currentSort: 'priority',
+      filterOptions: ['all_tasks', 'due_this_week'].map((name) => ({
         label: name,
-        value: name,
+        value: name
       })),
-      selectedDate: moment().format("YYYY-MM-DD"),
+      selectedDate: moment().format('YYYY-MM-DD'),
       sortOptions: [
-        "entity_name",
-        "priority",
-        "task_status_short_name",
-        "due_date",
-        "estimation",
-        "last_comment_date",
-      ].map((name) => ({ label: name, value: name })),
-    };
+        'entity_name',
+        'priority',
+        'task_status_short_name',
+        'due_date',
+        'estimation',
+        'last_comment_date'
+      ].map((name) => ({ label: name, value: name }))
+    }
   },
 
   mounted() {
-    this.updateActiveTab();
+    this.updateActiveTab()
     if (this.todosSearchText.length > 0) {
-      this.$refs["todos-search-field"].setValue(this.todosSearchText);
+      this.$refs['todos-search-field'].setValue(this.todosSearchText)
     }
     this.$nextTick(() => {
       this.loadTodos({
@@ -117,214 +117,211 @@ export default {
         callback: () => {
           if (this.todoList) {
             this.$nextTick(() => {
-              this.todoList.setScrollPosition(this.todoListScrollPosition);
-            });
+              this.todoList.setScrollPosition(this.todoListScrollPosition)
+            })
           }
-          this.resizeHeaders();
-        },
-      });
-    });
+          this.resizeHeaders()
+        }
+      })
+    })
   },
 
   afterDestroy() {
-    this.$store.commit("USER_LOAD_TODOS_END", {
+    this.$store.commit('USER_LOAD_TODOS_END', {
       tasks: [],
       userFilters: {},
-      taskTypeMap: this.taskTypeMap,
-    });
+      taskTypeMap: this.taskTypeMap
+    })
   },
 
   computed: {
     ...mapGetters([
-      "displayedDoneTasks",
-      "displayedTodos",
-      "isTodosLoading",
-      "isTodosLoadingError",
-      "nbSelectedTasks",
-      "selectedTasks",
-      "taskTypeMap",
-      "todosSearchText",
-      "timeSpentMap",
-      "timeSpentTotal",
-      "todoListScrollPosition",
-      "todoSelectionGrid",
-      "todoSearchQueries",
-      "user",
+      'displayedDoneTasks',
+      'displayedTodos',
+      'isTodosLoading',
+      'isTodosLoadingError',
+      'nbSelectedTasks',
+      'selectedTasks',
+      'taskTypeMap',
+      'todosSearchText',
+      'timeSpentMap',
+      'timeSpentTotal',
+      'todoListScrollPosition',
+      'todoSelectionGrid',
+      'todoSearchQueries',
+      'user'
     ]),
 
     loggableTodos() {
       return this.sortedTasks.filter((task) => {
-        return this.taskTypeMap.get(task.task_type_id).allow_timelog;
-      });
+        return this.taskTypeMap.get(task.task_type_id).allow_timelog
+      })
     },
 
     loggableDoneTasks() {
       return this.displayedDoneTasks.filter((task) => {
-        return this.taskTypeMap.get(task.task_type_id).allow_timelog;
-      });
+        return this.taskTypeMap.get(task.task_type_id).allow_timelog
+      })
     },
 
     todoList() {
-      return this.$refs["todo-list"];
+      return this.$refs['todo-list']
     },
 
     haveDoneList() {
-      return this.$refs["done-list"];
+      return this.$refs['done-list']
     },
 
     sortedTasks() {
-      const isName = this.currentSort === "entity_name";
-      const isPriority = this.currentSort === "priority";
-      const isDueDate = this.currentSort === "due_date";
+      const isName = this.currentSort === 'entity_name'
+      const isPriority = this.currentSort === 'priority'
+      const isDueDate = this.currentSort === 'due_date'
       const tasks =
-        this.currentFilter === "all_tasks"
+        this.currentFilter === 'all_tasks'
           ? [...this.displayedTodos]
           : this.displayedTodos.filter((t) => {
-              const dueDate = parseDate(t.due_date);
-              return moment().startOf("week").isSame(dueDate, "week");
-            });
+              const dueDate = parseDate(t.due_date)
+              return moment().startOf('week').isSame(dueDate, 'week')
+            })
       if (isName) {
         return tasks.sort(
-          firstBy("project_name")
-            .thenBy("task_type_name")
-            .thenBy("full_entity_name")
-        );
+          firstBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('full_entity_name')
+        )
       } else if (isPriority) {
         return tasks.sort(
-          firstBy("priority", -1)
+          firstBy('priority', -1)
             .thenBy((a, b) => {
-              if (!a.due_date) return 1;
-              else if (!b.due_date) return -1;
-              else return a.due_date.localeCompare(b.due_date);
+              if (!a.due_date) return 1
+              else if (!b.due_date) return -1
+              else return a.due_date.localeCompare(b.due_date)
             })
-            .thenBy("project_name")
-            .thenBy("task_type_name")
-            .thenBy("entity_name")
-        );
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
+        )
       } else if (isDueDate) {
         return tasks.sort(
           firstBy((a, b) => {
-            if (!a.due_date) return 1;
-            else if (!b.due_date) return -1;
-            else return a.due_date.localeCompare(b.due_date);
+            if (!a.due_date) return 1
+            else if (!b.due_date) return -1
+            else return a.due_date.localeCompare(b.due_date)
           })
-            .thenBy("project_name")
-            .thenBy("task_type_name")
-            .thenBy("entity_name")
-        );
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
+        )
       } else {
         return tasks.sort(
           firstBy(this.currentSort, -1)
-            .thenBy("project_name")
-            .thenBy("task_type_name")
-            .thenBy("entity_name")
-        );
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
+        )
       }
-    },
+    }
   },
 
   methods: {
     ...mapActions([
-      "loadTodos",
-      "loadOpenProductions",
-      "removeTodoSearch",
-      "saveTodoSearch",
-      "setDayOff",
-      "setTodoListScrollPosition",
-      "setTodosSearch",
-      "setTimeSpent",
-      "unsetDayOff",
+      'loadTodos',
+      'loadOpenProductions',
+      'removeTodoSearch',
+      'saveTodoSearch',
+      'setDayOff',
+      'setTodoListScrollPosition',
+      'setTodosSearch',
+      'setTimeSpent',
+      'unsetDayOff'
     ]),
 
     isTabActive(tab) {
-      return this.activeTab === tab;
+      return this.activeTab === tab
     },
 
     resizeHeaders() {
       this.$nextTick(() => {
-        if (this.todoList) this.todoList.resizeHeaders();
-        if (this.haveDoneList) this.haveDoneList.resizeHeaders();
-      });
+        if (this.todoList) this.todoList.resizeHeaders()
+        if (this.haveDoneList) this.haveDoneList.resizeHeaders()
+      })
     },
 
     selectTab(tab) {
-      this.activeTab = tab;
-      this.resizeHeaders();
+      this.activeTab = tab
+      this.resizeHeaders()
       setTimeout(() => {
-        if (this.$refs["todos-search-field"]) {
-          this.$refs["todos-search-field"].focus();
+        if (this.$refs['todos-search-field']) {
+          this.$refs['todos-search-field'].focus()
         }
-      }, 300);
+      }, 300)
     },
 
     updateActiveTab() {
-      if (["done", "timesheets"].includes(this.$route.params.tab)) {
-        this.activeTab = this.$route.params.tab;
+      if (['done', 'timesheets'].includes(this.$route.params.tab)) {
+        this.activeTab = this.$route.params.tab
       } else {
-        this.activeTab = "todos";
+        this.activeTab = 'todos'
       }
     },
 
     onSearchChange(text) {
-      this.setTodosSearch(text);
+      this.setTodosSearch(text)
     },
 
     changeSearch(searchQuery) {
-      this.$refs["todos-search-field"].setValue(searchQuery.search_query);
-      this.$refs["todos-search-field"].$emit(
-        "change",
-        searchQuery.search_query
-      );
+      this.$refs['todos-search-field'].setValue(searchQuery.search_query)
+      this.$refs['todos-search-field'].$emit('change', searchQuery.search_query)
     },
 
     saveSearchQuery(searchQuery) {
       this.saveTodoSearch(searchQuery)
         .then(() => {})
         .catch((err) => {
-          if (err) console.error(err);
-        });
+          if (err) console.error(err)
+        })
     },
 
     removeSearchQuery(searchQuery) {
       this.removeTodoSearch(searchQuery)
         .then(() => {})
         .catch((err) => {
-          if (err) console.error(err);
-        });
+          if (err) console.error(err)
+        })
     },
 
     onDateChanged(date) {
-      this.selectedDate = moment(date).format("YYYY-MM-DD");
+      this.selectedDate = moment(date).format('YYYY-MM-DD')
       this.loadTodos({
         date: this.selectedDate,
-        forced: true,
-      });
+        forced: true
+      })
     },
 
     onSetDayOff() {
       const dayOff = {
         personId: this.user.id,
-        date: this.selectedDate,
-      };
-      this.setDayOff(dayOff);
+        date: this.selectedDate
+      }
+      this.setDayOff(dayOff)
     },
 
     onUnsetDayOff() {
       const dayOff = {
         personId: this.user.id,
-        date: this.selectedDate,
-      };
-      this.unsetDayOff(dayOff);
+        date: this.selectedDate
+      }
+      this.unsetDayOff(dayOff)
       this.loadTodos({
         forced: true,
-        date: this.selectedDate,
-      });
+        date: this.selectedDate
+      })
     },
 
     onTimeSpentChange(timeSpentInfo) {
-      timeSpentInfo.personId = this.user.id;
-      timeSpentInfo.date = this.selectedDate;
-      this.setTimeSpent(timeSpentInfo);
+      timeSpentInfo.personId = this.user.id
+      timeSpentInfo.date = this.selectedDate
+      this.setTimeSpent(timeSpentInfo)
     },
 
     onAssignation(eventData) {
@@ -336,41 +333,41 @@ export default {
             callback: () => {
               if (this.todoList) {
                 this.$nextTick(() => {
-                  this.todoList.setScrollPosition(this.todoListScrollPosition);
-                });
+                  this.todoList.setScrollPosition(this.todoListScrollPosition)
+                })
               }
-              this.resizeHeaders();
-            },
-          });
-        });
+              this.resizeHeaders()
+            }
+          })
+        })
       }
-    },
+    }
   },
 
   socket: {
     events: {
-      "task:assign"(eventData) {
-        this.onAssignation(eventData);
+      'task:assign'(eventData) {
+        this.onAssignation(eventData)
       },
 
-      "task:unassign"(eventData) {
-        this.onAssignation(eventData);
-      },
-    },
+      'task:unassign'(eventData) {
+        this.onAssignation(eventData)
+      }
+    }
   },
 
   watch: {
     $route() {
-      this.updateActiveTab();
-    },
+      this.updateActiveTab()
+    }
   },
 
   metaInfo() {
     return {
-      title: `${this.$t("tasks.my_tasks")} - Kitsu`,
-    };
-  },
-};
+      title: `${this.$t('tasks.my_tasks')} - Kitsu`
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

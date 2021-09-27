@@ -43,19 +43,19 @@
               button: true,
               'main-button': true,
               'is-fullwidth': true,
-              'is-loading': isLoginLoading,
+              'is-loading': isLoginLoading
             }"
             @click="confirmLogIn"
           >
-            {{ $t("login.login") }}
+            {{ $t('login.login') }}
           </a>
         </p>
         <p v-show="isLoginError" class="control error">
-          {{ $t("login.login_failed") }}
+          {{ $t('login.login_failed') }}
         </p>
         <p class="has-text-centered">
           <router-link :to="{ name: 'reset-password' }">
-            {{ $t("login.forgot_password") }}
+            {{ $t('login.forgot_password') }}
           </router-link>
         </p>
       </div>
@@ -64,30 +64,30 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import { MailIcon, LockIcon } from "vue-feather-icons";
+import { mapGetters, mapActions } from 'vuex'
+import { MailIcon, LockIcon } from 'vue-feather-icons'
 
 export default {
-  name: "Login",
+  name: 'Login',
 
   components: {
     MailIcon,
-    LockIcon,
+    LockIcon
   },
 
   computed: {
-    ...mapGetters(["isLoginLoading", "isLoginError"]),
+    ...mapGetters(['isLoginLoading', 'isLoginError'])
   },
 
   methods: {
-    ...mapActions(["logIn"]),
+    ...mapActions(['logIn']),
 
     updateEmail(e) {
-      this.$store.dispatch("changeEmail", e.target.value);
+      this.$store.dispatch('changeEmail', e.target.value)
     },
 
     updatePassword(e) {
-      this.$store.dispatch("changePassword", e.target.value);
+      this.$store.dispatch('changePassword', e.target.value)
     },
 
     confirmLogIn() {
@@ -95,24 +95,24 @@ export default {
         if (err) {
           if (err.default_password) {
             this.$router.push({
-              name: "reset-change-password",
-              params: { token: err.token },
-            });
+              name: 'reset-change-password',
+              params: { token: err.token }
+            })
           } else {
-            console.error(err);
+            console.error(err)
           }
         }
-        if (success) this.$router.push("/");
-      });
-    },
+        if (success) this.$router.push('/')
+      })
+    }
   },
 
   metaInfo() {
     return {
-      title: this.$t("login.title"),
-    };
-  },
-};
+      title: this.$t('login.title')
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

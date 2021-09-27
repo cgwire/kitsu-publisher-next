@@ -6,7 +6,7 @@
     target="_blank"
     :style="{
       width: emptyWidth + 'px',
-      height: emptyHeight + 'px',
+      height: emptyHeight + 'px'
     }"
   >
     <img
@@ -30,11 +30,11 @@
     :class="{
       'thumbnail-picture': true,
       'thumbnail-empty': true,
-      square: square,
+      square: square
     }"
     :style="{
       width: emptyWidth + 'px',
-      height: emptyHeight + 'px',
+      height: emptyHeight + 'px'
     }"
   >
   </span>
@@ -42,99 +42,99 @@
 
 <script>
 export default {
-  name: "EntityThumbnail",
+  name: 'EntityThumbnail',
 
   props: {
     entity: {
       default: () => {},
-      type: Object,
+      type: Object
     },
     square: {
       default: false,
-      type: Boolean,
+      type: Boolean
     },
     width: {
       default: null,
-      type: Number,
+      type: Number
     },
     height: {
       default: null,
-      type: Number,
+      type: Number
     },
     maxWidth: {
       default: null,
-      type: Number,
+      type: Number
     },
     maxHeight: {
       default: null,
-      type: Number,
+      type: Number
     },
     emptyHeight: {
       default: 30,
-      type: Number,
+      type: Number
     },
     emptyWidth: {
       default: 50,
-      type: Number,
+      type: Number
     },
     previewFileId: {
       default: null,
-      type: String,
+      type: String
     },
     withLink: {
       default: true,
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
 
   computed: {
     originalPath() {
-      const previewFileId = this.previewFileId || this.entity.preview_file_id;
-      return "/api/pictures/originals/preview-files/" + previewFileId + ".png";
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      return '/api/pictures/originals/preview-files/' + previewFileId + '.png'
     },
 
     isPreview() {
-      const previewFileId = this.previewFileId || this.entity.preview_file_id;
-      return previewFileId && previewFileId.length > 0;
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      return previewFileId && previewFileId.length > 0
     },
 
     imgStyle() {
-      const style = {};
+      const style = {}
       if (this.maxWidth) {
-        style["max-width"] = this.maxWidth + "px";
+        style['max-width'] = this.maxWidth + 'px'
       } else if (this.width) {
-        style.width = this.width + "px";
+        style.width = this.width + 'px'
       }
       if (this.maxHeight) {
-        style["max-height"] = this.maxHeight + "px";
+        style['max-height'] = this.maxHeight + 'px'
       } else if (this.height) {
-        style.height = this.height + "px";
+        style.height = this.height + 'px'
       }
-      return style;
+      return style
     },
 
     thumbnailPath() {
-      const previewFileId = this.previewFileId || this.entity.preview_file_id;
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
 
       if (this.square) {
         return (
-          "/api/pictures/thumbnails-square/preview-files/" +
+          '/api/pictures/thumbnails-square/preview-files/' +
           previewFileId +
-          ".png"
-        );
+          '.png'
+        )
       } else {
         return (
-          "/api/pictures/thumbnails/preview-files/" + previewFileId + ".png"
-        );
+          '/api/pictures/thumbnails/preview-files/' + previewFileId + '.png'
+        )
       }
     },
 
     thumbnailKey() {
-      const previewFileId = this.previewFileId || this.entity.preview_file_id;
-      return `thumbnail-${previewFileId}`;
-    },
-  },
-};
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      return `thumbnail-${previewFileId}`
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>
