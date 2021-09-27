@@ -122,7 +122,7 @@ export default {
   font-family: Lato;
   font-style: normal;
   font-weight: 400;
-  src: url(assets/Lato.woff2) format('woff2');
+  src: url(assets/fonts/Lato.woff2) format('woff2');
 }
 
 html {
