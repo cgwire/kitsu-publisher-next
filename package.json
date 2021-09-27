@@ -19,7 +19,6 @@
     "format": "prettier . --ignore-path .gitignore --write"
   },
   "dependencies": {
-    "@vue/compat": "^3.2.16",
     "bulma": "0.9.3",
     "color-hash": "^2.0.1",
     "color-string": "^1.6.0",

@@ -1,4 +1,4 @@
-import { configureCompat, createApp } from 'vue'
+import { createApp } from 'vue'
 import { sync } from 'vuex-router-sync'
 
 import 'bulma/css/bulma.css'
@@ -8,14 +8,6 @@ import i18n from './lib/i18n'
 import VueFeather from 'vue-feather'
 
 import App from './App.vue'
-
-configureCompat({
-  MODE: 3,
-  INSTANCE_EVENT_HOOKS: true,
-  INSTANCE_EVENT_EMITTER: true,
-  INSTANCE_CHILDREN: true,
-  INSTANCE_SCOPED_SLOTS: true
-})
 
 const app = createApp(App)
 app.use(i18n)
