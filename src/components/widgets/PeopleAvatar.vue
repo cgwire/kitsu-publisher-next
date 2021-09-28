@@ -1,6 +1,5 @@
 <template>
   <span
-    v-if="isLink"
     class="avatar has-text-centered"
     :style="{
       background: person.color,
@@ -10,6 +9,7 @@
       'min-height': size + 'px',
       'font-size': person.has_avatar ? 0 : fontSize + 'px'
     }"
+    v-if="isLink"
   >
     <router-link
       :to="{
@@ -21,8 +21,8 @@
       :title="person.full_name"
       class="avatar-link"
     >
-      <img v-if="person.has_avatar && noCache" :src="avatarPath" />
-      <img v-else-if="person.has_avatar" :key="avatarKey" v-lazy="avatarPath" />
+      <img :src="avatarPath" v-if="person.has_avatar && noCache" />
+      <img v-lazy="avatarPath" :key="avatarKey" v-else-if="person.has_avatar" />
       <span v-if="!person.has_avatar">
         {{ initials }}
       </span>
@@ -30,7 +30,6 @@
   </span>
 
   <span
-    v-else
     class="avatar has-text-centered"
     :title="person.full_name"
     :style="{
@@ -39,9 +38,10 @@
       height: size + 'px',
       'font-size': fontSize + 'px'
     }"
+    v-else
   >
-    <img v-if="person.has_avatar && noCache" :src="avatarPath" />
-    <img v-else-if="person.has_avatar" :key="avatarKey" v-lazy="avatarPath" />
+    <img :src="avatarPath" v-if="person.has_avatar && noCache" />
+    <img v-lazy="avatarPath" :key="avatarKey" v-else-if="person.has_avatar" />
     <span v-else>
       {{ initials }}
     </span>
@@ -50,7 +50,15 @@
 
 <script>
 export default {
-  name: 'PersonAvatar',
+  name: 'person-avatar',
+
+  data() {
+    return {
+      avatarPath: '',
+      avatarKey: '',
+      initials: ''
+    }
+  },
 
   props: {
     person: {
@@ -66,12 +74,20 @@ export default {
     'no-cache': { type: Boolean, default: false }
   },
 
-  data() {
-    return {
-      avatarPath: '',
-      avatarKey: '',
-      initials: ''
+  created() {
+    this.reloadAvatar()
+  },
+
+  methods: {
+    reloadAvatar() {
+      this.avatarPath =
+        this.person.avatarPath + '?unique=' + this.person.uniqueHash
+      this.avatarKey = this.person.id + '-' + this.person.uniqueHash
     }
+  },
+
+  mounted() {
+    this.initials = this.person.initials
   },
 
   watch: {
@@ -81,22 +97,6 @@ export default {
 
     'person.uniqueHash'() {
       this.reloadAvatar()
-    }
-  },
-
-  created() {
-    this.reloadAvatar()
-  },
-
-  mounted() {
-    this.initials = this.person.initials
-  },
-
-  methods: {
-    reloadAvatar() {
-      this.avatarPath =
-        this.person.avatarPath + '?unique=' + this.person.uniqueHash
-      this.avatarKey = this.person.id + '-' + this.person.uniqueHash
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <router-link v-if="productionId" :to="taskTypePath">
+  <router-link :to="taskTypePath" v-if="productionId">
     <span
       class="tag task-type-name"
       :style="{ 'border-left': '4px solid ' + color }"
@@ -8,13 +8,13 @@
     </span>
   </router-link>
   <div
-    v-else
     class="tag task-type-name no-link"
     :class="{ deletable }"
     :style="{ 'border-left': '4px solid ' + color }"
+    v-else
   >
     {{ taskType.name }}
-    <span v-if="deletable" class="delete-times" @click="$emit('delete')">
+    <span class="delete-times" v-if="deletable" @click="$emit('delete')">
       ×
     </span>
   </div>
@@ -24,7 +24,7 @@
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: 'TaskTypeName',
+  name: 'task-type-name',
   components: {},
 
   props: {

@@ -13,7 +13,7 @@ import PeopleAvatar from '../widgets/PeopleAvatar'
 import PeopleName from '../widgets/PeopleName'
 
 export default {
-  name: 'PeopleNameCell',
+  name: 'people-name-cell',
   components: {
     PeopleName,
     PeopleAvatar

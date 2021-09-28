@@ -10,7 +10,7 @@ export const formatListMixin = {
 
   mounted() {},
 
-  beforeDestroy() {},
+  beforeUnmount() {},
 
   computed: {
     ...mapGetters(['organisation'])

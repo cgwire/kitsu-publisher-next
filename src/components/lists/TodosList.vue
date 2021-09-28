@@ -1,28 +1,28 @@
 <template>
   <div class="data-list task-list">
-    <div ref="body" v-scroll="onBodyScroll" class="datatable-wrapper">
+    <div class="datatable-wrapper" ref="body" v-scroll="onBodyScroll">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
             <th
-              ref="th-prod"
               scope="col"
               class="production datatable-row-header datatable-row-header--nobd"
+              ref="th-prod"
             >
               {{ $t('tasks.fields.production') }}
             </th>
             <th
-              ref="th-type"
               scope="col"
               class="type datatable-row-header datatable-row-header--nobd"
+              ref="th-type"
               :style="{ left: colTypePosX }"
             >
               {{ $t('tasks.fields.task_type') }}
             </th>
             <th
-              ref="th-name"
               scope="col"
               class="name datatable-row-header"
+              ref="th-name"
               :style="{ left: colNamePosX }"
             >
               {{ $t('tasks.fields.entity') }}
@@ -42,15 +42,15 @@
             <th scope="col" class="status">
               {{ $t('tasks.fields.task_status') }}
             </th>
-            <th v-if="!done" scope="col" class="last-comment">
+            <th scope="col" class="last-comment" v-if="!done">
               {{ $t('tasks.fields.last_comment') }}
             </th>
-            <th v-else scope="col" class="end-date">
+            <th scope="col" class="end-date" v-else>
               {{ $t('tasks.fields.end_date') }}
             </th>
           </tr>
         </thead>
-        <tbody v-if="tasks.length > 0" class="datatable-body">
+        <tbody class="datatable-body" v-if="tasks.length > 0">
           <tr
             v-for="(entry, i) in displayedTasks"
             :key="entry + '-' + i"
@@ -107,8 +107,8 @@
               {{ formatDate(entry.due_date) }}
             </td>
             <validation-cell
-              :ref="'validation-' + i + '-0'"
               class="status unselectable"
+              :ref="'validation-' + i + '-0'"
               :task-test="entry"
               :is-border="false"
               :is-assignees="false"
@@ -117,18 +117,18 @@
               :selected="
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
               "
-              :row-x="i"
-              :column-y="0"
-              :column="entry.taskStatus"
+              :rowX="i"
+              :columnY="0"
               @select="onTaskSelected"
               @unselect="onTaskUnselected"
+              :column="entry.taskStatus"
             />
             <last-comment-cell
-              v-if="!done"
               class="last-comment"
               :task="entry"
+              v-if="!done"
             />
-            <td v-else class="end-date">
+            <td class="end-date" v-else>
               {{ formatDate(entry.end_date) }}
             </td>
           </tr>
@@ -139,8 +139,8 @@
     <table-info :is-loading="isLoading" :is-error="isError" />
 
     <div
-      v-if="tasks.length === 0 && !isLoading"
       class="has-text-centered empty-list"
+      v-if="tasks.length === 0 && !isLoading"
     >
       <p>
         <img src="../../assets/illustrations/empty_todo.png" />
@@ -150,7 +150,7 @@
       </p>
     </div>
 
-    <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info">
+    <p class="has-text-centered footer-info" v-if="tasks.length && !isLoading">
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
   </div>
@@ -173,7 +173,8 @@ import TableInfo from '@/components/widgets/TableInfo'
 import ValidationCell from '@/components/cells/ValidationCell'
 
 export default {
-  name: 'TodosList',
+  name: 'todos-list',
+  mixins: [formatListMixin, selectionListMixin],
 
   components: {
     EntityThumbnail,
@@ -184,9 +185,29 @@ export default {
     TaskTypeCell,
     ValidationCell
   },
-  mixins: [formatListMixin, selectionListMixin],
 
-  props: ['done', 'tasks', 'isLoading', 'isError', 'selectionGrid'],
+  props: {
+    done: {
+      type: Boolean,
+      default: false
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
+    },
+    isError: {
+      type: Boolean,
+      default: false
+    },
+    tasks: {
+      type: Array,
+      default: () => []
+    },
+    selectionGrid: {
+      type: Object,
+      default: () => {}
+    }
+  },
 
   data() {
     return {
@@ -243,7 +264,9 @@ export default {
 
     onLineClicked(i, event) {
       const ref = 'validation-' + i + '-0'
-      const validationCell = this.$refs[ref][0]
+      console.log(ref, Object.keys(this.$refs))
+      console.log(Object.keys(this.$refs[ref]))
+      const validationCell = this.$refs[ref]
       validationCell.select(event)
     },
 
@@ -298,13 +321,19 @@ export default {
     getTaskType(entry) {
       const taskType = this.taskTypeMap.get(entry.task_type_id)
       const production = this.productionMap.get(entry.project_id)
-      taskType.episode_id = entry.episode_id
+      this.$store.commit('SET_EPISODE_ON_TASK_TYPE', {
+        taskType,
+        episodeId: entry.episode_id
+      })
       if (
         production &&
         production.production_type === 'tvshow' &&
         !entry.episode_id
       ) {
-        taskType.episode_id = production.first_episode_id
+        this.$store.commit('SET_EPISODE_ON_TASK_TYPE', {
+          taskType,
+          episodeId: production.first_episode_id
+        })
       }
       return taskType
     },

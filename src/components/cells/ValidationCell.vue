@@ -14,7 +14,7 @@
     @mouseout="onMouseOut"
     @click="onClick"
   >
-    <div v-if="!minimized" class="wrapper">
+    <div class="wrapper" v-if="!minimized">
       <span v-if="task">
         <span
           class="tag"
@@ -26,13 +26,13 @@
         >
           {{ taskStatus.short_name }}
         </span>
-        <span v-if="!isCurrentUserClient" class="priority">
+        <span class="priority" v-if="!isCurrentUserClient">
           {{ priority }}
         </span>
       </span>
       <!-- Add image with initials again (for Vue3) -->
     </div>
-    <div v-else class="wrapper">
+    <div class="wrapper" v-else>
       <span
         class="tag"
         :style="{
@@ -48,10 +48,16 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import colors from '../../lib/colors'
+import colors from '@/lib/colors'
 
 export default {
-  name: 'ValidationCell',
+  name: 'validation-cell',
+
+  data() {
+    return {
+      task: null
+    }
+  },
 
   components: {},
 
@@ -111,12 +117,6 @@ export default {
     sticked: {
       default: false,
       type: Boolean
-    }
-  },
-
-  data() {
-    return {
-      task: null
     }
   },
 

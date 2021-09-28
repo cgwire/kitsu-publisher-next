@@ -7,31 +7,31 @@
       ></div>
     </template>
     <template v-else>
-      <div v-if="isOpen" class="c-mask"></div>
+      <div class="c-mask" v-if="isOpen"></div>
       <span
         class="description-shorten-text selectable"
         v-html="compileMarkdown(shortenText(entry.description || '', 20))"
       >
       </span>
       <div
-        v-if="isOpen"
         class="tooltip"
         @dblclick="onDoubleClick"
         @keyup.esc="onClick"
+        v-if="isOpen"
       >
         <div
-          v-if="!isEditing"
           class="tooltip-text"
           @keyup.esc="onClick"
           v-html="compileMarkdown(entry.description)"
+          v-if="!isEditing"
         ></div>
         <textarea
-          v-else
-          ref="text"
           class="tooltip-editor"
+          ref="text"
           :value="entry.description"
           @keyup.esc="onClick"
           @keyup.ctrl.enter="onDoubleClick"
+          v-else
         >
         </textarea>
       </div>
@@ -45,7 +45,14 @@ import { mapGetters, mapActions } from 'vuex'
 import stringHelpers from '../../lib/string'
 
 export default {
-  name: 'DescriptionCell',
+  name: 'description-cell',
+  data() {
+    return {
+      isEditing: false,
+      isOpen: false,
+      timeout: null
+    }
+  },
 
   components: {},
 
@@ -61,13 +68,6 @@ export default {
     full: {
       type: Boolean,
       default: false
-    }
-  },
-  data() {
-    return {
-      isEditing: false,
-      isOpen: false,
-      timeout: null
     }
   },
 

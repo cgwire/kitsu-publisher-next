@@ -1,9 +1,9 @@
 <template>
   <div class="has-text-centered" :style="sizeStyle">
-    <img v-if="isWhite" src="../../assets/spinner-white.svg" />
-    <square-grid v-else-if="isProcessing" :style="{ margin: 'auto' }" />
-    <origami v-else-if="isStylish" :style="{ margin: 'auto' }" />
-    <img v-else src="../../assets/spinner.svg" />
+    <img src="../../assets/spinner-white.svg" v-if="isWhite" />
+    <square-grid :style="{ margin: 'auto' }" v-else-if="isProcessing" />
+    <origami :style="{ margin: 'auto' }" v-else-if="isStylish" />
+    <img src="../../assets/spinner.svg" v-else />
   </div>
 </template>
 
@@ -12,7 +12,7 @@ import Origami from '@/components/spinners/Origami.vue'
 import SquareGrid from '@/components/spinners/SquareGrid.vue'
 
 export default {
-  name: 'Spinner',
+  name: 'spinner',
   components: {
     SquareGrid,
     Origami
