@@ -3,22 +3,22 @@
     <div class="container has-text-centered">
       <div class="box has-text-left">
         <div class="has-text-centered login-header">
-          <img src="../assets/kitsu.png" />
+          <img src="../../assets/kitsu.png" />
           <h1 class="title">Kitsu</h1>
         </div>
         <form>
           <div class="field mt1">
             <p class="control has-icon">
               <input
-                v-focus
                 class="input is-medium email"
                 type="text"
                 :placeholder="$t('login.fields.email')"
                 @input="updateEmail"
                 @keyup.enter="confirmLogIn"
+                v-focus
               />
               <span class="icon">
-                <mail-icon width="20" height="20" />
+                <icon name="mail" width="20" height="20" />
               </span>
             </p>
           </div>
@@ -32,14 +32,14 @@
                 @keyup.enter="confirmLogIn"
               />
               <span class="icon">
-                <lock-icon width="20" height="20" />
+                <icon name="lock" width="20" height="20" />
               </span>
             </p>
           </div>
         </form>
         <p class="control">
           <a
-            :class="{
+            v-bind:class="{
               button: true,
               'main-button': true,
               'is-fullwidth': true,
@@ -50,7 +50,7 @@
             {{ $t('login.login') }}
           </a>
         </p>
-        <p v-show="isLoginError" class="control error">
+        <p class="control error" v-show="isLoginError">
           {{ $t('login.login_failed') }}
         </p>
         <p class="has-text-centered">
@@ -65,14 +65,13 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import { MailIcon, LockIcon } from 'vue-feather-icons'
+import Icon from '@/components/widgets/Icon'
 
 export default {
-  name: 'Login',
+  name: 'login',
 
   components: {
-    MailIcon,
-    LockIcon
+    Icon
   },
 
   computed: {

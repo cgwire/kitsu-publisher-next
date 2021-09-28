@@ -15,7 +15,7 @@ import { mapGetters, mapActions } from 'vuex'
 import auth from '@/lib/auth'
 
 export default {
-  name: 'ServerDown',
+  name: 'server-down',
   computed: {
     ...mapGetters(['isAuthenticated', 'user'])
   },

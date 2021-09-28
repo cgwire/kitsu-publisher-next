@@ -43,28 +43,28 @@
         </div>
 
         <todos-list
-          v-if="isTabActive('todos')"
           ref="todo-list"
           :tasks="sortedTasks"
           :is-loading="isTodosLoading"
           :is-error="isTodosLoadingError"
           :selection-grid="todoSelectionGrid"
+          v-if="isTabActive('todos')"
           @scroll="setTodoListScrollPosition"
         />
 
         <div v-if="isTabActive('done')">&nbsp;</div>
         <todos-list
-          v-if="isTabActive('done')"
           ref="done-list"
           :tasks="displayedDoneTasks"
           :is-loading="isTodosLoading"
           :is-error="isTodosLoadingError"
           :done="true"
+          v-if="isTabActive('done')"
         />
       </div>
     </div>
 
-    <div v-if="nbSelectedTasks === 1" class="column side-column">
+    <div class="column side-column" v-if="nbSelectedTasks === 1">
       <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>
@@ -76,12 +76,14 @@ import moment from 'moment-timezone'
 import firstBy from 'thenby'
 
 import { parseDate } from '@/lib/time'
+import TaskInfo from '@/components/sides/TaskInfo'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
-  name: 'Todos',
+  name: 'todos',
 
   components: {
+    TaskInfo,
     TodosList
   },
 
