@@ -9,6 +9,7 @@ import Todos from '../components/pages/Todos'
 import Login from '../components/pages/Login'
 
 const ServerDown = () => import('../components/pages/ServerDown')
+const ResetPassword = () => import('../components/pages/ResetPassword')
 
 const routes = [
   {
@@ -18,16 +19,19 @@ const routes = [
     name: 'todos',
     beforeEnter: (to, from, next) => {
       auth.requireAuth(to, from, (nextPath) => {
-        timezone.setTimezone()
-        lang.setLocale()
-        init((err) => {
-          store.commit('DATA_LOADING_END')
-          if (err) {
-            next({ name: 'server-down' })
-          } else {
-            next({ name: 'todos' })
-          }
-        })
+        if (nextPath) {
+          next(nextPath)
+        } else {
+          timezone.setTimezone()
+          lang.setLocale()
+          init((err) => {
+            if (err) {
+              next({ name: 'server-down' })
+            } else {
+              next({ name: 'todos' })
+            }
+          })
+        }
       })
     },
     children: [{ path: ':tab', component: Todos, name: 'todos-tab' }]
@@ -41,6 +45,11 @@ const routes = [
     path: '/server-down',
     component: ServerDown,
     name: 'server-down'
+  },
+  {
+    path: '/reset-password',
+    component: ResetPassword,
+    name: 'reset-password'
   }
 ]
 

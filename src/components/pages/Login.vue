@@ -22,6 +22,21 @@
               </span>
             </p>
           </div>
+          <div class="field mt1">
+            <p class="control has-icon">
+              <input
+                class="input is-medium email"
+                type="text"
+                :placeholder="$t('login.fields.email')"
+                @input="updateEmail"
+                @keyup.enter="confirmLogIn"
+                v-focus
+              />
+              <span class="icon">
+                <icon name="mail" width="20" height="20" />
+              </span>
+            </p>
+          </div>
           <div class="field">
             <p class="control has-icon">
               <input
