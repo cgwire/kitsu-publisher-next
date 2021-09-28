@@ -20,7 +20,6 @@ export default defineConfig({
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
   },
   server: {
-    open: true,
     proxy: {
       '/api': {
         target: process.env.KITSU_API_TARGET || 'http://localhost:5000',
