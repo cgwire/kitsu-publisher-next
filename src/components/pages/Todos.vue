@@ -76,14 +76,12 @@ import moment from 'moment-timezone'
 import firstBy from 'thenby'
 
 import { parseDate } from '@/lib/time'
-import TaskInfo from '@/components/sides/TaskInfo'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
   name: 'todos',
 
   components: {
-    TaskInfo,
     TodosList
   },
 

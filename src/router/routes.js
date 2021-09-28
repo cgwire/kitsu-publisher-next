@@ -5,10 +5,10 @@ import init from '../lib/init'
 
 import store from '../store/'
 
-import Todos from '../components/Todos'
-import Login from '../components/Login'
+import Todos from '../components/pages/Todos'
+import Login from '../components/pages/Login'
 
-const ServerDown = () => import('../components/ServerDown')
+const ServerDown = () => import('../components/pages/ServerDown')
 
 const routes = [
   {
