@@ -1,17 +1,13 @@
 <template>
-<span>
-  <vue-feather
-    :size="width"
-    :type="type"
-  />
-</span>
+  <span>
+    <vue-feather :size="width" :type="type" />
+  </span>
 </template>
 
 <script>
 export default {
   name: 'icon',
-  components: {
-  },
+  components: {},
 
   props: {
     name: {
@@ -25,15 +21,13 @@ export default {
   },
 
   computed: {
-    type () {
+    type() {
       return this.name.length > 0 ? this.name : 'plus'
     }
   },
 
-  methods: {
-  }
+  methods: {}
 }
 </script>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
