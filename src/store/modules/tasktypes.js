@@ -12,6 +12,7 @@ import {
   DELETE_TASK_TYPE_START,
   DELETE_TASK_TYPE_ERROR,
   DELETE_TASK_TYPE_END,
+  SET_EPISODE_ON_TASK_TYPE,
   RESET_ALL
 } from '../mutation-types'
 
@@ -212,6 +213,10 @@ const mutations = {
       state.taskTypes.splice(taskTypeToDeleteIndex, 1)
     }
     state.taskTypeMap.delete(taskTypeToDelete.id)
+  },
+
+  [SET_EPISODE_ON_TASK_TYPE](state, { taskType, episodeId }) {
+    taskType.episode_id = episodeId
   },
 
   [RESET_ALL](state) {

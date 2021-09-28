@@ -404,6 +404,7 @@ const mutations = {
 
   [USER_LOAD_TODOS_ERROR](state, tasks) {
     state.isTodosLoadingError = true
+    state.isTodosLoading = false
   },
 
   [CHANGE_AVATAR_FILE](state, formData) {

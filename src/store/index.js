@@ -13,7 +13,6 @@ import tasktypes from '/src/store/modules/tasktypes'
 import user from '/src/store/modules/user'
 
 const modules = {
-  tasks,
   assets,
   login,
   people,
@@ -21,13 +20,14 @@ const modules = {
   shots,
   taskstatus,
   tasktypes,
+  tasks,
   user
 }
 
 const store = createStore({
   getters,
   strict: process.env.NODE_ENV !== 'production',
-  modules
+  modules: modules
 })
 
 export default store
