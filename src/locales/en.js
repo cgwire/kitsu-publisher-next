@@ -509,6 +509,7 @@ export default {
     build_mp4: 'Build .mp4 (beta)',
     building: 'Building...',
     client_playlist: 'Client Playlist',
+    comparing_missing_plan: 'Shot missing for current type',
     create_for_selection: 'Generate a playlist for shot selection',
     create_title: 'Create playlist',
     created_at: 'Created at:',
