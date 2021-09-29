@@ -22,7 +22,6 @@ export default defineConfig({
     proxy: {
       '/api': {
         target: process.env.KITSU_API_TARGET || 'http://localhost:5000',
-        changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       },
       '/socket.io': {
