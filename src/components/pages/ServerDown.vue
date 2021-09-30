@@ -15,12 +15,9 @@ import { mapGetters, mapActions } from 'vuex'
 import auth from '@/lib/auth'
 
 export default {
-  name: 'server-down',
+  name: 'ServerDown',
   computed: {
     ...mapGetters(['isAuthenticated', 'user'])
-  },
-  methods: {
-    ...mapActions([])
   },
   mounted() {
     auth.isServerLoggedIn((err) => {
@@ -29,6 +26,9 @@ export default {
         this.$router.push(target)
       }
     })
+  },
+  methods: {
+    ...mapActions([])
   }
 }
 </script>

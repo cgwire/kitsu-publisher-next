@@ -10,7 +10,7 @@ import { mapGetters, mapActions } from 'vuex'
 import TaskTypeName from '../widgets/TaskTypeName'
 
 export default {
-  name: 'task-type-cell',
+  name: 'TaskTypeCell',
   components: {
     TaskTypeName
   },

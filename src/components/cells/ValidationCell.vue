@@ -14,7 +14,7 @@
     @mouseout="onMouseOut"
     @click="onClick"
   >
-    <div class="wrapper" v-if="!minimized">
+    <div v-if="!minimized" class="wrapper">
       <span v-if="task">
         <span
           class="tag"
@@ -26,13 +26,13 @@
         >
           {{ taskStatus.short_name }}
         </span>
-        <span class="priority" v-if="!isCurrentUserClient">
+        <span v-if="!isCurrentUserClient" class="priority">
           {{ priority }}
         </span>
       </span>
       <!-- Add image with initials again (for Vue3) -->
     </div>
-    <div class="wrapper" v-else>
+    <div v-else class="wrapper">
       <span
         class="tag"
         :style="{
@@ -51,13 +51,7 @@ import { mapGetters, mapActions } from 'vuex'
 import colors from '@/lib/colors'
 
 export default {
-  name: 'validation-cell',
-
-  data() {
-    return {
-      task: null
-    }
-  },
+  name: 'ValidationCell',
 
   components: {},
 
@@ -120,13 +114,10 @@ export default {
     }
   },
 
-  mounted() {
-    if (this.taskTest) {
-      this.task = this.taskTest
-    } else if (this.entity && this.column) {
-      this.task = this.taskMap.get(this.entity.validations.get(this.column.id))
+  data() {
+    return {
+      task: null
     }
-    this.changeStyleBasedOnSelected()
   },
 
   computed: {
@@ -190,6 +181,31 @@ export default {
         return {}
       }
     }
+  },
+
+  watch: {
+    selected() {
+      this.changeStyleBasedOnSelected()
+    },
+
+    taskTest() {
+      if (this.taskTest) {
+        this.task = this.taskTest
+      } else if (this.entity) {
+        this.task = this.taskMap.get(
+          this.entity.validations.get(this.column.id)
+        )
+      }
+    }
+  },
+
+  mounted() {
+    if (this.taskTest) {
+      this.task = this.taskTest
+    } else if (this.entity && this.column) {
+      this.task = this.taskMap.get(this.entity.validations.get(this.column.id))
+    }
+    this.changeStyleBasedOnSelected()
   },
 
   methods: {
@@ -288,22 +304,6 @@ export default {
           this.column ? this.column.color : 'transparent'
         )
         this.changeStyle(background)
-      }
-    }
-  },
-
-  watch: {
-    selected() {
-      this.changeStyleBasedOnSelected()
-    },
-
-    taskTest() {
-      if (this.taskTest) {
-        this.task = this.taskTest
-      } else if (this.entity) {
-        this.task = this.taskMap.get(
-          this.entity.validations.get(this.column.id)
-        )
       }
     }
   }

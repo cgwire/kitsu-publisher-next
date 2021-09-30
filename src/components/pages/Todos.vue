@@ -43,28 +43,28 @@
         </div>
 
         <todos-list
+          v-if="isTabActive('todos')"
           ref="todo-list"
           :tasks="sortedTasks"
           :is-loading="isTodosLoading"
           :is-error="isTodosLoadingError"
           :selection-grid="todoSelectionGrid"
-          v-if="isTabActive('todos')"
           @scroll="setTodoListScrollPosition"
         />
 
         <div v-if="isTabActive('done')">&nbsp;</div>
         <todos-list
+          v-if="isTabActive('done')"
           ref="done-list"
           :tasks="displayedDoneTasks"
           :is-loading="isTodosLoading"
           :is-error="isTodosLoadingError"
           :done="true"
-          v-if="isTabActive('done')"
         />
       </div>
     </div>
 
-    <div class="column side-column" v-if="nbSelectedTasks === 1">
+    <div v-if="nbSelectedTasks === 1" class="column side-column">
       <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>
@@ -79,7 +79,7 @@ import { parseDate } from '@/lib/time'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
-  name: 'todos',
+  name: 'Todos',
 
   components: {
     TodosList
@@ -104,34 +104,6 @@ export default {
         'last_comment_date'
       ].map((name) => ({ label: name, value: name }))
     }
-  },
-
-  mounted() {
-    this.updateActiveTab()
-    if (this.todosSearchText.length > 0) {
-      this.$refs['todos-search-field'].setValue(this.todosSearchText)
-    }
-    this.$nextTick(() => {
-      this.loadTodos({
-        date: this.selectedDate,
-        callback: () => {
-          if (this.todoList) {
-            this.$nextTick(() => {
-              this.todoList.setScrollPosition(this.todoListScrollPosition)
-            })
-          }
-          this.resizeHeaders()
-        }
-      })
-    })
-  },
-
-  afterDestroy() {
-    this.$store.commit('USER_LOAD_TODOS_END', {
-      tasks: [],
-      userFilters: {},
-      taskTypeMap: this.taskTypeMap
-    })
   },
 
   computed: {
@@ -221,6 +193,40 @@ export default {
         )
       }
     }
+  },
+
+  watch: {
+    $route() {
+      this.updateActiveTab()
+    }
+  },
+
+  mounted() {
+    this.updateActiveTab()
+    if (this.todosSearchText.length > 0) {
+      this.$refs['todos-search-field'].setValue(this.todosSearchText)
+    }
+    this.$nextTick(() => {
+      this.loadTodos({
+        date: this.selectedDate,
+        callback: () => {
+          if (this.todoList) {
+            this.$nextTick(() => {
+              this.todoList.setScrollPosition(this.todoListScrollPosition)
+            })
+          }
+          this.resizeHeaders()
+        }
+      })
+    })
+  },
+
+  afterDestroy() {
+    this.$store.commit('USER_LOAD_TODOS_END', {
+      tasks: [],
+      userFilters: {},
+      taskTypeMap: this.taskTypeMap
+    })
   },
 
   methods: {
@@ -344,7 +350,7 @@ export default {
     }
   },
 
-  socket: {
+  /*socket: {
     events: {
       'task:assign'(eventData) {
         this.onAssignation(eventData)
@@ -354,13 +360,7 @@ export default {
         this.onAssignation(eventData)
       }
     }
-  },
-
-  watch: {
-    $route() {
-      this.updateActiveTab()
-    }
-  },
+  },*/
 
   metaInfo() {
     return {

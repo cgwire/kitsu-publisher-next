@@ -7,30 +7,30 @@
           <h1 class="title">Kitsu</h1>
         </div>
         <form>
-          <div class="field mt1">
+          <!--<div class="field mt1">
             <p class="control has-icon">
               <input
-                class="input is-medium email"
-                type="text"
-                :placeholder="$t('login.fields.email')"
-                @input="updateEmail"
-                @keyup.enter="confirmLogIn"
                 v-focus
+                class="input is-medium server"
+                type="text"
+                :placeholder="$t('login.fields.server')"
+                @input="updateServer"
+                @keyup.enter="confirmLogIn"
               />
               <span class="icon">
-                <icon name="mail" width="20" height="20" />
+                <icon name="server" width="20" height="20" />
               </span>
             </p>
-          </div>
+          </div>-->
           <div class="field mt1">
             <p class="control has-icon">
               <input
+                v-focus
                 class="input is-medium email"
                 type="text"
                 :placeholder="$t('login.fields.email')"
                 @input="updateEmail"
                 @keyup.enter="confirmLogIn"
-                v-focus
               />
               <span class="icon">
                 <icon name="mail" width="20" height="20" />
@@ -54,7 +54,7 @@
         </form>
         <p class="control">
           <a
-            v-bind:class="{
+            :class="{
               button: true,
               'main-button': true,
               'is-fullwidth': true,
@@ -65,7 +65,7 @@
             {{ $t('login.login') }}
           </a>
         </p>
-        <p class="control error" v-show="isLoginError">
+        <p v-show="isLoginError" class="control error">
           {{ $t('login.login_failed') }}
         </p>
         <p class="has-text-centered">
@@ -83,7 +83,7 @@ import { mapGetters, mapActions } from 'vuex'
 import Icon from '@/components/widgets/Icon'
 
 export default {
-  name: 'login',
+  name: 'Login',
 
   components: {
     Icon
@@ -95,6 +95,10 @@ export default {
 
   methods: {
     ...mapActions(['logIn']),
+
+    updateServer(e) {
+      this.$store.dispatch('changeServer', e.target.value)
+    },
 
     updateEmail(e) {
       this.$store.dispatch('changeEmail', e.target.value)

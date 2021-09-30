@@ -1,5 +1,6 @@
 <template>
   <a
+    v-if="isPreview && withLink"
     class="thumbnail-wrapper"
     :href="originalPath"
     target="_blank"
@@ -7,25 +8,25 @@
       width: emptyWidth + 'px',
       height: emptyHeight + 'px'
     }"
-    v-if="isPreview && withLink"
   >
     <img
+      :key="thumbnailKey"
+      v-lazy="thumbnailPath"
       class="thumbnail-picture"
       :style="imgStyle"
-      v-lazy="thumbnailPath"
-      :key="thumbnailKey"
     />
   </a>
 
   <img
+    v-else-if="isPreview && !withLink"
+    :key="thumbnailKey"
+    v-lazy="thumbnailPath"
     class="thumbnail-picture"
     style="imgStyle"
-    v-lazy="thumbnailPath"
-    :key="thumbnailKey"
-    v-else-if="isPreview && !withLink"
   />
 
   <span
+    v-else
     :class="{
       'thumbnail-picture': true,
       'thumbnail-empty': true,
@@ -35,14 +36,13 @@
       width: emptyWidth + 'px',
       height: emptyHeight + 'px'
     }"
-    v-else
   >
   </span>
 </template>
 
 <script>
 export default {
-  name: 'entity-thumbnail',
+  name: 'EntityThumbnail',
 
   props: {
     entity: {

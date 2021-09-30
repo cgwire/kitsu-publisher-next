@@ -5,6 +5,7 @@ import init from '../lib/init'
 
 import store from '../store/'
 
+import Main from '../components/Main'
 import Todos from '../components/pages/Todos'
 import Login from '../components/pages/Login'
 
@@ -14,9 +15,7 @@ const ResetPassword = () => import('../components/pages/ResetPassword')
 const routes = [
   {
     path: '',
-    alias: '/',
-    component: Todos,
-    name: 'todos',
+    component: Main,
     beforeEnter: (to, from, next) => {
       auth.requireAuth(to, from, (nextPath) => {
         if (nextPath) {
@@ -33,8 +32,37 @@ const routes = [
           })
         }
       })
+    }
+  },
+  {
+    path: '/',
+    component: Main,
+    beforeEnter: (to, from, next) => {
+      auth.requireAuth(to, from, (nextPath) => {
+        if (nextPath) {
+          next(nextPath)
+        } else {
+          timezone.setTimezone()
+          lang.setLocale()
+          init(() => {
+            store.commit('DATA_LOADING_END')
+            next()
+          })
+        }
+      })
     },
-    children: [{ path: ':tab', component: Todos, name: 'todos-tab' }]
+    children: [
+      {
+        path: '',
+        name: 'home'
+      },
+      {
+        path: 'todos',
+        component: Todos,
+        name: 'todos',
+        children: [{ path: ':tab', component: Todos, name: 'todos-tab' }]
+      }
+    ]
   },
   {
     path: '/login',

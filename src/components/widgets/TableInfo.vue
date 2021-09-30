@@ -1,11 +1,11 @@
 <template>
   <div>
     <spinner
+      v-if="isLoading && !isError"
       class="table-info"
       :is-stylish="true"
-      v-if="isLoading && !isError"
     />
-    <div class="has-text-centered table-info" v-if="isError">
+    <div v-if="isError" class="has-text-centered table-info">
       <span class="tag is-danger">
         {{ $t('main.loading_error') }}
       </span>
@@ -17,7 +17,7 @@
 import Spinner from '@/components/widgets/Spinner'
 
 export default {
-  name: 'table-info',
+  name: 'TableInfo',
   components: {
     Spinner
   },

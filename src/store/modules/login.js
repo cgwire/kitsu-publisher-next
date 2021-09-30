@@ -14,6 +14,7 @@ import {
 import auth from '../../lib/auth'
 
 const initialState = {
+  //server: '',
   email: '',
   password: '',
   isLdap: false,
@@ -27,6 +28,7 @@ const state = {
 }
 
 const getters = {
+  //server: (state) => state.server,
   email: (state) => state.email,
   password: (state) => state.password,
   isLdap: (state) => state.isLdap,

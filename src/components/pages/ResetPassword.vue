@@ -11,12 +11,12 @@
         <div class="field mt2">
           <p class="control has-icon">
             <input
+              v-model="email"
+              v-focus
               class="input is-medium email"
               type="text"
               :placeholder="$t('login.fields.email')"
               @keyup.enter="confirmResetPassword"
-              v-model="email"
-              v-focus
             />
             <span class="icon">
               <icon name="mail" width="20" height="20" />
@@ -26,22 +26,22 @@
 
         <p class="control">
           <a
-            v-bind:class="{
+            v-if="!isSuccess"
+            :class="{
               button: true,
               'main-button': true,
               'is-fullwidth': true,
               'is-loading': isLoading
             }"
             @click="confirmResetPassword"
-            v-if="!isSuccess"
           >
             {{ $t('login.reset_password') }}
           </a>
         </p>
-        <p class="error" v-show="isError">
+        <p v-show="isError" class="error">
           {{ $t('login.reset_password_failed') }}
         </p>
-        <p class="success" v-show="isSuccess">
+        <p v-show="isSuccess" class="success">
           {{ $t('login.reset_password_succeed') }}
         </p>
         <p class="has-text-centered">
@@ -65,7 +65,7 @@ import { mapGetters, mapActions } from 'vuex'
 import Icon from '@/components/widgets/Icon'
 
 export default {
-  name: 'reset-password',
+  name: 'ResetPassword',
 
   components: {
     Icon

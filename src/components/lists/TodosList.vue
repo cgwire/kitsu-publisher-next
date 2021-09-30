@@ -1,28 +1,28 @@
 <template>
   <div class="data-list task-list">
-    <div class="datatable-wrapper" ref="body" v-scroll="onBodyScroll">
+    <div ref="body" v-scroll="onBodyScroll" class="datatable-wrapper">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
             <th
+              ref="th-prod"
               scope="col"
               class="production datatable-row-header datatable-row-header--nobd"
-              ref="th-prod"
             >
               {{ $t('tasks.fields.production') }}
             </th>
             <th
+              ref="th-type"
               scope="col"
               class="type datatable-row-header datatable-row-header--nobd"
-              ref="th-type"
               :style="{ left: colTypePosX }"
             >
               {{ $t('tasks.fields.task_type') }}
             </th>
             <th
+              ref="th-name"
               scope="col"
               class="name datatable-row-header"
-              ref="th-name"
               :style="{ left: colNamePosX }"
             >
               {{ $t('tasks.fields.entity') }}
@@ -42,15 +42,15 @@
             <th scope="col" class="status">
               {{ $t('tasks.fields.task_status') }}
             </th>
-            <th scope="col" class="last-comment" v-if="!done">
+            <th v-if="!done" scope="col" class="last-comment">
               {{ $t('tasks.fields.last_comment') }}
             </th>
-            <th scope="col" class="end-date" v-else>
+            <th v-else scope="col" class="end-date">
               {{ $t('tasks.fields.end_date') }}
             </th>
           </tr>
         </thead>
-        <tbody class="datatable-body" v-if="tasks.length > 0">
+        <tbody v-if="tasks.length > 0" class="datatable-body">
           <tr
             v-for="(entry, i) in displayedTasks"
             :key="entry + '-' + i"
@@ -107,8 +107,8 @@
               {{ formatDate(entry.due_date) }}
             </td>
             <validation-cell
-              class="status unselectable"
               :ref="'validation-' + i + '-0'"
+              class="status unselectable"
               :task-test="entry"
               :is-border="false"
               :is-assignees="false"
@@ -117,18 +117,18 @@
               :selected="
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
               "
-              :rowX="i"
-              :columnY="0"
+              :row-x="i"
+              :column-y="0"
+              :column="entry.taskStatus"
               @select="onTaskSelected"
               @unselect="onTaskUnselected"
-              :column="entry.taskStatus"
             />
             <last-comment-cell
+              v-if="!done"
               class="last-comment"
               :task="entry"
-              v-if="!done"
             />
-            <td class="end-date" v-else>
+            <td v-else class="end-date">
               {{ formatDate(entry.end_date) }}
             </td>
           </tr>
@@ -139,8 +139,8 @@
     <table-info :is-loading="isLoading" :is-error="isError" />
 
     <div
-      class="has-text-centered empty-list"
       v-if="tasks.length === 0 && !isLoading"
+      class="has-text-centered empty-list"
     >
       <p>
         <img src="../../assets/illustrations/empty_todo.png" />
@@ -150,7 +150,7 @@
       </p>
     </div>
 
-    <p class="has-text-centered footer-info" v-if="tasks.length && !isLoading">
+    <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info">
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
   </div>
@@ -173,8 +173,7 @@ import TableInfo from '@/components/widgets/TableInfo'
 import ValidationCell from '@/components/cells/ValidationCell'
 
 export default {
-  name: 'todos-list',
-  mixins: [formatListMixin, selectionListMixin],
+  name: 'TodosList',
 
   components: {
     EntityThumbnail,
@@ -185,6 +184,7 @@ export default {
     TaskTypeCell,
     ValidationCell
   },
+  mixins: [formatListMixin, selectionListMixin],
 
   props: {
     done: {
@@ -217,6 +217,14 @@ export default {
     }
   },
 
+  computed: {
+    ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
+
+    displayedTasks() {
+      return this.tasks.slice(0, this.page * PAGE_SIZE)
+    }
+  },
+
   mounted() {
     this.page = 1
     this.resizeHeaders()
@@ -230,14 +238,6 @@ export default {
 
   beforeUnmount() {
     window.removeEventListener('keydown', this.onKeyDown)
-  },
-
-  computed: {
-    ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
-
-    displayedTasks() {
-      return this.tasks.slice(0, this.page * PAGE_SIZE)
-    }
   },
 
   methods: {

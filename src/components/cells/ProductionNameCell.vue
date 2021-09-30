@@ -1,14 +1,14 @@
 <template>
-  <div class="flexrow production-name" v-tooltip.right="tooltipOptions">
+  <div v-tooltip.right="tooltipOptions" class="flexrow production-name">
     <router-link
+      v-if="!noLink"
       class="flexrow flexrow-item"
       :to="productionRoute"
-      v-if="!noLink"
     >
       <div
-        class="flexrow-item avatar has-text-centered"
         v-if="withAvatar"
-        v-bind:style="{
+        class="flexrow-item avatar has-text-centered"
+        :style="{
           background: getAvatarColor(entry),
           width: size + 'px',
           height: size + 'px',
@@ -23,15 +23,15 @@
           <img :src="getThumbnailPath(entry)" />
         </span>
       </div>
-      <span class="flexrow-item" v-if="!onlyAvatar">
+      <span v-if="!onlyAvatar" class="flexrow-item">
         {{ entry.name }}
       </span>
     </router-link>
-    <div class="flexrow flexrow-item" v-else>
+    <div v-else class="flexrow flexrow-item">
       <div
-        class="flexrow-item avatar has-text-centered"
         v-if="withAvatar"
-        v-bind:style="{
+        class="flexrow-item avatar has-text-centered"
+        :style="{
           background: getAvatarColor(entry),
           width: size + 'px',
           height: size + 'px',
@@ -46,7 +46,7 @@
           <img :src="getThumbnailPath(entry)" />
         </span>
       </div>
-      <span class="flexrow-item" v-if="!onlyAvatar">
+      <span v-if="!onlyAvatar" class="flexrow-item">
         {{ entry.name }}
       </span>
     </div>
@@ -58,7 +58,7 @@ import colors from '../../lib/colors.js'
 import { mapGetters, mapActions } from 'vuex'
 
 export default {
-  name: 'production-name-cell',
+  name: 'ProductionNameCell',
 
   props: {
     entry: {

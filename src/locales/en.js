@@ -250,7 +250,8 @@ export default {
     fields: {
       email: 'Email',
       password: 'Password',
-      password2: 'Password again'
+      password2: 'Password again',
+      server: 'Server'
     }
   },
 

@@ -2,25 +2,25 @@
   <td>
     <div class="flexrow">
       <people-avatar
+        v-if="task.last_comment.person"
         class="flexrow-item avatar-wrapper"
         :size="25"
         :font-size="14"
         :person="task.last_comment.person"
-        v-if="task.last_comment.person"
       >
       </people-avatar>
-      <span class="no-avatar" v-else> &nbsp; </span>
+      <span v-else class="no-avatar"> &nbsp; </span>
 
       <span
-        class="flexrow-item last-comment pointer"
         v-if="commentText && commentText.length > 0"
-        v-html="compileMarkdown(commentText)"
+        class="flexrow-item last-comment pointer"
         @click="onClick"
+        v-html="compileMarkdown(commentText)"
       >
       </span>
       <span
-        class="flexrow-item last-comment no-comment"
         v-else-if="task.last_comment.person"
+        class="flexrow-item last-comment no-comment"
       >
         {{ $t('main.empty_comment') }}
       </span>
@@ -34,10 +34,12 @@ import { mapGetters, mapActions } from 'vuex'
 import PeopleAvatar from './../widgets/PeopleAvatar'
 
 export default {
-  name: 'last-comment-cell',
+  name: 'LastCommentCell',
   components: {
     PeopleAvatar
   },
+
+  props: ['task'],
 
   data() {
     return {
@@ -45,8 +47,6 @@ export default {
       timeout: null
     }
   },
-
-  props: ['task'],
 
   computed: {
     ...mapGetters([]),

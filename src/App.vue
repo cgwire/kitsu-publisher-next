@@ -1,8 +1,8 @@
 <template>
   <div :class="{ theme: true, dark: isDarkTheme }">
     <div
-      class="has-text-centered mt2 loading-info"
       v-if="user && isDataLoading"
+      class="has-text-centered mt2 loading-info"
     >
       <span>{{ $t('main.loading_data') }}...</span>
       <spinner class="mt2" />
@@ -17,7 +17,7 @@ import Spinner from './components/widgets/Spinner.vue'
 import crisp from './lib/crisp'
 
 export default {
-  name: 'app',
+  name: 'App',
 
   components: {
     Spinner
@@ -46,6 +46,18 @@ export default {
       'taskTypeMap',
       'user'
     ])
+  },
+
+  watch: {
+    isDarkTheme() {
+      if (this.isDarkTheme) {
+        document.documentElement.style.background = '#36393F'
+        document.body.style.background = '#36393F'
+      } else {
+        document.documentElement.style.background = '#FFF'
+        document.body.style.background = '#FFF'
+      }
+    }
   },
 
   mounted() {
@@ -106,18 +118,6 @@ export default {
           personId: eventData.person_id,
           forced: true
         })
-      }
-    }
-  },
-
-  watch: {
-    isDarkTheme() {
-      if (this.isDarkTheme) {
-        document.documentElement.style.background = '#36393F'
-        document.body.style.background = '#36393F'
-      } else {
-        document.documentElement.style.background = '#FFF'
-        document.body.style.background = '#FFF'
       }
     }
   }
