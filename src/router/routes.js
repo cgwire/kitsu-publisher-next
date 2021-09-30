@@ -9,6 +9,7 @@ import Main from '../components/Main'
 import Todos from '../components/pages/Todos'
 import Login from '../components/pages/Login'
 
+const Person = () => import('../components/pages/Person')
 const ServerDown = () => import('../components/pages/ServerDown')
 const ResetPassword = () => import('../components/pages/ResetPassword')
 
@@ -61,6 +62,18 @@ const routes = [
         component: Todos,
         name: 'todos',
         children: [{ path: ':tab', component: Todos, name: 'todos-tab' }]
+      },
+      {
+        path: 'people/:person_id',
+        component: Person,
+        name: 'person',
+        children: [
+          {
+            path: ':tab',
+            component: Person,
+            name: 'person-tab'
+          }
+        ]
       }
     ]
   },

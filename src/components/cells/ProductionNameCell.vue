@@ -1,6 +1,6 @@
 <template>
   <div v-tooltip.right="tooltipOptions" class="flexrow production-name">
-    <router-link
+    <!--<router-link
       v-if="!noLink"
       class="flexrow flexrow-item"
       :to="productionRoute"
@@ -26,8 +26,8 @@
       <span v-if="!onlyAvatar" class="flexrow-item">
         {{ entry.name }}
       </span>
-    </router-link>
-    <div v-else class="flexrow flexrow-item">
+    </router-link>-->
+    <div class="flexrow flexrow-item">
       <div
         v-if="withAvatar"
         class="flexrow-item avatar has-text-centered"

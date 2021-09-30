@@ -1,14 +1,13 @@
 <template>
-  <router-link v-if="productionId" :to="taskTypePath">
+  <!--<router-link v-if="productionId" :to="taskTypePath">
     <span
       class="tag task-type-name"
       :style="{ 'border-left': '4px solid ' + color }"
     >
       {{ taskType.name }}
     </span>
-  </router-link>
+  </router-link>-->
   <div
-    v-else
     class="tag task-type-name no-link"
     :class="{ deletable }"
     :style="{ 'border-left': '4px solid ' + color }"

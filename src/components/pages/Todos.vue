@@ -63,10 +63,6 @@
         />
       </div>
     </div>
-
-    <div v-if="nbSelectedTasks === 1" class="column side-column">
-      <task-info :task="selectedTasks.values().next().value" />
-    </div>
   </div>
 </template>
 

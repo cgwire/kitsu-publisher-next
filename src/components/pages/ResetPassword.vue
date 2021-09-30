@@ -19,7 +19,7 @@
               @keyup.enter="confirmResetPassword"
             />
             <span class="icon">
-              <icon name="mail" width="20" height="20" />
+              <icon name="mail" :width="20" height="20" />
             </span>
           </p>
         </div>
