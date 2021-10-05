@@ -7,7 +7,7 @@
           <h1 class="title">Kitsu</h1>
         </div>
         <form>
-          <!--<div class="field mt1">
+          <div class="field mt1">
             <p class="control has-icon">
               <input
                 v-focus
@@ -21,11 +21,10 @@
                 <icon name="server" :width="20" height="20" />
               </span>
             </p>
-          </div>-->
+          </div>
           <div class="field mt1">
             <p class="control has-icon">
               <input
-                v-focus
                 class="input is-medium email"
                 type="text"
                 :placeholder="$t('login.fields.email')"

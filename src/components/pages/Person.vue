@@ -3,7 +3,7 @@
     <div class="column main-column">
       <div class="person page">
         <div class="flexrow page-header">
-          <div class="flexrow-item" v-if="person">
+          <div v-if="person" class="flexrow-item">
             <people-avatar
               :person="person"
               :size="80"
@@ -47,9 +47,9 @@
               </router-link>
             </li>
             <li
+              v-if="isCurrentUserManager"
               :class="{ 'is-active': isActiveTab('timesheets') }"
               @click="selectTab('timesheets')"
-              v-if="isCurrentUserManager"
             >
               <router-link
                 :to="{
@@ -68,29 +68,29 @@
 
         <div class="flexrow">
           <search-field
+            v-if="!isActiveTab('done')"
+            ref="person-tasks-search-field"
             :class="{
               'search-field': true,
               'flexrow-item': true
             }"
-            ref="person-tasks-search-field"
+            :can-save="true"
             @change="onSearchChange"
             @save="saveSearchQuery"
-            :can-save="true"
-            v-if="!isActiveTab('done')"
           />
           <span class="filler"></span>
           <combobox
+            v-model="currentSort"
             class="flexrow-item"
             :label="$t('main.sorted_by')"
             :options="sortOptions"
             locale-key-prefix="tasks.fields."
-            v-model="currentSort"
           />
         </div>
 
         <div
-          class="query-list"
           v-if="isActiveTab('todos') || isActiveTab('timesheets')"
+          class="query-list"
         >
           <search-query-list
             :queries="personTaskSearchQueries"
@@ -100,26 +100,27 @@
         </div>
 
         <todos-list
+          v-if="isActiveTab('todos')"
           ref="task-list"
           :tasks="sortedTasks"
           :is-loading="isTasksLoading"
           :is-error="isTasksLoadingError"
           :selection-grid="personTaskSelectionGrid"
           @scroll="setPersonTasksScrollPosition"
-          v-if="isActiveTab('todos')"
         />
 
         <todos-list
+          v-if="isActiveTab('done')"
           ref="done-list"
           :tasks="displayedPersonDoneTasks"
           :is-loading="isTasksLoading"
           :is-error="isTasksLoadingError"
           :done="true"
-          :selectionGrid="personTaskSelectionGrid"
-          v-if="isActiveTab('done')"
+          :selection-grid="personTaskSelectionGrid"
         />
 
         <timesheet-list
+          v-if="isActiveTab('timesheets')"
           :tasks="loggablePersonTasks"
           :done-tasks="loggableDoneTasks"
           :is-loading="isTasksLoading"
@@ -131,12 +132,8 @@
           @time-spent-change="onTimeSpentChange"
           @set-day-off="onSetDayOff"
           @unset-day-off="onUnsetDayOff"
-          v-if="isActiveTab('timesheets')"
         />
       </div>
-    </div>
-    <div class="column side-column" v-if="nbSelectedTasks === 1">
-      <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>
 </template>
@@ -153,17 +150,15 @@ import SearchField from '../widgets/SearchField'
 import SearchQueryList from '../widgets/SearchQueryList'
 import TimesheetList from '../lists/TimesheetList'
 import TodosList from '../lists/TodosList'
-import TaskInfo from '../sides/TaskInfo'
 
 export default {
-  name: 'person',
+  name: 'Person',
   components: {
     Combobox,
     PageTitle,
     PeopleAvatar,
     SearchField,
     SearchQueryList,
-    TaskInfo,
     TodosList,
     TimesheetList
   },

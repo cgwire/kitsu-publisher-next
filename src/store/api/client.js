@@ -1,9 +1,10 @@
 import superagent from 'superagent'
 import errors from '../../lib/errors'
+import store from '../../store'
 
 const client = {
   get(path, callback) {
-    superagent.get(path).end((err, res) => {
+    superagent.get(store.state.login.server + path).end((err, res) => {
       // if (res.statusCode === 401) return errors.backToLogin()
       callback(err, res.body)
     })
@@ -11,7 +12,7 @@ const client = {
 
   post(path, data, callback) {
     superagent
-      .post(path)
+      .post(store.state.login.server + path)
       .send(data)
       .end((err, res) => {
         if (res.statusCode === 401) return errors.backToLogin()
@@ -21,7 +22,7 @@ const client = {
 
   put(path, data, callback) {
     superagent
-      .put(path)
+      .put(store.state.login.server + path)
       .send(data)
       .end((err, res) => {
         if (res.statusCode === 401) return errors.backToLogin()
@@ -30,7 +31,7 @@ const client = {
   },
 
   del(path, callback) {
-    superagent.del(path).end((err, res) => {
+    superagent.del(store.state.login.server + path).end((err, res) => {
       if (res.statusCode === 401) return errors.backToLogin()
       callback(err, res.body)
     })
@@ -38,7 +39,7 @@ const client = {
 
   pget(path) {
     return new Promise((resolve, reject) => {
-      client.get(path, (err, model) => {
+      client.get(store.state.login.server + path, (err, model) => {
         if (err) reject(err)
         else resolve(model)
       })
@@ -48,7 +49,7 @@ const client = {
   ppost(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
-        .post(path)
+        .post(store.state.login.server + path)
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
@@ -65,7 +66,7 @@ const client = {
   pput(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
-        .put(path)
+        .put(store.state.login.server + path)
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
@@ -81,7 +82,7 @@ const client = {
 
   pdel(path, callback) {
     return new Promise((resolve, reject) => {
-      superagent.del(path).end((err, res) => {
+      superagent.del(store.state.login.server + path).end((err, res) => {
         if (res.statusCode === 401) {
           errors.backToLogin()
           reject(err)
@@ -94,12 +95,14 @@ const client = {
   },
 
   getModel(modelName, modelId) {
-    const path = `/api/data/${modelName}/${modelId}`
+    const path = store.state.login.server + `/api/data/${modelName}/${modelId}`
     return client.pget(path)
   },
 
   getEvents(after, before) {
-    const path = `/api/data/events/last?after=${after}&before=${before}&page_size=100000`
+    const path =
+      store.state.login.server +
+      `/api/data/events/last?after=${after}&before=${before}&page_size=100000`
     return client.pget(path)
   }
 }

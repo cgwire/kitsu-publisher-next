@@ -7,7 +7,8 @@ function createWindow() {
     height: 600,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
-      nodeIntegration: true
+      nodeIntegration: true,
+      webSecurity: false // TO REENABLE TO ENABLE CORS
     }
   })
   if (process.env.MODE === 'development') {
