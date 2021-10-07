@@ -11,10 +11,12 @@ import shots from '/src/store/modules/shots'
 import taskstatus from '/src/store/modules/taskstatus'
 import tasktypes from '/src/store/modules/tasktypes'
 import user from '/src/store/modules/user'
+import main from '/src/store/modules/main'
 
 const modules = {
   assets,
   login,
+  main,
   people,
   productions,
   shots,
