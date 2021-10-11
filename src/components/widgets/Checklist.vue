@@ -13,6 +13,7 @@
         <icon v-if="entry.checked" name="check-square" class="icon" />
         <icon v-else name="square" class="icon" />
       </span>
+      <!-- TODO : Fix this
       <textarea-autosize
         :ref="`checklist-entry-${index}`"
         v-model="entry.text"
@@ -26,6 +27,7 @@
         @keyup.up="focusPrevious(index)"
         @keyup.down="focusNext(index)"
       />
+      -->
     </div>
   </div>
 </template>

@@ -19,6 +19,7 @@
       </div>
     </figure>
     <div class="media-content">
+      <!-- TODO : Fix this
       <at-ta
         :members="atOptions"
         name-key="full_name"
@@ -58,6 +59,7 @@
         >
         </textarea>
       </at-ta>
+    -->
       <checklist
         v-if="checklist.length > 0"
         :checklist="checklist"
@@ -311,10 +313,11 @@ export default {
     updateValue(value) {
       this.task_status_id = this.$refs.statusSelect.value
     },
-
-    focus() {
+    
+    // TODO : Fix text-area before
+    /*focus() {
       this.$refs['comment-textarea'].focus()
-    },
+    },*/
 
     onDragover() {
       this.isDragging = true

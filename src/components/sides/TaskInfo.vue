@@ -642,15 +642,16 @@ export default {
         this.setOtherPreviews()
         this.currentPreviewPath = this.getOriginalPath()
         this.currentPreviewDlPath = this.getOriginalDlPath()
+        /* TODO : Fix text-area before
         this.$nextTick(() => {
           if (this.$refs['add-comment']) this.$refs['add-comment'].focus()
-        })
+        })*/
       }
     },
-
-    focusCommentTextarea() {
+    // TODO : Fix text-area before
+    /*focusCommentTextarea() {
       if (this.$refs['add-comment']) this.$refs['add-comment'].focus()
-    },
+    },*/
 
     getOriginalPath() {
       const previewId = this.currentPreviewId

@@ -24,6 +24,7 @@
             <label class="label">
               {{ $t('comments.text') }}
             </label>
+            <!-- TODO : fix this
             <at-ta :members="team" name-key="full_name" limit="2">
               <template v-if="team && team.item" slot="item" slot-scope="team">
                 <div class="flexrow">
@@ -49,6 +50,7 @@
               >
               </textarea>
             </at-ta>
+            -->
           </div>
           <label class="label">
             {{ $t('comments.checklist') }}
@@ -81,7 +83,7 @@ import { remove } from '@/lib/models'
 import Checklist from '../widgets/Checklist'
 import ComboBoxStatus from '../widgets/ComboboxStatus.vue'
 import ModalFooter from './ModalFooter'
-import PeopleAvatar from '../widgets/PeopleAvatar'
+//import PeopleAvatar from '../widgets/PeopleAvatar'
 
 export default {
   name: 'EditCommentModal',
@@ -89,8 +91,8 @@ export default {
     //AtTa,
     Checklist,
     ComboBoxStatus,
-    ModalFooter,
-    PeopleAvatar
+    ModalFooter
+    //PeopleAvatar
   },
   mixins: [modalMixin],
 

@@ -427,7 +427,7 @@ export default {
     }
   },
 
-  //TODO : reenable socket
+  // TODO : reenable socket
   /*socket: {
     events: {
       'task:assign'(eventData) {

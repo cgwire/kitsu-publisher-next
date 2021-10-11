@@ -12,6 +12,8 @@ import Login from '../components/pages/Login'
 const Person = () => import('../components/pages/Person')
 const ServerDown = () => import('../components/pages/ServerDown')
 const ResetPassword = () => import('../components/pages/ResetPassword')
+const Asset = () => import('../components/pages/Asset')
+const Task = () => import('../components/pages/Task')
 
 const routes = [
   {
@@ -72,6 +74,82 @@ const routes = [
             path: ':tab',
             component: Person,
             name: 'person-tab'
+          }
+        ]
+      },
+      {
+        path: 'productions/:production_id/assets/:asset_id',
+        component: Asset,
+        name: 'asset'
+      },
+
+      {
+        path: 'productions/:production_id/episodes/:episode_id/assets/:asset_id',
+        component: Asset,
+        name: 'episode-asset'
+      },
+
+      {
+        name: 'task',
+        path: 'productions/:production_id/:type/tasks/:task_id',
+        component: Task,
+        children: [
+          {
+            name: 'task-delete',
+            path: 'delete',
+            component: Task
+          },
+          {
+            name: 'task-change-preview',
+            path: 'comments/:comment_id/change-preview',
+            component: Task
+          },
+          {
+            name: 'task-preview',
+            path: 'previews/:preview_id',
+            component: Task
+          },
+          {
+            name: 'task-edit-comment',
+            path: 'comments/:comment_id/edit',
+            component: Task
+          },
+          {
+            name: 'task-delete-comment',
+            path: 'comments/:comment_id/delete',
+            component: Task
+          }
+        ]
+      },
+      {
+        path: 'productions/:production_id/episodes/:episode_id/:type/tasks/:task_id',
+        name: 'episode-task',
+        component: Task,
+        children: [
+          {
+            name: 'episode-task-delete',
+            path: 'delete',
+            component: Task
+          },
+          {
+            name: 'episode-task-change-preview',
+            path: 'comments/:comment_id/change-preview',
+            component: Task
+          },
+          {
+            name: 'episode-task-preview',
+            path: 'previews/:preview_id',
+            component: Task
+          },
+          {
+            name: 'episode-task-edit-comment',
+            path: 'comments/:comment_id/edit',
+            component: Task
+          },
+          {
+            name: 'episode-task-delete-comment',
+            path: 'comments/:comment_id/delete',
+            component: Task
           }
         ]
       }
