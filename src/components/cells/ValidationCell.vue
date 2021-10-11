@@ -30,7 +30,32 @@
           {{ priority }}
         </span>
       </span>
-      <!-- Add image with initials again (for Vue3) -->
+      <!-- TODO : add image with initials again 
+      <span
+        v-for="personId in assignees"
+        v-if="isAssignees && !isCurrentUserClient"
+        :key="'avatar-' + personId"
+        class="avatar has-text-centered"
+        :title="personMap.get(personId).full_name"
+        :style="{
+          background: personMap.get(personId).color,
+          width: '20px',
+          height: '20px',
+          'font-size': '10px'
+        }"
+      >
+        <img
+          v-if="personMap.get(personId).has_avatar"
+          :key="avatarKey(personId)"
+          v-lazy="avatarPath(personId)"
+          width="20"
+          height="20"
+        />
+        <span v-else>
+          {{ personMap.get(personId).initials }}
+        </span>
+      </span>
+      -->
     </div>
     <div v-else class="wrapper">
       <span

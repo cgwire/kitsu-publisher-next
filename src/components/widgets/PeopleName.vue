@@ -1,0 +1,30 @@
+<template>
+  <span class="person-name">
+    {{ person.first_name + ' ' + person.last_name }}
+  </span>
+</template>
+
+<script>
+import { mapGetters, mapActions } from 'vuex'
+export default {
+  name: 'PersonName',
+  props: {
+    person: {
+      type: Object,
+      required: true
+    }
+  },
+  computed: {
+    ...mapGetters([])
+  },
+  methods: {
+    ...mapActions([])
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.dark .person-name {
+  color: $white-grey;
+}
+</style>

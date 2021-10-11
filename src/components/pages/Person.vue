@@ -135,6 +135,9 @@
         />
       </div>
     </div>
+    <div v-if="nbSelectedTasks === 1" class="column side-column">
+      <task-info :task="selectedTasks.values().next().value" />
+    </div>
   </div>
 </template>
 
@@ -150,6 +153,7 @@ import SearchField from '../widgets/SearchField'
 import SearchQueryList from '../widgets/SearchQueryList'
 import TimesheetList from '../lists/TimesheetList'
 import TodosList from '../lists/TodosList'
+import TaskInfo from '../sides/TaskInfo'
 
 export default {
   name: 'Person',
@@ -159,6 +163,7 @@ export default {
     PeopleAvatar,
     SearchField,
     SearchQueryList,
+    TaskInfo,
     TodosList,
     TimesheetList
   },
@@ -180,25 +185,6 @@ export default {
         'last_comment_date'
       ].map((name) => ({ label: name, value: name }))
     }
-  },
-
-  mounted() {
-    this.updateActiveTab()
-    if (this.personTasksSearchText.length > 0) {
-      this.searchField.setValue(this.personTasksSearchText)
-    }
-    setTimeout(() => {
-      if (this.searchField) this.searchField.focus()
-    }, 100)
-    this.loadPerson(this.$route.params.person_id)
-  },
-
-  afterDestroy() {
-    this.$store.commit('LOAD_PERSON_TASKS_END', {
-      tasks: [],
-      userFilters: {},
-      taskTypeMap: this.taskTypeMap
-    })
   },
 
   computed: {
@@ -260,6 +246,34 @@ export default {
         )
       }
     }
+  },
+
+  watch: {
+    $route() {
+      const personId = this.$route.params.person_id
+
+      this.updateActiveTab()
+      if (this.person.id !== personId) this.loadPerson()
+    }
+  },
+
+  mounted() {
+    this.updateActiveTab()
+    if (this.personTasksSearchText.length > 0) {
+      this.searchField.setValue(this.personTasksSearchText)
+    }
+    setTimeout(() => {
+      if (this.searchField) this.searchField.focus()
+    }, 100)
+    this.loadPerson(this.$route.params.person_id)
+  },
+
+  afterDestroy() {
+    this.$store.commit('LOAD_PERSON_TASKS_END', {
+      tasks: [],
+      userFilters: {},
+      taskTypeMap: this.taskTypeMap
+    })
   },
 
   methods: {
@@ -394,15 +408,6 @@ export default {
   metaInfo() {
     return {
       title: this.person ? `${this.person.name} - Kitsu` : '... - Kitsu'
-    }
-  },
-
-  watch: {
-    $route() {
-      const personId = this.$route.params.person_id
-
-      this.updateActiveTab()
-      if (this.person.id !== personId) this.loadPerson()
     }
   }
 }

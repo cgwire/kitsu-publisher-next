@@ -2,35 +2,43 @@ import { createStore } from 'vuex'
 
 import * as getters from './getters'
 
-import tasks from '/src/store/modules/tasks'
-import assets from '/src/store/modules/assets'
-import assettypes from '/src/store/modules/assettypes'
-import login from '/src/store/modules/login'
-import people from '/src/store/modules/people'
-import productions from '/src/store/modules/productions'
-import shots from '/src/store/modules/shots'
-import taskstatus from '/src/store/modules/taskstatus'
-import tasktypes from '/src/store/modules/tasktypes'
-import user from '/src/store/modules/user'
-import departments from '/src/store/modules/departments'
-import customactions from '/src/store/modules/customactions'
-import notifications from '/src/store/modules/notifications'
-import main from '/src/store/modules/main'
+import assetTypes from './modules/assettypes'
+import assets from './modules/assets'
+import breakdown from './modules/breakdown'
+import customActions from './modules/customactions'
+import departments from './modules/departments'
+import login from './modules/login'
+import main from './modules/main'
+import news from './modules/news'
+import notifications from './modules/notifications'
+import people from './modules/people'
+import user from './modules/user'
+import playlists from './modules/playlists'
+import productions from './modules/productions'
+import schedule from './modules/schedule'
+import shots from './modules/shots'
+import taskTypes from './modules/tasktypes'
+import taskStatus from './modules/taskstatus'
+import tasks from './modules/tasks'
 
 const modules = {
+  assetTypes,
   assets,
-  assettypes,
-  customactions,
+  breakdown,
+  customActions,
   departments,
   login,
   main,
-  notifications,
   people,
+  playlists,
   productions,
+  news,
+  notifications,
+  schedule,
   shots,
-  taskstatus,
-  tasktypes,
   tasks,
+  taskTypes,
+  taskStatus,
   user
 }
 

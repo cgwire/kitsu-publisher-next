@@ -61,11 +61,11 @@ export default {
     ...mapGetters([])
   },
 
+  watch: {},
+
   methods: {
     ...mapActions([])
-  },
-
-  watch: {}
+  }
 }
 </script>
 

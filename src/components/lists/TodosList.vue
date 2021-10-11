@@ -88,9 +88,11 @@
                   :empty-height="40"
                   :entity="{ preview_file_id: entry.entity_preview_file_id }"
                 />
-                <!--<router-link :to="entityPath(entry)">-->
-                {{ entry.full_entity_name }}
-                <!--</router-link>-->
+                <!-- TODO : reenable route-link to entityPath
+                <router-link :to="entityPath(entry)">
+                  {{ entry.full_entity_name }}
+                </router-link>
+                -->
               </div>
             </td>
             <description-cell
@@ -216,7 +218,6 @@ export default {
       colNamePosX: ''
     }
   },
-
   computed: {
     ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
 
@@ -224,7 +225,6 @@ export default {
       return this.tasks.slice(0, this.page * PAGE_SIZE)
     }
   },
-
   mounted() {
     this.page = 1
     this.resizeHeaders()

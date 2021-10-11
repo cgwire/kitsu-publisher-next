@@ -42,6 +42,53 @@
           </ul>
         </div>
 
+        <!-- TODO : reenable search-field and combobox 
+        <div class="flexrow">
+          <search-field
+            v-if="!isTabActive('done')"
+            ref="todos-search-field"
+            :class="{
+              'search-field': true,
+              'flexrow-item': true
+            }"
+            :can-save="true"
+            @change="onSearchChange"
+            @enter="saveSearchQuery"
+            @save="saveSearchQuery"
+          />
+
+          <span class="filler"></span>
+
+          <combobox
+            v-model="currentFilter"
+            class="flexrow-item"
+            :label="$t('main.show')"
+            :options="filterOptions"
+            locale-key-prefix="tasks."
+          />
+
+          <combobox
+            v-model="currentSort"
+            class="flexrow-item"
+            :label="$t('main.sorted_by')"
+            :options="sortOptions"
+            locale-key-prefix="tasks.fields."
+          />
+        </div>
+        -->
+        <!-- TODO : reenable search-query-list
+        <div
+          v-if="isTabActive('todos') || isTabActive('timesheets')"
+          class="query-list"
+        >
+          <search-query-list
+            :queries="todoSearchQueries"
+            @change-search="changeSearch"
+            @remove-search="removeSearchQuery"
+          />
+        </div>
+        -->
+
         <todos-list
           v-if="isTabActive('todos')"
           ref="todo-list"
@@ -61,7 +108,31 @@
           :is-error="isTodosLoadingError"
           :done="true"
         />
+
+        <!-- TODO : reenable timesheet-list
+        <timesheet-list
+          v-if="isTabActive('timesheets')"
+          ref="timesheet-list"
+          :tasks="loggableTodos"
+          :done-tasks="loggableDoneTasks"
+          :is-loading="isTodosLoading"
+          :is-error="isTodosLoadingError"
+          :time-spent-map="timeSpentMap"
+          :time-spent-total="timeSpentTotal"
+          :hide-done="
+            todosSearchText.length > 0 || loggableDoneTasks.length === 0
+          "
+          @date-changed="onDateChanged"
+          @time-spent-change="onTimeSpentChange"
+          @set-day-off="onSetDayOff"
+          @unset-day-off="onUnsetDayOff"
+        />
+        -->
       </div>
+    </div>
+
+    <div v-if="nbSelectedTasks === 1" class="column side-column">
+      <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>
 </template>
@@ -72,12 +143,22 @@ import moment from 'moment-timezone'
 import firstBy from 'thenby'
 
 import { parseDate } from '@/lib/time'
+//import Combobox from '@/components/widgets/Combobox'
+//import SearchField from '@/components/widgets/SearchField'
+//import SearchQueryList from '@/components/widgets/SearchQueryList'
+import TaskInfo from '@/components/sides/TaskInfo'
+//import TimesheetList from '@/components/lists/TimesheetList'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
   name: 'Todos',
 
   components: {
+    //Combobox,
+    //SearchField,
+    //SearchQueryList,
+    TaskInfo,
+    //TimesheetList,
     TodosList
   },
 
@@ -346,6 +427,7 @@ export default {
     }
   },
 
+  //TODO : reenable socket
   /*socket: {
     events: {
       'task:assign'(eventData) {

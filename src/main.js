@@ -42,8 +42,8 @@ app.use(VTooltip)
 //app.use(Chartkick, { adapter: Chart })
 app.use(Lazyload)
 app.use(vuescroll)
-/*app.use(DragDrop)
-app.use(TextareaAutosize)*/
+//app.use(DragDrop)
+//app.use(TextareaAutosize)
 
 app.component(VueFeather.name, VueFeather)
 

@@ -414,9 +414,9 @@ export const UNLOCK_SHOT = 'UNLOCK_SHOT'
 
 // Profile and auth
 
+export const CHANGE_SERVER = 'CHANGE_SERVER'
 export const CHANGE_EMAIL = 'CHANGE_EMAIL'
 export const CHANGE_PASSWORD = 'CHANGE_PASSWORD'
-export const CHANGE_SERVER = 'CHANGE_SERVER'
 export const LOGIN_RUN = 'LOGIN_RUN'
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS'
 export const LOGIN_FAILURE = 'LOGIN_FAILURE'
