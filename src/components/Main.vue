@@ -9,7 +9,7 @@ export default {
   name: 'MainWrapper',
   components: {}
 
-  //TODO : reenable socket
+  // TODO : reenable socket
   /*mounted() {
     this.$socket.connect()
   }*/

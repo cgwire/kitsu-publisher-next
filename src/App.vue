@@ -121,7 +121,7 @@ export default {
       }
     }
   }
-  //TODO : reenable socket
+  // TODO : reenable socket
   /*socket: {
     events: {
       'project:new'(eventData) {
