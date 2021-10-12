@@ -49,7 +49,7 @@ const client = {
   ppost(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
-        .post(path)
+        .post(store.state.login.server + path)
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
@@ -66,7 +66,7 @@ const client = {
   pput(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
-        .put(path)
+        .put(store.state.login.server + path)
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
@@ -82,7 +82,7 @@ const client = {
 
   pdel(path, callback) {
     return new Promise((resolve, reject) => {
-      superagent.del(path).end((err, res) => {
+      superagent.del(store.state.login.server + path).end((err, res) => {
         if (res.statusCode === 401) {
           errors.backToLogin()
           reject(err)

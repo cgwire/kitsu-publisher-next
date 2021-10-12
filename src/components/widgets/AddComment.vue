@@ -313,7 +313,7 @@ export default {
     updateValue(value) {
       this.task_status_id = this.$refs.statusSelect.value
     },
-    
+
     // TODO : Fix text-area before
     /*focus() {
       this.$refs['comment-textarea'].focus()

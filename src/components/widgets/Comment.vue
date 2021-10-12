@@ -226,6 +226,8 @@ import PeopleName from './PeopleName.vue'
 import Checklist from './Checklist'
 import ValidationTag from '@/components/widgets/ValidationTag'
 
+import store from '@/store'
+
 export default {
   name: 'Comment',
   components: {
@@ -479,7 +481,7 @@ export default {
 
     getAttachmentPath(attachment) {
       return (
-        `/api/data/attachment-files/${attachment.id}/` +
+        store.state.login.server + `/api/data/attachment-files/${attachment.id}/` +
         `file/${attachment.name}`
       )
     },
