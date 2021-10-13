@@ -99,6 +99,8 @@ import PictureViewer from '@/components/previews/PictureViewer'
 import Spinner from '@/components/widgets/Spinner'
 import VideoViewer from '@/components/previews/VideoViewer'
 
+import store from '@/store'
+
 export default {
   name: 'PreviewViewer',
 
@@ -232,7 +234,10 @@ export default {
         const previewId = this.preview.id
         const extension = this.extension ? this.extension : 'png'
         const type = this.isMovie ? 'movies' : 'pictures'
-        return `/api/${type}/originals/preview-files/${previewId}.${extension}`
+        return (
+          store.state.login.server +
+          `/api/${type}/originals/preview-files/${previewId}.${extension}`
+        )
       } else {
         return ''
       }
@@ -242,6 +247,7 @@ export default {
       if (this.preview) {
         const type = this.isMovie ? 'movies' : 'pictures'
         return (
+          store.state.login.server +
           `/api/${type}/originals/preview-files/` +
           `${this.preview.id}/download`
         )

@@ -211,6 +211,8 @@ import PageSubtitle from '@/components/widgets/PageSubtitle'
 import TableInfo from '@/components/widgets/TableInfo'
 import TaskInfo from '@/components/sides/TaskInfo'
 
+import store from '@/store'
+
 export default {
   name: 'Asset',
   components: {
@@ -271,7 +273,10 @@ export default {
 
     assetThumbnailPath() {
       const previewId = this.currentAsset.preview_file_id
-      return `/api/pictures/originals/preview-files/${previewId}.png`
+      return (
+        store.state.login.server +
+        `/api/pictures/originals/preview-files/${previewId}.png`
+      )
     },
 
     isPreview() {
