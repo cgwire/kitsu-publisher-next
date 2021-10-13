@@ -481,7 +481,8 @@ export default {
 
     getAttachmentPath(attachment) {
       return (
-        store.state.login.server + `/api/data/attachment-files/${attachment.id}/` +
+        store.state.login.server +
+        `/api/data/attachment-files/${attachment.id}/` +
         `file/${attachment.name}`
       )
     },

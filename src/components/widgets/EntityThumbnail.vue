@@ -41,6 +41,7 @@
 </template>
 
 <script>
+import store from '@/store'
 export default {
   name: 'EntityThumbnail',
 
@@ -90,7 +91,12 @@ export default {
   computed: {
     originalPath() {
       const previewFileId = this.previewFileId || this.entity.preview_file_id
-      return '/api/pictures/originals/preview-files/' + previewFileId + '.png'
+      return (
+        store.state.login.server +
+        '/api/pictures/originals/preview-files/' +
+        previewFileId +
+        '.png'
+      )
     },
 
     isPreview() {
@@ -118,13 +124,17 @@ export default {
 
       if (this.square) {
         return (
+          store.state.login.server +
           '/api/pictures/thumbnails-square/preview-files/' +
           previewFileId +
           '.png'
         )
       } else {
         return (
-          '/api/pictures/thumbnails/preview-files/' + previewFileId + '.png'
+          store.state.login.server +
+          '/api/pictures/thumbnails/preview-files/' +
+          previewFileId +
+          '.png'
         )
       }
     },
