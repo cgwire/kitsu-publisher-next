@@ -1,11 +1,12 @@
-const { app, remote, BrowserWindow } = require('electron')
+const { app, remote, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
+const ConfigElectron = require('./config-electron')
 
-app.commandLine.appendSwitch("disable-features", "OutOfBlinkCors")
+app.commandLine.appendSwitch('disable-features', 'OutOfBlinkCors')
 
 const filter = {
   urls: ['*://*.google.com/*']
-};
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -14,6 +15,7 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: true,
+      contextIsolation: false,
       webSecurity: false // TO REENABLE TO ENABLE CORS
     }
   })
@@ -58,6 +60,14 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow()
     }
+  })
+
+  ipcMain.handle('getStoreValue', (event, key, defaultValue) => {
+    return ConfigElectron.get(key, defaultValue)
+  })
+
+  ipcMain.handle('setStoreValue', (event, key, value) => {
+    return ConfigElectron.set(key, value)
   })
 })
 
