@@ -13,10 +13,11 @@ import {
   RESET_ALL
 } from '../mutation-types'
 import auth from '../../lib/auth'
+import { getStoreValue, setStoreValue } from '../../lib/config-electron'
 
 const initialState = {
-  server: null,
-  email: '',
+  server: getStoreValue('server', null),
+  email: getStoreValue('email', ''),
   password: '',
   isLdap: false,
   isLoginLoading: false,
@@ -99,6 +100,7 @@ const actions = {
 
 const mutations = {
   [CHANGE_EMAIL](state, email) {
+    setStoreValue('email', email)
     state.email = email
   },
 
@@ -107,6 +109,7 @@ const mutations = {
   },
 
   [CHANGE_SERVER](state, server) {
+    setStoreValue('server', server)
     state.server = server
   },
 
