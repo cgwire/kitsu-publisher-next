@@ -29,6 +29,46 @@
           @fileselected="onFileSelected"
         />
 
+        <span class="select">
+          <select
+            class="select-input"
+            @change="(event) => onCameraChanged(event)"
+          >
+            <option
+              v-for="option in list_cameras"
+              :key="`${option}`"
+              :value="option"
+              :selected="option === camera_selected"
+            >
+              {{ option }}
+            </option>
+          </select>
+        </span>
+
+        <span class="select">
+          <select
+            class="select-input"
+            @change="(event) => onRendererChanged(event)"
+          >
+            <option
+              v-for="option in list_renderers"
+              :key="`${option[1]}`"
+              :value="option[1]"
+              :selected="option[1] === renderer_selected"
+            >
+              {{ option[0] }}
+            </option>
+          </select>
+        </span>
+
+        <button class="button is-link" @click="onTakeScreenshotClick()">
+          {{ 'take screenshot' }}
+        </button>
+
+        <button class="button is-link" @click="onTakeAnimationClick()">
+          {{ 'take animation' }}
+        </button>
+
         <p v-if="isError" class="error">
           {{ $t('tasks.add_preview_error') }}
         </p>
@@ -82,6 +122,7 @@ import { mapGetters, mapActions } from 'vuex'
 import { modalMixin } from '@/components/modals/base_modal'
 import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
+import DCCClient from '@/lib/dccutils_client'
 
 export default {
   name: 'AddPreviewModal',
@@ -116,7 +157,12 @@ export default {
 
   data() {
     return {
-      forms: null
+      forms: null,
+      list_cameras: null,
+      camera_selected: null,
+      list_renderers: null,
+      renderer_selected: null,
+      dccutils_blender: new DCCClient('http://localhost:8089')
     }
   },
 
@@ -136,6 +182,16 @@ export default {
 
   mounted() {
     this.forms = null
+    this.dccutils_blender.getCameras().then((response) => {
+      this.list_cameras = response.data
+      this.camera_selected = response.data[0]
+    })
+    this.dccutils_blender.getRenderers().then((response) => {
+      this.list_renderers = response.data
+    })
+    this.renderer_selected = 'BLENDER_EEVEE'
+    this.extension_screenshot_selected = 'JPEG'
+    this.extension_animation_selected = 'MPEG4'
     window.addEventListener('paste', this.onPaste, false)
   },
 
@@ -172,6 +228,43 @@ export default {
 
     isVideo(form) {
       return form.get('file').type.startsWith('video')
+    },
+
+    onCameraChanged(event) {
+      this.camera_selected = event.target.value
+      this.dccutils_blender.setCamera(this.camera_selected)
+    },
+
+    onRendererChanged(event) {
+      this.renderer_selected = event.target.value
+    },
+    onTake(is_animation = false) {
+      ;(is_animation
+        ? this.dccutils_blender.takeRenderAnimation(
+            this.renderer_selected,
+            this.extension_animation_selected
+          )
+        : this.dccutils_blender.takeRenderScreenshot(
+            this.renderer_selected,
+            this.extension_screenshot_selected
+          )
+      ).then((response) => {
+        const formData = new FormData()
+        const file = new File(
+          [require('fs').readFileSync(response.data)],
+          response.data,
+          { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
+        )
+        formData.append('file', file, file.name)
+        this.forms = [formData]
+        this.$emit('fileselected', this.forms)
+      })
+    },
+    onTakeScreenshotClick() {
+      this.onTake(false)
+    },
+    onTakeAnimationClick() {
+      this.onTake(true)
     }
   }
 }
