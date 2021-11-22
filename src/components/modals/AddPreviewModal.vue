@@ -29,16 +29,17 @@
           @fileselected="onFileSelected"
         />
 
+        <h3>BLENDER</h3>
         <span class="select">
           <select
             class="select-input"
-            @change="(event) => onCameraChanged(event)"
+            @change="(event) => onBlenderCameraChanged(event)"
           >
             <option
-              v-for="option in list_cameras"
+              v-for="option in blender_list_cameras"
               :key="`${option}`"
               :value="option"
-              :selected="option === camera_selected"
+              :selected="option === blender_camera_selected"
             >
               {{ option }}
             </option>
@@ -48,24 +49,65 @@
         <span class="select">
           <select
             class="select-input"
-            @change="(event) => onRendererChanged(event)"
+            @change="(event) => onBlenderRendererChanged(event)"
           >
             <option
-              v-for="option in list_renderers"
+              v-for="option in blender_list_renderers"
               :key="`${option[1]}`"
               :value="option[1]"
-              :selected="option[1] === renderer_selected"
+              :selected="option[1] === blender_renderer_selected"
             >
               {{ option[0] }}
             </option>
           </select>
         </span>
 
-        <button class="button is-link" @click="onTakeScreenshotClick()">
+        <button class="button is-link" @click="onBlenderTakeScreenshotClick()">
           {{ 'take screenshot' }}
         </button>
 
-        <button class="button is-link" @click="onTakeAnimationClick()">
+        <button class="button is-link" @click="onBlenderTakeAnimationClick()">
+          {{ 'take animation' }}
+        </button>
+
+        <h3>HARMONY</h3>
+        <span class="select">
+          <select
+            class="select-input"
+            @change="(event) => onHarmonyCameraChanged(event)"
+          >
+            <option
+              v-for="option in harmony_list_cameras"
+              :key="`${option}`"
+              :value="option"
+              :selected="option === harmony_camera_selected"
+            >
+              {{ option }}
+            </option>
+          </select>
+        </span>
+
+        <span class="select">
+          <select
+            class="select-input"
+            @change="(event) => onHarmonyRendererChanged(event)"
+          >
+            <option
+              v-for="option in harmony_list_renderers"
+              :key="`${option[1]}`"
+              :value="option[1]"
+              :selected="option[1] === harmony_renderer_selected"
+            >
+              {{ option[0] }}
+            </option>
+          </select>
+        </span>
+
+        <button class="button is-link" @click="onHarmonyTakeScreenshotClick()">
+          {{ 'take screenshot' }}
+        </button>
+
+        <button class="button is-link" @click="onHarmonyTakeAnimationClick()">
           {{ 'take animation' }}
         </button>
 
@@ -162,7 +204,8 @@ export default {
       camera_selected: null,
       list_renderers: null,
       renderer_selected: null,
-      dccutils_blender: new DCCClient('http://localhost:8089')
+      dccutils_blender: new DCCClient('http://localhost:8089'),
+      dccutils_harmony: new DCCClient('http://localhost:8085')
     }
   },
 
@@ -182,16 +225,31 @@ export default {
 
   mounted() {
     this.forms = null
+
+    // BLENDER
     this.dccutils_blender.getCameras().then((response) => {
-      this.list_cameras = response.data
-      this.camera_selected = response.data[0]
+      this.blender_list_cameras = response.data
+      this.blender_camera_selected = response.data.length>0?response.data[0]:undefined
     })
     this.dccutils_blender.getRenderers().then((response) => {
-      this.list_renderers = response.data
+      this.blender_list_renderers = response.data
     })
-    this.renderer_selected = 'BLENDER_EEVEE'
-    this.extension_screenshot_selected = 'JPEG'
-    this.extension_animation_selected = 'MPEG4'
+    this.blender_renderer_selected = 'BLENDER_EEVEE'
+    this.blender_extension_screenshot_selected = 'JPEG'
+    this.blender_extension_animation_selected = 'MPEG4'
+
+    //HARMONY
+    this.dccutils_harmony.getCameras().then((response) => {
+      this.harmony_list_cameras = response.data
+      this.harmony_camera_selected = response.data.length>0?response.data[0]:undefined
+    })
+    this.dccutils_harmony.getRenderers().then((response) => {
+      this.harmony_list_renderers = response.data
+    })
+    this.harmony_renderer_selected = 'Display'
+    this.harmony_extension_screenshot_selected = '.png'
+    this.harmony_extension_animation_selected = '.mov'
+
     window.addEventListener('paste', this.onPaste, false)
   },
 
@@ -230,29 +288,30 @@ export default {
       return form.get('file').type.startsWith('video')
     },
 
-    onCameraChanged(event) {
-      this.camera_selected = event.target.value
-      this.dccutils_blender.setCamera(this.camera_selected)
+    //BLENDER
+    onBlenderCameraChanged(event) {
+      this.blender_camera_selected = event.target.value
+      this.dccutils_blender.setCamera(this.blender_camera_selected)
     },
 
-    onRendererChanged(event) {
-      this.renderer_selected = event.target.value
+    onBlenderRendererChanged(event) {
+      this.blender_renderer_selected = event.target.value
     },
-    onTake(is_animation = false) {
+    onBlenderTake(is_animation = false) {
       ;(is_animation
         ? this.dccutils_blender.takeRenderAnimation(
-            this.renderer_selected,
-            this.extension_animation_selected
+            this.blender_renderer_selected,
+            this.blender_extension_animation_selected
           )
         : this.dccutils_blender.takeRenderScreenshot(
-            this.renderer_selected,
-            this.extension_screenshot_selected
+            this.blender_renderer_selected,
+            this.blender_extension_screenshot_selected
           )
       ).then((response) => {
         const formData = new FormData()
         const file = new File(
-          [require('fs').readFileSync(response.data)],
-          response.data,
+          [require('fs').readFileSync(response.data.file)],
+          response.data.file,
           { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
         )
         formData.append('file', file, file.name)
@@ -260,11 +319,52 @@ export default {
         this.$emit('fileselected', this.forms)
       })
     },
-    onTakeScreenshotClick() {
-      this.onTake(false)
+
+    onBlenderTakeScreenshotClick() {
+      this.onBlenderTake(false)
     },
-    onTakeAnimationClick() {
-      this.onTake(true)
+
+    onBlenderTakeAnimationClick() {
+      this.onBlenderTake(true)
+    },
+
+    onHarmonyCameraChanged(event) {
+      this.harmony_camera_selected = event.target.value
+      this.dccutils_harmony.setCamera(this.harmony_camera_selected)
+    },
+
+    onHarmonyRendererChanged(event) {
+      this.harmony_renderer_selected = event.target.value
+    },
+    onHarmonyTake(is_animation = false) {
+      ;(is_animation
+        ? this.dccutils_harmony.takeRenderAnimation(
+            this.harmony_renderer_selected,
+            this.harmony_extension_animation_selected
+          )
+        : this.dccutils_harmony.takeRenderScreenshot(
+            this.harmony_renderer_selected,
+            this.harmony_extension_screenshot_selected
+          )
+      ).then((response) => {
+        const formData = new FormData()
+        const file = new File(
+          [require('fs').readFileSync(response.data.file)],
+          response.data.file,
+          { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
+        )
+        formData.append('file', file, file.name)
+        this.forms = [formData]
+        this.$emit('fileselected', this.forms)
+      })
+    },
+
+    onHarmonyTakeScreenshotClick() {
+      this.onHarmonyTake(false)
+    },
+    
+    onHarmonyTakeAnimationClick() {
+      this.onHarmonyTake(true)
     }
   }
 }
