@@ -584,7 +584,6 @@ body {
   }
 } // End dark theme
 
-
 .theme {
   #app .router-link-active {
     color: #00d1b2;

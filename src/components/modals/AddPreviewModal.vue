@@ -229,7 +229,8 @@ export default {
     // BLENDER
     this.dccutils_blender.getCameras().then((response) => {
       this.blender_list_cameras = response.data
-      this.blender_camera_selected = response.data.length>0?response.data[0]:undefined
+      this.blender_camera_selected =
+        response.data.length > 0 ? response.data[0] : undefined
     })
     this.dccutils_blender.getRenderers().then((response) => {
       this.blender_list_renderers = response.data
@@ -241,7 +242,8 @@ export default {
     //HARMONY
     this.dccutils_harmony.getCameras().then((response) => {
       this.harmony_list_cameras = response.data
-      this.harmony_camera_selected = response.data.length>0?response.data[0]:undefined
+      this.harmony_camera_selected =
+        response.data.length > 0 ? response.data[0] : undefined
     })
     this.dccutils_harmony.getRenderers().then((response) => {
       this.harmony_list_renderers = response.data
@@ -362,7 +364,7 @@ export default {
     onHarmonyTakeScreenshotClick() {
       this.onHarmonyTake(false)
     },
-    
+
     onHarmonyTakeAnimationClick() {
       this.onHarmonyTake(true)
     }
