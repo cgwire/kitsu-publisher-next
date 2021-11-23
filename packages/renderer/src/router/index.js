@@ -14,9 +14,7 @@ const loadSavedScrollPosition = (to, from, savedPosition) => {
 }
 
 const router = createRouter({
-  history: process.env.IS_ELECTRON
-    ? createWebHashHistory()
-    : createWebHistory(),
+  history: import.meta.env.PROD ? createWebHashHistory() : createWebHistory(),
   scrollBehavior: loadSavedScrollPosition,
   routes
 })
