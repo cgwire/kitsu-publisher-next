@@ -82,7 +82,7 @@ def take_viewport_screenshot(extension: str, output_path: str = ""):
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     finally:
         context.pop_state()
-    return output_path
+    return {"file": output_path}
 
 
 @app.get("/take_render_screenshot")
@@ -107,7 +107,7 @@ def take_render_screenshot(
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     finally:
         context.pop_state()
-    return output_path
+    return {"file": output_path}
 
 
 @app.get("/take_viewport_animation")
@@ -130,7 +130,7 @@ def take_viewport_animation(output_path: str, extension: str):
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     finally:
         context.pop_state()
-    return output_path
+    return {"file": output_path}
 
 
 @app.get("/take_render_animation")
@@ -146,7 +146,7 @@ def take_render_animation(
         output_path = os.path.join(
             tempfile.gettempdir(),
             "blender-%s%s"
-            % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), extension_str),
+            % (datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"), extension_str),
         )
     context.push_state()
     try:
@@ -155,7 +155,7 @@ def take_render_animation(
         raise HTTPException(status_code=500, detail=traceback.format_exc())
     finally:
         context.pop_state()
-    return output_path
+    return {"file": output_path}
 
 
 def server_start():

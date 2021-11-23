@@ -1,0 +1,181 @@
+<template>
+  <a
+    v-if="isPreview && withLink"
+    class="thumbnail-wrapper"
+    :href="originalPath"
+    target="_blank"
+    :style="{
+      width: width + 'px',
+      height: height + 'px'
+    }"
+  >
+    <img
+      :key="thumbnailKey"
+      v-lazy="thumbnailPath"
+      class="thumbnail-picture"
+      :style="imgStyle"
+    />
+  </a>
+
+  <img
+    v-else-if="isPreview && !withLink"
+    :key="thumbnailKey"
+    v-lazy="thumbnailPath"
+    class="thumbnail-picture"
+    style="imgStyle"
+  />
+
+  <span
+    v-else
+    :class="{
+      'thumbnail-picture': true,
+      'thumbnail-empty': true,
+      square: square
+    }"
+    :style="{
+      width: emptyWidth + 'px',
+      height: emptyHeight + 'px'
+    }"
+  />
+</template>
+
+<script>
+import store from '@/store'
+export default {
+  name: 'EntityThumbnail',
+
+  props: {
+    entity: {
+      default: () => {},
+      type: Object
+    },
+    square: {
+      default: false,
+      type: Boolean
+    },
+    width: {
+      default: null,
+      type: Number
+    },
+    height: {
+      default: null,
+      type: Number
+    },
+    maxWidth: {
+      default: null,
+      type: Number
+    },
+    maxHeight: {
+      default: null,
+      type: Number
+    },
+    emptyHeight: {
+      default: 30,
+      type: Number
+    },
+    emptyWidth: {
+      default: 50,
+      type: Number
+    },
+    previewFileId: {
+      default: null,
+      type: String
+    },
+    withLink: {
+      default: true,
+      type: Boolean
+    }
+  },
+
+  computed: {
+    originalPath() {
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      return (
+        store.state.login.server +
+        '/api/pictures/originals/preview-files/' +
+        previewFileId +
+        '.png'
+      )
+    },
+
+    isPreview() {
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      return previewFileId && previewFileId.length > 0
+    },
+
+    imgStyle() {
+      const style = {}
+      if (this.maxWidth) {
+        style['max-width'] = this.maxWidth + 'px'
+      } else if (this.width) {
+        style.width = this.width + 'px'
+      }
+      if (this.maxHeight) {
+        style['max-height'] = this.maxHeight + 'px'
+      } else if (this.height) {
+        style.height = this.height + 'px'
+      }
+      return style
+    },
+
+    thumbnailPath() {
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+
+      if (this.square) {
+        return (
+          store.state.login.server +
+          '/api/pictures/thumbnails-square/preview-files/' +
+          previewFileId +
+          '.png'
+        )
+      } else {
+        return (
+          store.state.login.server +
+          '/api/pictures/thumbnails/preview-files/' +
+          previewFileId +
+          '.png'
+        )
+      }
+    },
+
+    thumbnailKey() {
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      return `thumbnail-${previewFileId}`
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.dark .thumbnail-picture {
+  background-color: $dark-grey-lighter;
+  border-color: $dark-grey-light;
+}
+
+.thumbnail-picture {
+  margin: 0;
+}
+
+span.thumbnail-empty {
+  background: $white-grey;
+  display: block;
+  margin: 0;
+}
+
+.thumbnail-picture.square {
+  width: 100px;
+  height: 100px;
+}
+
+table .thumbnail-picture.thumbnail-empty {
+  margin: 0px;
+}
+
+table .thumbnail-picture {
+  margin: 0px;
+}
+
+.thumbnail-wrapper {
+  display: inline-block;
+}
+</style>
