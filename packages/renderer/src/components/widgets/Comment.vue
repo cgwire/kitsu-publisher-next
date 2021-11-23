@@ -1,0 +1,767 @@
+<template>
+  <div>
+    <article
+      v-if="!isEmpty"
+      :class="{
+        comment: true,
+        pinned: comment.pinned,
+        highlighted: highlighted
+      }"
+      :style="{
+        'box-shadow': boxShadowStyle
+      }"
+    >
+      <div class="content-wrapper full">
+        <div class="flexrow">
+          <validation-tag
+            class="flexrow-item"
+            :task="{ task_status_id: comment.task_status.id }"
+            :is-static="true"
+            :thin="!isChange"
+          />
+          <people-avatar
+            class="flexrow-item"
+            :size="25"
+            :font-size="12"
+            :person="comment.person"
+          />
+          <strong class="flexrow-item">
+            <people-name class="" :person="comment.person" />
+          </strong>
+          <div class="filler" />
+          <span class="flexrow-item date" :title="fullDate">
+            {{ shortDate }}
+          </span>
+          <div class="flexrow-item menu-wrapper">
+            <icon
+              name="chevron-down"
+              class="menu-icon"
+              @click="toggleCommentMenu"
+            />
+            <comment-menu
+              ref="menu"
+              :is-pinned="comment.pinned"
+              :is-editable="editable"
+              @pin-clicked="$emit('pin-comment', comment)"
+              @edit-clicked="
+                $emit('edit-comment', comment), toggleCommentMenu()
+              "
+              @delete-clicked="
+                $emit('delete-comment', comment), toggleCommentMenu()
+              "
+            />
+          </div>
+        </div>
+        <div class="flexrow-item comment-content">
+          <div class="content">
+            <p
+              v-if="personMap.get(comment.person_id).role === 'client'"
+              class="client-comment"
+            >
+              <span>
+                {{ $t('comments.comment_from_client') }}
+                <icon
+                  name="copy"
+                  class="copy-icon"
+                  size="1.1x"
+                  @click="$emit('duplicate-comment', comment)"
+                />
+              </span>
+            </p>
+            <p
+              v-if="comment.text"
+              class="comment-text"
+              v-html="
+                renderComment(
+                  comment.text,
+                  comment.mentions,
+                  personMap,
+                  uniqueClassName
+                )
+              "
+            />
+            <checklist
+              v-if="checklist.length > 0"
+              class="checklist"
+              :checklist="checklist"
+              :disabled="true"
+              @remove-task="removeTask"
+              @keyup="emitChangeEvent($event)"
+              @emit-change="emitChangeEvent"
+            />
+            <p v-if="taskStatus.is_done && isLast" class="has-text-centered">
+              <img
+                class="congrats-picture"
+                src="../../assets/illustrations/validated.png"
+              />
+            </p>
+            <p v-if="comment.attachment_files.length > 0">
+              <a
+                v-for="attachment in pictureAttachments"
+                :key="attachment.id"
+                :href="getAttachmentPath(attachment)"
+                :title="attachment.name"
+                target="_blank"
+              >
+                <img class="attachment" :src="getAttachmentPath(attachment)" />
+              </a>
+              <a
+                v-for="attachment in fileAttachments"
+                :key="attachment.id"
+                :href="getAttachmentPath(attachment)"
+                :title="attachment.name"
+                class="flexrow"
+                target="_blank"
+              >
+                <icon
+                  name="paperclip"
+                  size="1x"
+                  class="flexrow-item attachment-icon"
+                />
+                <span class="flexrow-item">
+                  {{ attachment.name }}
+                </span>
+              </a>
+            </p>
+            <div
+              v-if="comment.text.length > 0"
+              class="comment-like"
+              :title="isLikedBy"
+              @click="acknowledgeComment(comment)"
+            >
+              <button
+                :class="{
+                  'like-button': true,
+                  'like-button--empty':
+                    comment.like === undefined ? true : false
+                }"
+                type="button"
+                disabled="comment.person_id !== user.id"
+              >
+                <icon name="thumbs-up" size="1x" />
+                <span>{{ comment.acknowledgements.length }}</span>
+              </button>
+            </div>
+            <p v-if="comment.pinned" class="pinned-text">
+              {{ $t('comments.pinned') }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div
+        v-if="comment.previews.length > 0"
+        class="flexrow content-wrapper preview-info"
+      >
+        <router-link
+          class="flexrow-item round-name revision"
+          :to="previewRoute"
+        >
+          Revision {{ comment.previews[0].revision }}
+        </router-link>
+      </div>
+
+      <div
+        v-if="isAddChecklistAllowed"
+        class="has-text-centered add-checklist"
+        @click="addChecklistEntry()"
+      >
+        {{ $t('comments.add_checklist') }}
+      </div>
+    </article>
+    <div v-else class="empty-comment">
+      <div class="flexrow content-wrapper">
+        <validation-tag
+          class="flexrow-item"
+          :task="{ task_status_id: comment.task_status.id }"
+          :is-static="true"
+          :thin="!isChange"
+        />
+        <people-avatar
+          class="flexrow-item"
+          :person="comment.person"
+          :size="25"
+          :font-size="12"
+        />
+        <people-name class="flexrow-item" :person="comment.person" />
+        <span class="filler" />
+        <span class="flexrow-item date" :title="fullDate">
+          {{ shortDate }}
+        </span>
+        <div class="flexrow-item menu-wrapper">
+          <icon
+            name="chevron-down"
+            class="menu-icon"
+            @click="toggleCommentMenu"
+          />
+          <comment-menu
+            ref="menu"
+            :is-editable="editable"
+            :is-empty="true"
+            @pin-clicked="$emit('pin-comment', comment)"
+            @edit-clicked="$emit('edit-comment', comment), toggleCommentMenu()"
+            @delete-clicked="
+              $emit('delete-comment', comment), toggleCommentMenu()
+            "
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import moment from 'moment'
+import { mapGetters } from 'vuex'
+import { remove } from '@/lib/models'
+import { renderComment } from '@/lib/render'
+import { sortByName } from '@/lib/sorting'
+import { formatDate, parseDate } from '@/lib/time'
+import colors from '@/lib/colors'
+import files from '@/lib/files'
+
+import Icon from '@/components/widgets/Icon'
+import CommentMenu from './CommentMenu.vue'
+import PeopleAvatar from './PeopleAvatar.vue'
+import PeopleName from './PeopleName.vue'
+import Checklist from './Checklist'
+import ValidationTag from '@/components/widgets/ValidationTag'
+
+import store from '@/store'
+
+export default {
+  name: 'Comment',
+  components: {
+    Checklist,
+    CommentMenu,
+    Icon,
+    PeopleAvatar,
+    PeopleName,
+    ValidationTag
+  },
+
+  props: {
+    comment: {
+      type: Object,
+      default: () => {}
+    },
+    task: {
+      type: Object,
+      default: null
+    },
+    highlighted: {
+      type: Boolean,
+      default: false
+    },
+    editable: {
+      type: Boolean,
+      default: false
+    },
+    light: {
+      type: Boolean,
+      default: false
+    },
+    isFirst: {
+      type: Boolean,
+      default: false
+    },
+    isLast: {
+      type: Boolean,
+      default: false
+    },
+    isChange: {
+      type: Boolean,
+      default: false
+    }
+  },
+
+  data() {
+    return {
+      checklist: [],
+      uniqueClassName: (Math.random() + 1).toString(36).substring(2)
+    }
+  },
+
+  computed: {
+    ...mapGetters([
+      'currentProduction',
+      'isDarkTheme',
+      'user',
+      'personMap',
+      'taskTypeMap',
+      'taskStatusMap'
+    ]),
+
+    isEmpty() {
+      return (
+        this.comment.text.length === 0 &&
+        (!this.comment.checklist || this.comment.checklist.length === 0) &&
+        this.comment.attachment_files.length === 0 &&
+        this.comment.previews.length === 0 &&
+        !(this.isFirst && this.taskStatus.is_done)
+      )
+    },
+
+    previewRoute() {
+      let route = {
+        name: 'task',
+        params: {
+          task_id: this.comment.object_id,
+          production_id: this.currentProduction.id
+        }
+      }
+      if (this.comment.previews.length > 0) {
+        route = {
+          name: 'task-preview',
+          params: {
+            task_id: this.comment.object_id,
+            preview_id: this.comment.previews[0].id,
+            production_id: this.currentProduction.id
+          }
+        }
+      }
+      if (this.task.episode_id) {
+        route.name = `episode-${route.name}`
+        route.params.episode_id = this.task.episode_id
+      } else if (this.task.entity && this.task.entity.episode_id) {
+        route.name = `episode-${route.name}`
+        route.params.episode_id = this.task.entity.episode_id
+      }
+      const taskType = this.taskTypeMap.get(this.task.task_type_id)
+      route.params.type = taskType.for_shots ? 'shots' : 'assets'
+      return route
+    },
+
+    deleteCommentPath() {
+      return this.getPath('task-delete-comment')
+    },
+
+    editCommentPath() {
+      return this.getPath('task-edit-comment')
+    },
+
+    addPreviewPath() {
+      return this.getPath('task-add-preview')
+    },
+
+    taskStatus() {
+      const status = this.taskStatusMap.get(this.comment.task_status.id)
+      return status || this.comment.task_status
+    },
+
+    isAddChecklistAllowed() {
+      return (
+        this.taskStatus.is_retake &&
+        this.checklist.length === 0 &&
+        this.user.id === this.comment.person_id
+      )
+    },
+
+    isChangeChecklistAllowed() {
+      return (
+        this.taskStatus.is_retake && this.user.id === this.comment.person_id
+      )
+    },
+
+    isLikedBy() {
+      const personList = this.comment.acknowledgements.map((personId) =>
+        this.personMap.get(personId)
+      )
+      return sortByName(personList)
+        .map((p) => p.name)
+        .join(', ')
+    },
+
+    pictureAttachments() {
+      return [...this.comment.attachment_files]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .filter((attachment) => {
+          return files.IMG_EXTENSIONS.includes(attachment.extension)
+        })
+    },
+
+    fileAttachments() {
+      return this.comment.attachment_files.filter((attachment) => {
+        return !files.IMG_EXTENSIONS.includes(attachment.extension)
+      })
+    },
+
+    commentDate() {
+      return parseDate(this.comment.created_at)
+    },
+
+    fullDate() {
+      return this.commentDate
+        .tz(this.user.timezone)
+        .format('YYYY-MM-DD HH:mm:ss')
+    },
+
+    shortDate() {
+      if (moment().diff(this.commentDate, 'days') > 1) {
+        return this.commentDate.tz(this.user.timezone).format('MM/DD')
+      } else {
+        return this.commentDate.tz(this.user.timezone).format('HH:mm')
+      }
+    },
+
+    boxShadowStyle() {
+      return `0 0 3px 2px ${this.comment.task_status.color}1F`
+    },
+
+    statusColor() {
+      const color = this.comment.task_status.color
+      if (this.isDarkTheme && !this.isEmpty) {
+        return colors.darkenColor(color)
+      } else {
+        return color
+      }
+    }
+  },
+
+  watch: {
+    'comment.checklist'() {
+      this.silent = true
+      this.checklist = [...this.comment.checklist]
+      this.$nextTick().then(() => {
+        this.silent = false
+      })
+    },
+
+    checklist() {
+      if (!this.silent) {
+        this.emitChangeEvent()
+      }
+    }
+  },
+
+  created() {
+    this.silent = true
+  },
+
+  mounted() {
+    if (this.comment.checklist) {
+      this.checklist = [...this.comment.checklist]
+      this.$nextTick().then(() => {
+        this.silent = false
+      })
+    }
+    Array.from(document.getElementsByClassName(this.uniqueClassName)).forEach(
+      (element) => {
+        element.addEventListener('click', this.timeCodeClicked)
+      }
+    )
+  },
+
+  unmounted() {
+    Array.from(document.getElementsByClassName(this.uniqueClassName)).forEach(
+      (element) => {
+        element.removeEventListener('click', this.timeCodeClicked)
+      }
+    )
+  },
+
+  methods: {
+    formatDate(date) {
+      return formatDate(date)
+    },
+
+    getPath(name) {
+      const route = {
+        name: name,
+        params: {
+          task_id: this.comment.object_id,
+          comment_id: this.comment.id
+        }
+      }
+      if (this.$route.params.episode_id) {
+        route.name = `episode-${route.name}`
+        route.params.episode_id = this.$route.params.episode_id
+      }
+      return route
+    },
+
+    getAttachmentPath(attachment) {
+      return (
+        store.state.login.server +
+        `/api/data/attachment-files/${attachment.id}/` +
+        `file/${attachment.name}`
+      )
+    },
+
+    toggleCommentMenu() {
+      this.$refs.menu.toggle()
+    },
+
+    addChecklistEntry() {
+      this.checklist.push({
+        text: '',
+        checked: false
+      })
+    },
+
+    removeTask(entry) {
+      this.checklist = remove(this.checklist, entry)
+    },
+
+    emitChangeEvent(event) {
+      const now = new Date().getTime()
+      this.lastCall = this.lastCall || 0
+      if (now - this.lastCall > 1000) {
+        this.lastCall = now
+        this.$emit(
+          'checklist-updated',
+          this.comment,
+          this.checklist.filter((item) => item.text && item.text.length > 0)
+        )
+      }
+    },
+
+    acknowledgeComment(comment) {
+      this.$emit('ack-comment', comment)
+    },
+
+    timeCodeClicked(event) {
+      this.$emit('time-code-clicked', event.target.dataset)
+    },
+
+    renderComment
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.dark {
+  .comment-text {
+    color: $white-grey;
+  }
+
+  .content .client-comment {
+    background: #c4677b;
+    color: white;
+  }
+
+  .add-checklist {
+    background: $dark-grey-lighter;
+  }
+
+  .comment {
+    background: $dark-grey-lightmore;
+  }
+
+  .like-button {
+    color: white;
+  }
+}
+
+article.comment {
+  background: white;
+  border-radius: 5px;
+  padding: 0;
+  margin: 1em 0;
+  word-wrap: anywhere;
+  hyphens: auto;
+}
+
+.media {
+  padding: 0.6em;
+}
+
+.comment.highlighted {
+  background: #f1eeff;
+}
+
+.content .comment-person {
+  min-height: 40px;
+  margin-bottom: 0;
+}
+
+.comment-date {
+  color: $grey;
+  margin-left: 0.5em;
+  flex: 1;
+}
+
+.content {
+  .comment-text {
+    margin-top: 0.5rem;
+    margin-bottom: 0rem;
+    padding: 0.2em 0.1em;
+    word-break: break-word;
+    hyphens: auto;
+    hyphenate-limit-chars: 8 6 2;
+  }
+}
+
+.checklist {
+  margin-top: 0.5em;
+}
+
+.menu-icon {
+  width: 20px;
+  cursor: pointer;
+  color: $light-grey;
+}
+
+.menu-wrapper {
+  position: relative;
+}
+
+.pinned {
+  transform: scale(1.02);
+}
+
+.pinned-text {
+  font-size: 0.8em;
+  margin: 0;
+  text-align: right;
+  color: $light-grey;
+}
+
+.add-checklist {
+  background: $white-grey-light;
+  color: $grey;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-size: 0.8em;
+  padding: 0.5em;
+}
+
+.content .client-comment {
+  border-radius: 4px;
+  background: lighten($red, 80%);
+  color: desaturate(darken($red, 30%), 20%);
+  font-size: 0.8em;
+  margin-top: 0.4em;
+  margin-bottom: 0;
+  padding: 0.5em 0.2em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.round-name {
+  border-radius: 1em;
+  font-size: 0.8em;
+  margin: 0;
+  margin-right: 0.5em;
+  min-width: 55px;
+  padding: 0.4em;
+  text-transform: uppercase;
+  text-align: center;
+
+  &.revision {
+    width: 100%;
+    font-weight: bold;
+    border: 1px solid $purple-strong;
+    color: $purple-strong;
+  }
+}
+
+.flexrow {
+  align-items: center;
+}
+
+.comment-left {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5em 0 0.5em 0.5em;
+}
+
+.like-button {
+  align-items: center;
+  background-color: transparent;
+  border: 0;
+  border-radius: 0.5rem;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  margin: 0;
+  padding: 0.3rem 0;
+  width: 100%;
+
+  &:hover,
+  &:focus {
+    background-color: $dark-grey-lightest;
+  }
+
+  &[disabled] {
+    pointer-events: none;
+  }
+
+  span {
+    margin-left: 0.3em;
+  }
+}
+
+.like-button--empty {
+  opacity: 0.5;
+
+  &:hover,
+  &:focus {
+    opacity: 1;
+  }
+}
+
+.comment-content {
+  padding: 0em;
+}
+
+.comment-like {
+  cursor: pointer;
+}
+
+.infos {
+  display: flex;
+  align-items: center;
+}
+
+.content-wrapper {
+  padding: 0.5em;
+
+  &.full {
+    border-left: 1px solid transparent;
+  }
+}
+
+.date {
+  font-size: 0.8em;
+  margin-right: 0.5em;
+}
+
+.preview-info {
+  margin-top: 0;
+  padding-top: 0;
+
+  .date {
+    margin-right: 26px;
+  }
+}
+
+p {
+  margin: 0;
+}
+
+.attachment {
+  display: block;
+  text-align: center;
+  margin: 0.4em auto;
+}
+
+.attachment-icon {
+  margin: 0.6em;
+}
+
+.copy-icon {
+  cursor: pointer;
+  margin-left: 0.5em;
+}
+
+.congrats-picture {
+  max-width: 300px;
+}
+
+@media screen and (max-width: 768px) {
+  .flexrow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+</style>

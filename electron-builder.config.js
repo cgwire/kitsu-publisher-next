@@ -5,16 +5,12 @@ if (process.env.VITE_APP_VERSION === undefined) {
   }.${now.getUTCDate()}-${now.getUTCHours() * 60 + now.getUTCMinutes()}`
 }
 
-/**
- * @type {import('electron-builder').Configuration}
- * @see https://www.electron.build/configuration/configuration
- */
 const config = {
   directories: {
-    output: 'build',
+    output: 'dist',
     buildResources: 'buildResources'
   },
-  files: ['./dist/**', './electron/**', './buildResources/icon.*'],
+  files: ['packages/**/dist/**'],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION
   }
