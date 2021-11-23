@@ -1,4 +1,8 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {
+  createRouter,
+  createWebHashHistory,
+  createWebHistory
+} from 'vue-router'
 import routes from '/src/router/routes'
 
 const loadSavedScrollPosition = (to, from, savedPosition) => {
@@ -10,7 +14,9 @@ const loadSavedScrollPosition = (to, from, savedPosition) => {
 }
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: process.env.IS_ELECTRON
+    ? createWebHashHistory()
+    : createWebHistory(),
   scrollBehavior: loadSavedScrollPosition,
   routes
 })

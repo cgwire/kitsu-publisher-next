@@ -61,6 +61,7 @@ export default {
   },
 
   mounted() {
+    this.$router.push('/').catch((error) => {})
     if (localStorage.getItem('dark-theme') === 'true' && !this.isDarkTheme) {
       this.$store.commit('TOGGLE_DARK_THEME')
       document.documentElement.style.background = '#36393F'
