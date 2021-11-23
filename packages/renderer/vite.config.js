@@ -37,9 +37,6 @@ const config = {
     target: `chrome${chrome}`,
     outDir: 'dist',
     assetsDir: '.',
-    rollupOptions: {
-      external: [...builtinModules]
-    },
     emptyOutDir: true,
     brotliSize: false
   }
