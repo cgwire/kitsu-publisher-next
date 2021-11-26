@@ -1,4 +1,4 @@
-import { app, BrowserWindow /**shell*/ } from 'electron'
+import { app, BrowserWindow, session /**shell*/ } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
 
@@ -30,6 +30,10 @@ if (isDevelopment) {
 let mainWindow = null
 
 const createWindow = async () => {
+  session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    details.requestHeaders['User-Agent'] = 'Kitsu publisher'
+    callback({ cancel: false, requestHeaders: details.requestHeaders })
+  })
   mainWindow = new BrowserWindow({
     show: false, // Use 'ready-to-show' event to show window
     webPreferences: {
