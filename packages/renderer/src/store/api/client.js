@@ -4,15 +4,19 @@ import store from '../../store'
 
 const client = {
   get(path, callback) {
-    superagent.get(store.state.login.server + path).end((err, res) => {
-      // if (res.statusCode === 401) return errors.backToLogin()
-      callback(err, res.body)
-    })
+    superagent
+      .get(`${store.state.login.server}${path}`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
+      .end((err, res) => {
+        // if (res.statusCode === 401) return errors.backToLogin()
+        callback(err, res.body)
+      })
   },
 
   post(path, data, callback) {
     superagent
-      .post(store.state.login.server + path)
+      .post(`${store.state.login.server}${path}`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
       .send(data)
       .end((err, res) => {
         if (res.statusCode === 401) return errors.backToLogin()
@@ -22,7 +26,8 @@ const client = {
 
   put(path, data, callback) {
     superagent
-      .put(store.state.login.server + path)
+      .put(`${store.state.login.server}${path}`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
       .send(data)
       .end((err, res) => {
         if (res.statusCode === 401) return errors.backToLogin()
@@ -31,10 +36,13 @@ const client = {
   },
 
   del(path, callback) {
-    superagent.del(store.state.login.server + path).end((err, res) => {
-      if (res.statusCode === 401) return errors.backToLogin()
-      callback(err, res.body)
-    })
+    superagent
+      .del(`${store.state.login.server}${path}`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
+      .end((err, res) => {
+        if (res.statusCode === 401) return errors.backToLogin()
+        callback(err, res.body)
+      })
   },
 
   pget(path) {
@@ -49,7 +57,8 @@ const client = {
   ppost(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
-        .post(store.state.login.server + path)
+        .post(`${store.state.login.server}${path}`)
+        .auth(store.state.login.access_token, { type: 'bearer' })
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
@@ -66,7 +75,8 @@ const client = {
   pput(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
-        .put(store.state.login.server + path)
+        .put(`${store.state.login.server}${path}`)
+        .auth(store.state.login.access_token, { type: 'bearer' })
         .send(data)
         .end((err, res) => {
           if (res.statusCode === 401) {
@@ -82,15 +92,18 @@ const client = {
 
   pdel(path, callback) {
     return new Promise((resolve, reject) => {
-      superagent.del(store.state.login.server + path).end((err, res) => {
-        if (res.statusCode === 401) {
-          errors.backToLogin()
-          reject(err)
-        } else {
-          if (err) reject(err)
-          else resolve(res.body)
-        }
-      })
+      superagent
+        .del(`${store.state.login.server}${path}`)
+        .auth(store.state.login.access_token, { type: 'bearer' })
+        .end((err, res) => {
+          if (res.statusCode === 401) {
+            errors.backToLogin()
+            reject(err)
+          } else {
+            if (err) reject(err)
+            else resolve(res.body)
+          }
+        })
     })
   },
 
