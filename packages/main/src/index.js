@@ -30,8 +30,9 @@ if (isDevelopment) {
 let mainWindow = null
 
 const createWindow = async () => {
+  // set custom User-Agent in requestHeaders
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
-    details.requestHeaders['User-Agent'] = 'Kitsu publisher'
+    details.requestHeaders['User-Agent'] = `Kitsu publisher ${app.getVersion()}`
     callback({ cancel: false, requestHeaders: details.requestHeaders })
   })
   mainWindow = new BrowserWindow({
