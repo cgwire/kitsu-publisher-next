@@ -110,7 +110,7 @@ const auth = {
   // not.
   requireAuth(to, from, next) {
     const finalize = (isLdap) => {
-      if (store.state.login.server === null) {
+      if (!store.state.login.server) {
         next({
           path: '/login',
           query: { redirect: to.fullPath }

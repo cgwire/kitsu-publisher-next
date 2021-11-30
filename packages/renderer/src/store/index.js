@@ -21,6 +21,11 @@ import taskTypes from './modules/tasktypes'
 import taskStatus from './modules/taskstatus'
 import tasks from './modules/tasks'
 
+import createPersistedState from 'vuex-persistedstate'
+import SecureLS from 'secure-ls'
+
+var localstorage = new SecureLS({ isCompression: false })
+
 const modules = {
   assetTypes,
   assets,
@@ -45,6 +50,16 @@ const modules = {
 const store = createStore({
   getters,
   strict: process.env.NODE_ENV !== 'production',
+  plugins: [
+    createPersistedState({
+      paths: ['login.email', 'login.access_token', 'login.server'],
+      storage: {
+        getItem: (key) => localstorage.get(key),
+        setItem: (key, value) => localstorage.set(key, value),
+        removeItem: (key) => localstorage.remove(key)
+      }
+    })
+  ],
   modules: modules
 })
 

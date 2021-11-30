@@ -16,8 +16,8 @@ import {
 import auth from '../../lib/auth'
 
 const initialState = {
-  server: null,
-  access_token: null,
+  server: '',
+  access_token: '',
   email: '',
   password: '',
   isLdap: false,
