@@ -52,6 +52,7 @@ const store = createStore({
   strict: process.env.NODE_ENV !== 'production',
   plugins: [
     createPersistedState({
+      key: "kitsu",
       paths: ['login.email', 'login.access_token', 'login.server'],
       storage: {
         getItem: (key) => localstorage.get(key),
