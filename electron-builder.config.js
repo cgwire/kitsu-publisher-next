@@ -6,6 +6,9 @@ if (process.env.VITE_APP_VERSION === undefined) {
 }
 
 const config = {
+  appId: "com.cgwire.kitsupublisher",
+  productName: "Kitsu publisher",
+  copyright: "Copyright © 2021 ${author}",
   directories: {
     output: 'dist',
     buildResources: 'buildResources'
@@ -13,6 +16,10 @@ const config = {
   files: ['packages/**/dist/**'],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION
+  },
+  linux: {
+    target: ["AppImage", "deb", "rpm", "tar.gz", "snap"],
+    category: "Graphics",
   }
 }
 

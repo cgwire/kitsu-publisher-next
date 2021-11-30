@@ -2,6 +2,7 @@ import {
   CHANGE_EMAIL,
   CHANGE_PASSWORD,
   CHANGE_SERVER,
+  CHANGE_ACCESS_TOKEN,
   LOGIN_RUN,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
@@ -15,7 +16,8 @@ import {
 import auth from '../../lib/auth'
 
 const initialState = {
-  server: null,
+  server: '',
+  access_token: '',
   email: '',
   password: '',
   isLdap: false,
@@ -30,6 +32,7 @@ const state = {
 
 const getters = {
   server: (state) => state.server,
+  access_token: (state) => state.access_token,
   email: (state) => state.email,
   password: (state) => state.password,
   isLdap: (state) => state.isLdap,
@@ -49,6 +52,10 @@ const actions = {
 
   changeServer({ commit, state }, server) {
     commit(CHANGE_SERVER, server)
+  },
+
+  changeAccessToken({ commit, state }, server) {
+    commit(CHANGE_ACCESS_TOKEN, server)
   },
 
   logIn({ commit, state }, callback) {
@@ -108,6 +115,10 @@ const mutations = {
 
   [CHANGE_SERVER](state, server) {
     state.server = server
+  },
+
+  [CHANGE_ACCESS_TOKEN](state, access_token) {
+    state.access_token = access_token
   },
 
   [LOGIN_RUN](state) {

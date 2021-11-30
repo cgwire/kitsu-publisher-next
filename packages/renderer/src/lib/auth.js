@@ -5,13 +5,14 @@ import {
   SET_ORGANISATION,
   USER_LOGIN,
   USER_LOGOUT,
-  USER_LOGIN_FAIL
+  USER_LOGIN_FAIL,
+  CHANGE_ACCESS_TOKEN
 } from '../store/mutation-types.js'
 
 const auth = {
   logIn(email, password, callback) {
     superagent
-      .post(store.state.login.server + '/api/auth/login')
+      .post(`${store.state.login.server}/api/auth/login`)
       .send({ email, password })
       .end((err, res) => {
         if (err) {
@@ -22,6 +23,7 @@ const auth = {
           callback(err)
         } else {
           if (res.body.login) {
+            store.commit(CHANGE_ACCESS_TOKEN, res.body.access_token)
             const user = res.body.user
             const isLdap = res.body.ldap
             store.commit(DATA_LOADING_START, { isLdap })
@@ -36,7 +38,8 @@ const auth = {
 
   logout(callback) {
     superagent
-      .get(store.state.login.server + '/api/auth/logout')
+      .get(`${store.state.login.server}/api/auth/logout`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
       .end((err, res) => {
         if (err) {
           console.error(err)
@@ -50,7 +53,8 @@ const auth = {
   resetPassword(email) {
     return new Promise((resolve, reject) => {
       superagent
-        .post(store.state.login.server + '/api/auth/reset-password')
+        .post(`${store.state.login.server}/api/auth/reset-password`)
+        .auth(store.state.login.access_token, { type: 'bearer' })
         .send({ email })
         .end((err, res) => {
           if (err) reject(err)
@@ -62,7 +66,8 @@ const auth = {
   resetChangePassword(token, password, password2) {
     return new Promise((resolve, reject) => {
       superagent
-        .put(store.state.login.server + '/api/auth/reset-password')
+        .post(`${store.state.login.server}/api/auth/reset-password`)
+        .auth(store.state.login.access_token, { type: 'bearer' })
         .send({ token, password, password2 })
         .end((err, res) => {
           if (err) reject(err)
@@ -73,7 +78,8 @@ const auth = {
 
   isServerLoggedIn(callback) {
     superagent
-      .get(store.state.login.server + '/api/auth/authenticated')
+      .get(`${store.state.login.server}/api/auth/authenticated`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
       .end((err, res) => {
         if (err && res && [401, 422].includes(res.statusCode)) {
           store.commit(USER_LOGIN_FAIL)
@@ -104,7 +110,7 @@ const auth = {
   // not.
   requireAuth(to, from, next) {
     const finalize = (isLdap) => {
-      if (store.state.login.server === null) {
+      if (!store.state.login.server) {
         next({
           path: '/login',
           query: { redirect: to.fullPath }
@@ -151,4 +157,5 @@ const auth = {
     return password.length > 6 && password === password2
   }
 }
+
 export default auth
