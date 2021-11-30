@@ -9,7 +9,6 @@ import Lazyload from 'vue3-lazyload'
 //import Meta from 'vue-meta'
 //import TextareaAutosize from 'vue-textarea-autosize'
 import VTooltip from 'v-tooltip'
-import vuescroll from 'vue-scroll'
 import VueFeather from 'vue-feather'
 //import VueWebsocket from 'vue-websocket-next'
 //import IO from 'socket.io-client'
@@ -43,7 +42,6 @@ app.use(store)
 app.use(VTooltip)
 //app.use(Chartkick, { adapter: Chart })
 app.use(Lazyload)
-app.use(vuescroll)
 //app.use(DragDrop)
 //app.use(TextareaAutosize)
 
