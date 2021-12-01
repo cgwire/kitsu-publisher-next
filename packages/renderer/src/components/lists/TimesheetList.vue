@@ -22,7 +22,7 @@
       />
     </div>
 
-    <div ref="body" v-scroll="onBodyScroll" class="datatable-wrapper">
+    <div ref="body">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>

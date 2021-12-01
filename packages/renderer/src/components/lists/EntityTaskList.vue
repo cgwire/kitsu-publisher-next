@@ -30,7 +30,7 @@
 
     <table-info :is-loading="isLoading" :is-error="isError" />
 
-    <div v-if="entries.length > 0" v-scroll="onBodyScroll">
+    <div v-if="entries.length > 0">
       <table class="datatable">
         <tbody class="datatable-body">
           <tr

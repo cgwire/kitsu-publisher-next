@@ -1,6 +1,6 @@
 <template>
   <div class="data-list task-list">
-    <div ref="body" v-scroll="onBodyScroll" class="datatable-wrapper">
+    <div ref="body">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
