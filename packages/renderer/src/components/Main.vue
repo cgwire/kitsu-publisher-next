@@ -1,13 +1,17 @@
 <template>
   <div class="main">
+    <topbar />
     <router-view />
   </div>
 </template>
 
 <script>
+import Topbar from './tops/Topbar'
 export default {
   name: 'MainWrapper',
-  components: {}
+  components: {
+    Topbar
+  }
 
   // TODO : reenable socket
   /*mounted() {

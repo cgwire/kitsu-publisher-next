@@ -61,7 +61,6 @@ export default {
   },
 
   mounted() {
-    this.$router.push('/').catch((error) => {})
     if (localStorage.getItem('dark-theme') === 'true' && !this.isDarkTheme) {
       this.$store.commit('TOGGLE_DARK_THEME')
       document.documentElement.style.background = '#36393F'
@@ -345,6 +344,26 @@ export default {
         if (this.taskMap.get(eventData.task_id)) {
           this.$nextTick(() => {
             this.loadTask({ taskId: eventData.task_id })
+          })
+        }
+      },
+
+      'task:update-casting-stats'(eventData) {
+        const task = this.taskMap.get(eventData.task_id)
+        if (task) {
+          this.$store.commit('UPDATE_TASK', {
+            task,
+            nbAssetsReady: eventData.nb_assets_ready
+          })
+        }
+      },
+
+      'shot:casting-update'(eventData) {
+        const shot = this.shotMap.get(eventData.shot_id)
+        if (shot) {
+          this.$store.commit('UPDATE_SHOT', {
+            id: shot.id,
+            nb_entities_out: eventData.nb_entities_out
           })
         }
       },
