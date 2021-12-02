@@ -14,6 +14,7 @@ const ServerDown = () => import('../components/pages/ServerDown')
 const ResetPassword = () => import('../components/pages/ResetPassword')
 const Asset = () => import('../components/pages/Asset')
 const Task = () => import('../components/pages/Task')
+const Profile = () => import('../components/pages/Profile')
 
 const routes = [
   {
@@ -150,6 +151,18 @@ const routes = [
             name: 'episode-task-delete-comment',
             path: 'comments/:comment_id/delete',
             component: Task
+          }
+        ]
+      },
+      {
+        path: 'profile',
+        component: Profile,
+        name: 'profile',
+        children: [
+          {
+            path: 'change-avatar',
+            component: Profile,
+            name: 'change-avatar'
           }
         ]
       }

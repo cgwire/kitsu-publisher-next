@@ -28,7 +28,7 @@ import Spinner from '../widgets/Spinner'
 
 import { domMixin } from '@/components/mixins/dom'
 
-import store from '@/store'
+import client from '@/store/api/client'
 
 export default {
   name: 'VideoViewer',
@@ -95,7 +95,10 @@ export default {
       currentTimeRaw: 0,
       isLoading: false,
       maxDuration: '00:00.000',
-      videoDuration: 0
+      videoDuration: 0,
+      moviePath: "",
+      movieDlPath: "",
+      posterPath: "",
     }
   },
 
@@ -124,44 +127,6 @@ export default {
 
     isVideo() {
       return this.$refs.movie && this.videoDuration && this.videoDuration > 0
-    },
-
-    moviePath() {
-      if (this.extension === 'mp4' && this.isAvailable && !this.isHd) {
-        return (
-          store.state.login.server +
-          `/api/movies/low/preview-files/${this.preview.id}.mp4`
-        )
-      } else if (this.extension === 'mp4' && this.isAvailable) {
-        return (
-          store.state.login.server +
-          `/api/movies/originals/preview-files/${this.preview.id}.mp4`
-        )
-      } else {
-        return null
-      }
-    },
-
-    movieDlPath() {
-      if (this.preview && this.isAvailable) {
-        return (
-          store.state.login.server +
-          `/api/movies/originals/preview-files/${this.preview.id}/download`
-        )
-      } else {
-        return ''
-      }
-    },
-
-    posterPath() {
-      if (this.extension === 'mp4' && this.isAvailable) {
-        return (
-          store.state.login.server +
-          `/api/pictures/previews/preview-files/${this.preview.id}.png`
-        )
-      } else {
-        return null
-      }
     },
 
     video() {
@@ -217,6 +182,9 @@ export default {
     }
     setTimeout(() => {
       if (this.video) {
+        this.setMoviePath()
+        //this.setMovieDlPath()
+        this.setPosterPath()
         this.video.addEventListener(
           'focus',
           function () {
@@ -264,6 +232,58 @@ export default {
       return {
         height: this.video.videoHeight,
         width: this.video.videoWidth
+      }
+    },
+
+    setMoviePath() {
+      let path = ""
+      if (this.extension === 'mp4' && this.isAvailable && !this.isHd) {
+        path = `/api/movies/low/preview-files/${this.preview.id}.mp4`
+      } else if (this.extension === 'mp4' && this.isAvailable) {
+        path = `/api/movies/originals/preview-files/${this.preview.id}.mp4`
+      } else {
+        this.moviePath=path
+      }
+      client.getBlob(path, (err, blob) => {
+        if (err) {
+          console.log(err)
+          this.moviePath=path
+        }
+        else this.moviePath = URL.createObjectURL(blob)
+      })
+    },
+
+    setMovieDlPath() {
+      if (this.preview && this.isAvailable) {
+        client.getBlob(
+          `/api/movies/originals/preview-files/${this.preview.id}/download`,
+          (err, blob) => {
+            if (err) {
+              console.log(err)
+              this.movieDlPath = ""
+            }
+            else this.movieDlPath=URL.createObjectURL(blob)
+          }
+        )
+      } else {
+        this.movieDlPath=""
+      }
+    },
+
+    setPosterPath() {
+      if (this.extension === 'mp4' && this.isAvailable) {
+        client.getBlob(
+          `/api/pictures/previews/preview-files/${this.preview.id}.png`,
+          (err, blob) => {
+            if (err) {
+              console.log(err)
+              this.posterPath = ""
+            }
+            else this.posterPath = URL.createObjectURL(blob)
+          }
+        )
+      } else {
+        this.posterPath = ""
       }
     },
 
