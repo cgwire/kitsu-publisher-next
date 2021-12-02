@@ -108,19 +108,19 @@
               <a
                 v-for="attachment in pictureAttachments"
                 :key="attachment.id"
-                :href="getAttachmentPath(attachment)"
+                :href="attachmentFilesPaths[pictureAttachments.id]"
                 :title="attachment.name"
                 target="_blank"
               >
                 <img
                   class="attachment"
-                  :src="getAttachmentPath(attachment)"
+                  :src="attachmentFilesPaths[pictureAttachments.id]"
                 >
               </a>
               <a
                 v-for="attachment in fileAttachments"
                 :key="attachment.id"
-                :href="getAttachmentPath(attachment)"
+                :href="attachmentFilesPaths[pictureAttachments.id]"
                 :title="attachment.name"
                 class="flexrow"
                 target="_blank"
@@ -253,7 +253,7 @@ import PeopleName from './PeopleName.vue'
 import Checklist from './Checklist'
 import ValidationTag from '@/components/widgets/ValidationTag'
 
-import store from '@/store'
+import client from '@/store/api/client'
 
 export default {
   name: 'Comment',
@@ -304,7 +304,8 @@ export default {
   data() {
     return {
       checklist: [],
-      uniqueClassName: (Math.random() + 1).toString(36).substring(2)
+      uniqueClassName: (Math.random() + 1).toString(36).substring(2),
+      attachmentFilesPaths: {}
     }
   },
 
@@ -399,6 +400,7 @@ export default {
     },
 
     pictureAttachments() {
+      this.setAttachmentFilesPaths()
       return [...this.comment.attachment_files]
         .sort((a, b) => a.name.localeCompare(b.name))
         .filter((attachment) => {
@@ -506,12 +508,18 @@ export default {
       return route
     },
 
-    getAttachmentPath(attachment) {
-      return (
-        store.state.login.server +
-        `/api/data/attachment-files/${attachment.id}/` +
-        `file/${attachment.name}`
-      )
+    setAttachmentFilesPaths() {
+      for (const attachment in this.pictureAttachments){
+        client.getBlob(
+          `/api/data/attachment-files/${attachment.id}/file/${attachment.name}`,
+          (err, blob) => {
+            if (err) {
+              console.log(err)
+              this.attachmentFilesPaths[attachment.id] = ""
+            }
+            this.attachmentFilesPaths[attachment.id] = URL.createObjectURL(blob)
+          })
+      }
     },
 
     toggleCommentMenu() {

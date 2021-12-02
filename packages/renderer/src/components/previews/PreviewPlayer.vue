@@ -1,18 +1,8 @@
 <template>
-  <div
-    ref="container"
-    class="preview-player dark"
-    tabindex="-1"
-  >
-    <div
-      class="preview"
-      :style="{ height: defaultHeight + 'px' }"
-    >
+  <div ref="container" class="preview-player dark" tabindex="-1">
+    <div class="preview" :style="{ height: defaultHeight + 'px' }">
       <div class="flexrow filler">
-        <div
-          ref="preview-container"
-          class="preview-container filler"
-        >
+        <div ref="preview-container" class="preview-container filler">
           <div
             ref="canvas-wrapper"
             class="canvas-wrapper"
@@ -80,20 +70,9 @@
       /-->
       </div>
     </div>
-    <div
-      ref="button-bar"
-      class="button-bar"
-    >
-      <div
-        v-show="isMovie"
-        class="video-progress pull-bottom"
-      >
-        <progress
-          ref="progress"
-          value="0"
-          min="0"
-          @click="onProgressClicked"
-        />
+    <div ref="button-bar" class="button-bar">
+      <div v-show="isMovie" class="video-progress pull-bottom">
+        <progress ref="progress" value="0" min="0" @click="onProgressClicked" />
       </div>
 
       <annotation-bar
@@ -105,14 +84,8 @@
         @select-annotation="onAnnotationClicked"
       />
 
-      <div
-        ref="buttons"
-        class="buttons flexrow pull-bottom"
-      >
-        <div
-          v-if="isMovie"
-          class="left flexrow"
-        >
+      <div ref="buttons" class="buttons flexrow pull-bottom">
+        <div v-if="isMovie" class="left flexrow">
           <button-simple
             v-if="!isPlaying"
             class="flexrow-item"
@@ -156,10 +129,7 @@
           >
             {{ currentTime }}
           </span>
-          <span
-            v-if="fullScreen"
-            class="flexrow-item time-indicator"
-          > / </span>
+          <span v-if="fullScreen" class="flexrow-item time-indicator"> / </span>
           <span
             v-if="fullScreen"
             class="flexrow-item time-indicator"
@@ -206,23 +176,14 @@
 
         <div class="filler" />
 
-        <div
-          v-if="fullScreen && task"
-          class="entity-name mr1"
-        >
+        <div v-if="fullScreen && task" class="entity-name mr1">
           {{ task.entity_name }}
         </div>
 
-        <div
-          v-if="fullScreen"
-          class="separator"
-        />
+        <div v-if="fullScreen" class="separator" />
 
         <div class="flexrow">
-          <div
-            v-if="isMovie || isPicture"
-            class="flexrow"
-          >
+          <div v-if="isMovie || isPicture" class="flexrow">
             <button-simple
               v-if="!readOnly && fullScreen"
               class="flexrow-item"
@@ -310,10 +271,7 @@
             />
           </div>
 
-          <div
-            v-if="!readOnly && fullScreen && isPicture"
-            class="separator"
-          />
+          <div v-if="!readOnly && fullScreen && isPicture" class="separator" />
 
           <a
             v-if="!readOnly && isPicture"
@@ -322,17 +280,14 @@
             :title="$t('playlists.actions.see_original_file')"
             target="blank"
           >
-            <icon
-              name="arrow-up-right"
-              class="icon is-small"
-            />
+            <icon name="arrow-up-right" class="icon is-small" />
           </a>
 
           <div
             v-if="
               !fullScreen ||
-                (fullScreen &&
-                  (previews.length > 1 || lastPreviewFiles.length > 1))
+              (fullScreen &&
+                (previews.length > 1 || lastPreviewFiles.length > 1))
             "
             class="separator"
           />
@@ -353,10 +308,7 @@
           />
 
           <div class="flexrow">
-            <div
-              v-if="fullScreen"
-              class="flexrow"
-            >
+            <div v-if="fullScreen" class="flexrow">
               <span
                 v-for="previewFile in lastPreviewFiles"
                 :key="`last-preview-${previewFile.id}`"
@@ -392,10 +344,7 @@
             :href="originalDlPath"
             :title="$t('playlists.actions.download_file')"
           >
-            <icon
-              name="download"
-              class="icon is-small"
-            />
+            <icon name="download" class="icon is-small" />
           </a>
 
           <button-simple

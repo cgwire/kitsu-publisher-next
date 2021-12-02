@@ -115,6 +115,17 @@ const client = {
   getEvents(after, before) {
     const path = `/api/data/events/last?after=${after}&before=${before}&page_size=100000`
     return client.pget(path)
+  },
+
+  getBlob(path, callback) {
+    superagent
+      .get(`${store.state.login.server}${path}`)
+      .auth(store.state.login.access_token, { type: 'bearer' })
+      .responseType('blob')
+      .end((err, res) => {
+        // if (res.statusCode === 401) return errors.backToLogin()
+        callback(err, res.body)
+      })
   }
 }
 

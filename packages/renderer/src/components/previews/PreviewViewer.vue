@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="container"
-    class="preview-viewer dark"
-  >
+  <div ref="container" class="preview-viewer dark">
     <div
       v-show="isBroken"
       class="center status-message"
@@ -81,10 +78,7 @@
         :href="originalDlPath"
         :title="fileTitle"
       >
-        <icon
-          name="download"
-          class="icon"
-        />
+        <icon name="download" class="icon" />
         <span class="text">
           {{ $t('tasks.download_pdf_file', { extension }) }}
         </span>

@@ -1,8 +1,5 @@
 <template>
-  <div
-    ref="container"
-    class="picture-player"
-  >
+  <div ref="container" class="picture-player">
     <div
       ref="picture-wrapper"
       class="picture-wrapper"
@@ -22,10 +19,7 @@
           }"
         />
         <div v-show="isGif">
-          <img
-            ref="picture-gif"
-            :src="pictureGifPath"
-          >
+          <img ref="picture-gif" :src="pictureGifPath" />
         </div>
         <div v-show="!isGif">
           <img
@@ -33,13 +27,13 @@
             id="picture-big"
             ref="picture-big"
             :src="pictureDlPath"
-          >
+          />
           <img
             v-show="!fullScreen"
             id="picture"
             ref="picture"
             :src="picturePath"
-          >
+          />
         </div>
       </div>
       <spinner v-if="isLoading" />
@@ -52,7 +46,7 @@ import { fullScreenMixin } from '@/components/mixins/fullscreen'
 import { domMixin } from '@/components/mixins/dom'
 import Spinner from '@/components/widgets/Spinner'
 
-import store from '@/store'
+import client from '@/store/api/client'
 
 export default {
   name: 'PictureViewer',
@@ -94,7 +88,8 @@ export default {
       isLoading: true,
       picturePath: '',
       pictureDlPath: '',
-      pictureGifPath: ''
+      pictureGifPath: '',
+      PictureOriginalPath: '',
     }
   },
 
@@ -146,18 +141,6 @@ export default {
     isMovie() {
       return this.extension === 'mp4'
     },
-
-    pictureOriginalPath() {
-      if (this.preview && this.isAvailable && !this.isMovie) {
-        const previewId = this.preview.id
-        return (
-          store.state.login.server +
-          `/api/pictures/originals/preview-files/${previewId}.png`
-        )
-      } else {
-        return null
-      }
-    }
   },
 
   watch: {
@@ -165,6 +148,7 @@ export default {
       if (this.fullScreen) {
         this.isLoading = true
         this.setPictureDlPath()
+        this.setPictureOriginalPath()
         if (this.pictureBig.complete) this.isLoading = false
       } else {
         this.setPicturePath()
@@ -191,6 +175,7 @@ export default {
       this.isLoading = true
       this.setPicturePath()
       this.setPictureDlPath()
+      this.setPictureOriginalPath()
       if (this.currentIndex > 1) {
         this.currentIndex = 1
       }
@@ -220,6 +205,7 @@ export default {
     this.pictureGif.addEventListener('load', this.endLoading)
     window.addEventListener('resize', this.onWindowResize)
     this.setPicturePath()
+    this.setPictureDlPath()
   },
 
   beforeUnmount() {
@@ -311,14 +297,22 @@ export default {
     setPicturePath() {
       if (this.isGif && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.pictureGifPath =
-          store.state.login.server +
-          `/api/pictures/originals/preview-files/${previewId}.gif`
+        client.getBlob(
+          `/api/pictures/originals/preview-files/${previewId}.gif`,
+          (err, blob) => {
+            if (err) console.log(err)
+            else this.pictureGifPath = URL.createObjectURL(blob)
+          }
+        )
       } else if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.picturePath =
-          store.state.login.server +
-          `/api/pictures/previews/preview-files/${previewId}.png`
+        client.getBlob(
+          `/api/pictures/previews/preview-files/${previewId}.png`,
+          (err, blob) => {
+            if (err) console.log(err)
+            else this.picturePath = URL.createObjectURL(blob)
+          }
+        )
       }
       this.setPictureDlPath()
     },
@@ -326,11 +320,30 @@ export default {
     setPictureDlPath() {
       if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.pictureDlPath =
-          store.state.login.server +
-          `/api/pictures/originals/preview-files/${previewId}/download`
+        client.getBlob(
+          `/api/pictures/originals/preview-files/${previewId}/download`,
+          (err, blob) => {
+            if (err) console.log(err)
+            else this.pictureDlPath = URL.createObjectURL(blob)
+          }
+        )
       } else {
         this.pictureDlPath = null
+      }
+    },
+
+    setPictureOriginalPath() {
+      if (this.preview && this.isAvailable && !this.isMovie) {
+        const previewId = this.preview.id
+        client.getBlob(
+          `/api/pictures/originals/preview-files/${previewId}.png`,
+          (err, blob) => {
+            if (err) console.log(err)
+            else this.pictureOriginalPath = URL.createObjectURL(blob)
+          }
+        )
+      } else {
+        return this.pictureOriginalPath = null
       }
     },
 

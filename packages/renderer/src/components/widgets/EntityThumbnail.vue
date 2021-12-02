@@ -14,7 +14,7 @@
       v-lazy="thumbnailPath"
       class="thumbnail-picture"
       :style="imgStyle"
-    >
+    />
   </a>
 
   <img
@@ -23,7 +23,7 @@
     v-lazy="thumbnailPath"
     class="thumbnail-picture"
     style="imgStyle"
-  >
+  />
 
   <span
     v-else
