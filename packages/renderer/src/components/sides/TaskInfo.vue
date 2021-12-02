@@ -1,5 +1,9 @@
 <template>
-  <div v-if="task" ref="side-panel" class="side task-info">
+  <div
+    v-if="task"
+    ref="side-panel"
+    class="side task-info"
+  >
     <div class="page-header">
       <div class="flexrow header-title">
         <div class="title flexrow-item">
@@ -57,7 +61,10 @@
           @click="toggleSubscribe"
         />
         <div class="filler" />
-        <div v-if="isPreview" class="preview-list flexrow">
+        <div
+          v-if="isPreview"
+          class="preview-list flexrow"
+        >
           <span
             v-for="(preview, index) in lastFivePreviews"
             :key="'preview-' + preview.id"
@@ -69,15 +76,24 @@
           >
             {{ preview.revision }}
           </span>
-          <router-link class="history-button flexrow-item" :to="taskPath">
+          <router-link
+            class="history-button flexrow-item"
+            :to="taskPath"
+          >
             ...
           </router-link>
         </div>
       </div>
     </div>
 
-    <div ref="task-columns" class="task-columns">
-      <div v-if="isPreview" class="task-column preview-column">
+    <div
+      ref="task-columns"
+      class="task-columns"
+    >
+      <div
+        v-if="isPreview"
+        class="task-column preview-column"
+      >
         <div class="preview-column-content">
           <div class="preview">
             <div v-if="taskPreviews && taskPreviews.length > 0">
@@ -149,7 +165,7 @@
                 :is-change="isStatusChange(index)"
                 :editable="
                   (comment.person && user.id === comment.person.id) ||
-                  isCurrentUserAdmin
+                    isCurrentUserAdmin
                 "
                 @duplicate-comment="onDuplicateComment"
                 @pin-comment="onPinComment"
@@ -160,7 +176,10 @@
                 @time-code-clicked="timeCodeClicked"
               />
             </div>
-            <div v-else-if="!loading.task" class="no-comment">
+            <div
+              v-else-if="!loading.task"
+              class="no-comment"
+            >
               <em>
                 {{ $t('tasks.no_comment') }}
               </em>
@@ -168,7 +187,10 @@
           </div>
         </div>
 
-        <div v-if="loading.task" class="has-text-centered">
+        <div
+          v-if="loading.task"
+          class="has-text-centered"
+        >
           <spinner />
         </div>
       </div>
@@ -227,7 +249,10 @@
     />
   </div>
 
-  <div v-else class="side task-info has-text-centered">
+  <div
+    v-else
+    class="side task-info has-text-centered"
+  >
     {{ $t('tasks.no_task_selected') }}
   </div>
 </template>

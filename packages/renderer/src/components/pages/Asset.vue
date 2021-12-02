@@ -15,7 +15,10 @@
           :with-link="false"
         />
         <div class="flexrow-item">
-          <page-title :text="title" class="entity-title" />
+          <page-title
+            :text="title"
+            class="entity-title"
+          />
         </div>
         <div class="flexrow-item">
           <button-simple
@@ -40,13 +43,19 @@
         <div class="flexrow-item">
           <page-subtitle :text="$t('main.info')" />
           <div class="table-body">
-            <table v-if="currentAsset" class="datatable">
+            <table
+              v-if="currentAsset"
+              class="datatable"
+            >
               <tbody class="table-body">
                 <tr class="datatable-row">
                   <td class="field-label">
                     {{ $t('assets.fields.description') }}
                   </td>
-                  <description-cell :entry="currentAsset" :full="true" />
+                  <description-cell
+                    :entry="currentAsset"
+                    :full="true"
+                  />
                 </tr>
                 <tr
                   v-for="descriptor in assetMetadataDescriptors"
@@ -76,7 +85,7 @@
           <div
             v-if="
               currentAsset.castInShotsBySequence &&
-              currentAsset.castInShotsBySequence[0].length > 0
+                currentAsset.castInShotsBySequence[0].length > 0
             "
           >
             <div
@@ -129,15 +138,15 @@
         <div
           v-if="
             currentAsset &&
-            currentAsset.castingAssetsByType &&
-            currentAsset.castingAssetsByType[0].length > 0
+              currentAsset.castingAssetsByType &&
+              currentAsset.castingAssetsByType[0].length > 0
           "
         >
           <page-subtitle text="Linked" />
           <div
             v-if="
               currentAsset.castingAssetsByType &&
-              currentAsset.castingAssetsByType[0].length > 0
+                currentAsset.castingAssetsByType[0].length > 0
             "
           >
             <div
@@ -183,7 +192,10 @@
       </div>
     </div>
 
-    <div v-if="currentTask" class="column side-column">
+    <div
+      v-if="currentTask"
+      class="column side-column"
+    >
       <task-info :task="currentTask" />
     </div>
 

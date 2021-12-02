@@ -1,5 +1,8 @@
 <template>
-  <div v-tooltip.right="tooltipOptions" class="flexrow production-name">
+  <div
+    v-tooltip.right="tooltipOptions"
+    class="flexrow production-name"
+  >
     <!-- TODO : reenable productionRoute
     <router-link
       v-if="!noLink"
@@ -45,10 +48,13 @@
           {{ generateAvatar(entry) }}
         </span>
         <span v-else>
-          <img :src="getThumbnailPath(entry)" />
+          <img :src="getThumbnailPath(entry)">
         </span>
       </div>
-      <span v-if="!onlyAvatar" class="flexrow-item">
+      <span
+        v-if="!onlyAvatar"
+        class="flexrow-item"
+      >
         {{ entry.name }}
       </span>
     </div>

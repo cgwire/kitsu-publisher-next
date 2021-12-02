@@ -1,5 +1,8 @@
 <template>
-  <div ref="container" class="picture-player">
+  <div
+    ref="container"
+    class="picture-player"
+  >
     <div
       ref="picture-wrapper"
       class="picture-wrapper"
@@ -19,7 +22,10 @@
           }"
         />
         <div v-show="isGif">
-          <img ref="picture-gif" :src="pictureGifPath" />
+          <img
+            ref="picture-gif"
+            :src="pictureGifPath"
+          >
         </div>
         <div v-show="!isGif">
           <img
@@ -27,13 +33,13 @@
             id="picture-big"
             ref="picture-big"
             :src="pictureDlPath"
-          />
+          >
           <img
             v-show="!fullScreen"
             id="picture"
             ref="picture"
             :src="picturePath"
-          />
+          >
         </div>
       </div>
       <spinner v-if="isLoading" />
