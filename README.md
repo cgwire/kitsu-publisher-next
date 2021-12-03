@@ -13,12 +13,12 @@ directly from their tools.
 [![Build
 badge](https://travis-ci.com/cgwire/kitsu-publisher-next.svg?branch=master)](https://travis-ci.com/cgwire/kitsu-publisher-next)
 
-## DCCs status 
+## DCCs status
 
 Started development:
 
 - Blender
-- Toonboom Harmony 
+- Toonboom Harmony
 
 Planned:
 
@@ -36,7 +36,7 @@ npm install
 
 ### Development environment
 
-To run the Electron app in development mode you have to run an npm script : 
+To run the Electron app in development mode you have to run an npm script:
 
 ```console
 npm run dev
@@ -49,40 +49,41 @@ npm run dev
 - On debian based Linux you need:
 
   - To install these packages:
-   
-      ```console
-      sudo apt-get install build-essential libcairo2-dev libpango1.0-dev \
-      libjpeg-dev libgif-dev librsvg2-dev
-      ```
 
-  - If you want to build specific target like rpm you need to install: 
+    ```console
+    sudo apt-get install build-essential libcairo2-dev libpango1.0-dev \
+    libjpeg-dev libgif-dev librsvg2-dev
+    ```
 
-      ```console
-      sudo apt-get install rpm
-      ```
+  - If you want to build specific target like rpm you need to install:
+
+    ```console
+    sudo apt-get install rpm
+    ```
 
 - On Windows you need:
-  
+
   - coming soon
-  
-- On macOS you need: 
-  
+
+- On macOS you need:
+
   - coming soon
 
 #### Building the app
 
 You need to run npm scripts:
 
-- If you only want to build an unpackaged directory: 
+- If you only want to build an unpackaged directory:
 
-    ```console
-    npm run build
-    ```
+  ```console
+  npm run build
+  ```
+
 - If you want to build for all targets:
 
-    ```console
-    npm run build:all
-    ```
+  ```console
+  npm run build:all
+  ```
 
 ## Contributing
 
