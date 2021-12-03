@@ -4,7 +4,7 @@
       <div class="box has-text-left">
         <div class="has-text-centered login-header">
           <img src="../../assets/kitsu.png" />
-          <h1 class="title">Kitsu</h1>
+          <h1 class="title">Kitsu Publisher</h1>
         </div>
         <form>
           <div class="field mt1">
