@@ -89,7 +89,7 @@ export default {
       picturePath: '',
       pictureDlPath: '',
       pictureGifPath: '',
-      PictureOriginalPath: '',
+      PictureOriginalPath: ''
     }
   },
 
@@ -140,7 +140,7 @@ export default {
 
     isMovie() {
       return this.extension === 'mp4'
-    },
+    }
   },
 
   watch: {
@@ -343,7 +343,7 @@ export default {
           }
         )
       } else {
-        return this.pictureOriginalPath = null
+        return (this.pictureOriginalPath = null)
       }
     },
 

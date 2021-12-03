@@ -96,9 +96,9 @@ export default {
       isLoading: false,
       maxDuration: '00:00.000',
       videoDuration: 0,
-      moviePath: "",
-      movieDlPath: "",
-      posterPath: "",
+      moviePath: '',
+      movieDlPath: '',
+      posterPath: ''
     }
   },
 
@@ -236,20 +236,19 @@ export default {
     },
 
     setMoviePath() {
-      let path = ""
+      let path = ''
       if (this.extension === 'mp4' && this.isAvailable && !this.isHd) {
         path = `/api/movies/low/preview-files/${this.preview.id}.mp4`
       } else if (this.extension === 'mp4' && this.isAvailable) {
         path = `/api/movies/originals/preview-files/${this.preview.id}.mp4`
       } else {
-        this.moviePath=path
+        this.moviePath = path
       }
       client.getBlob(path, (err, blob) => {
         if (err) {
           console.log(err)
-          this.moviePath=path
-        }
-        else this.moviePath = URL.createObjectURL(blob)
+          this.moviePath = path
+        } else this.moviePath = URL.createObjectURL(blob)
       })
     },
 
@@ -260,13 +259,12 @@ export default {
           (err, blob) => {
             if (err) {
               console.log(err)
-              this.movieDlPath = ""
-            }
-            else this.movieDlPath=URL.createObjectURL(blob)
+              this.movieDlPath = ''
+            } else this.movieDlPath = URL.createObjectURL(blob)
           }
         )
       } else {
-        this.movieDlPath=""
+        this.movieDlPath = ''
       }
     },
 
@@ -277,13 +275,12 @@ export default {
           (err, blob) => {
             if (err) {
               console.log(err)
-              this.posterPath = ""
-            }
-            else this.posterPath = URL.createObjectURL(blob)
+              this.posterPath = ''
+            } else this.posterPath = URL.createObjectURL(blob)
           }
         )
       } else {
-        this.posterPath = ""
+        this.posterPath = ''
       }
     },
 

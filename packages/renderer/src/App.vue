@@ -1698,18 +1698,18 @@ th.validation-cell {
   }
 }
 
-  .theme .v3dp__datepicker .v3dp__input_wrapper input {
-    border: 1px solid #dbdbdb;
-    border-radius: 3px;
-    box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
-    padding: 1em;
-    height: 3em;
-    width: 110px;
+.theme .v3dp__datepicker .v3dp__input_wrapper input {
+  border: 1px solid #dbdbdb;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
+  padding: 1em;
+  height: 3em;
+  width: 110px;
 
-    &:focus {
-      border-color: #00b242;
-      outline: none;
-    }
+  &:focus {
+    border-color: #00b242;
+    outline: none;
+  }
 
   .cell.year.selected,
   .cell.month.selected,
