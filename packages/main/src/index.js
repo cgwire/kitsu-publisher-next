@@ -2,6 +2,11 @@ import { app, BrowserWindow, session /**shell*/ } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
 
+import Store from 'electron-store'
+const store = new Store()
+
+store.set('appVersion', app.getVersion())
+
 const isSingleInstance = app.requestSingleInstanceLock()
 const isDevelopment = import.meta.env.MODE === 'development'
 
@@ -33,15 +38,28 @@ const createWindow = async () => {
   // set custom User-Agent in requestHeaders
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
     details.requestHeaders['User-Agent'] = `Kitsu publisher ${app.getVersion()}`
+    try {
+      const vuex_store = JSON.parse(store.get('vuex'))
+      const url = new URL(vuex_store.login.server)
+      if (details.url.startsWith(url) && vuex_store.login.access_token) {
+        details.requestHeaders[
+          'Authorization'
+        ] = `Bearer ${vuex_store.login.access_token}`
+      }
+    } catch (error) {
+      // do nothing
+    }
+
     callback({ cancel: false, requestHeaders: details.requestHeaders })
   })
+
   mainWindow = new BrowserWindow({
     show: false, // Use 'ready-to-show' event to show window
     webPreferences: {
       nativeWindowOpen: true,
       preload: join(__dirname, '../../preload/dist/index.cjs'),
       nodeIntegration: true, // TODO :
-      contextIsolation: true, // TODO :
+      contextIsolation: true,
       webSecurity: false // TODO : REENABLE TO ENABLE CORS
     }
   })
