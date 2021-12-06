@@ -1,11 +1,26 @@
 import { contextBridge } from 'electron'
 
+import Store from 'electron-store'
+const store = new Store()
+
 const apiKey = 'electron'
 /**
  * @see https://github.com/electron/electron/issues/21437#issuecomment-573522360
  */
 const api = {
-  versions: process.versions
+  versions: process.versions,
+  //appVersion: app.getVersion(),
+  store: {
+    get: (key) => {
+      return store.get(key)
+    },
+    set: (key, value) => {
+      return store.set(key, value)
+    },
+    delete: (key) => {
+      return store.delete(key)
+    }
+  }
 }
 
 /**

@@ -39,7 +39,6 @@ const auth = {
   logout(callback) {
     superagent
       .get(`${store.state.login.server}/api/auth/logout`)
-      .auth(store.state.login.access_token, { type: 'bearer' })
       .end((err, res) => {
         if (err) {
           console.error(err)
@@ -54,7 +53,6 @@ const auth = {
     return new Promise((resolve, reject) => {
       superagent
         .post(`${store.state.login.server}/api/auth/reset-password`)
-        .auth(store.state.login.access_token, { type: 'bearer' })
         .send({ email })
         .end((err, res) => {
           if (err) reject(err)
@@ -67,7 +65,6 @@ const auth = {
     return new Promise((resolve, reject) => {
       superagent
         .post(`${store.state.login.server}/api/auth/reset-password`)
-        .auth(store.state.login.access_token, { type: 'bearer' })
         .send({ token, password, password2 })
         .end((err, res) => {
           if (err) reject(err)
@@ -79,7 +76,6 @@ const auth = {
   isServerLoggedIn(callback) {
     superagent
       .get(`${store.state.login.server}/api/auth/authenticated`)
-      .auth(store.state.login.access_token, { type: 'bearer' })
       .end((err, res) => {
         if (err && res && [401, 422].includes(res.statusCode)) {
           store.commit(USER_LOGIN_FAIL)
@@ -141,7 +137,7 @@ const auth = {
       auth.isServerLoggedIn((err, isLdap) => {
         if (err) {
           next({
-            path: '/server-down',
+            path: '/login', // TODO : change that
             query: { redirect: to.fullPath }
           })
         } else {

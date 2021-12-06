@@ -275,10 +275,7 @@ export default {
 
     assetThumbnailPath() {
       const previewId = this.currentAsset.preview_file_id
-      return (
-        store.state.login.server +
-        `/api/pictures/originals/preview-files/${previewId}.png`
-      )
+      return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.png`
     },
 
     isPreview() {

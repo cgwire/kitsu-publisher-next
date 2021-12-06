@@ -22,9 +22,6 @@ import taskStatus from './modules/taskstatus'
 import tasks from './modules/tasks'
 
 import createPersistedState from 'vuex-persistedstate'
-import SecureLS from 'secure-ls'
-
-var localstorage = new SecureLS({ isCompression: false })
 
 const modules = {
   assetTypes,
@@ -52,12 +49,11 @@ const store = createStore({
   strict: process.env.NODE_ENV !== 'production',
   plugins: [
     createPersistedState({
-      key: 'kitsu',
-      paths: ['login.email', 'login.access_token', 'login.server'],
+      paths: ['login.access_token', 'login.server'],
       storage: {
-        getItem: (key) => localstorage.get(key),
-        setItem: (key, value) => localstorage.set(key, value),
-        removeItem: (key) => localstorage.remove(key)
+        getItem: (key) => window.electron.store.get(key),
+        setItem: (key, value) => window.electron.store.set(key, value),
+        removeItem: (key) => window.electron.store.delete(key)
       }
     })
   ],

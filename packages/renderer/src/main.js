@@ -20,8 +20,6 @@ import i18n from './lib/i18n'
 import router from './router'
 import store from './store'
 
-import '../../../node_modules/bulma/css/bulma.css'
-
 /*configureCompat({
   MODE: 3,
   INSTANCE_EVENT_HOOKS: true,

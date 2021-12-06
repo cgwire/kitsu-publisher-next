@@ -151,10 +151,7 @@ export default {
     },
 
     getThumbnailPath(production) {
-      return (
-        store.state.login.server +
-        `/api/pictures/thumbnails/projects/${production.id}.png`
-      )
+      return `${store.state.login.server}/api/pictures/thumbnails/projects/${production.id}.png`
     }
   }
 }

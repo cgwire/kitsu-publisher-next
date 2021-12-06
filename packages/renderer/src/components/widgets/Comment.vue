@@ -26,16 +26,10 @@
             :person="comment.person"
           />
           <strong class="flexrow-item">
-            <people-name
-              class=""
-              :person="comment.person"
-            />
+            <people-name class="" :person="comment.person" />
           </strong>
           <div class="filler" />
-          <span
-            class="flexrow-item date"
-            :title="fullDate"
-          >
+          <span class="flexrow-item date" :title="fullDate">
             {{ shortDate }}
           </span>
           <div class="flexrow-item menu-wrapper">
@@ -95,32 +89,26 @@
               @keyup="emitChangeEvent($event)"
               @emit-change="emitChangeEvent"
             />
-            <p
-              v-if="taskStatus.is_done && isLast"
-              class="has-text-centered"
-            >
+            <p v-if="taskStatus.is_done && isLast" class="has-text-centered">
               <img
                 class="congrats-picture"
                 src="../../assets/illustrations/validated.png"
-              >
+              />
             </p>
             <p v-if="comment.attachment_files.length > 0">
               <a
                 v-for="attachment in pictureAttachments"
                 :key="attachment.id"
-                :href="attachmentFilesPaths[pictureAttachments.id]"
+                :href="getAttachmentPath(attachment)"
                 :title="attachment.name"
                 target="_blank"
               >
-                <img
-                  class="attachment"
-                  :src="attachmentFilesPaths[pictureAttachments.id]"
-                >
+                <img class="attachment" :src="getAttachmentPath(attachment)" />
               </a>
               <a
                 v-for="attachment in fileAttachments"
                 :key="attachment.id"
-                :href="attachmentFilesPaths[pictureAttachments.id]"
+                :href="getAttachmentPath(attachment)"
                 :title="attachment.name"
                 class="flexrow"
                 target="_blank"
@@ -150,17 +138,11 @@
                 type="button"
                 disabled="comment.person_id !== user.id"
               >
-                <icon
-                  name="thumbs-up"
-                  size="1x"
-                />
+                <icon name="thumbs-up" size="1x" />
                 <span>{{ comment.acknowledgements.length }}</span>
               </button>
             </div>
-            <p
-              v-if="comment.pinned"
-              class="pinned-text"
-            >
+            <p v-if="comment.pinned" class="pinned-text">
               {{ $t('comments.pinned') }}
             </p>
           </div>
@@ -186,10 +168,7 @@
         {{ $t('comments.add_checklist') }}
       </div>
     </article>
-    <div
-      v-else
-      class="empty-comment"
-    >
+    <div v-else class="empty-comment">
       <div class="flexrow content-wrapper">
         <validation-tag
           class="flexrow-item"
@@ -203,15 +182,9 @@
           :size="25"
           :font-size="12"
         />
-        <people-name
-          class="flexrow-item"
-          :person="comment.person"
-        />
+        <people-name class="flexrow-item" :person="comment.person" />
         <span class="filler" />
-        <span
-          class="flexrow-item date"
-          :title="fullDate"
-        >
+        <span class="flexrow-item date" :title="fullDate">
           {{ shortDate }}
         </span>
         <div class="flexrow-item menu-wrapper">
@@ -253,7 +226,7 @@ import PeopleName from './PeopleName.vue'
 import Checklist from './Checklist'
 import ValidationTag from '@/components/widgets/ValidationTag'
 
-import client from '@/store/api/client'
+import store from '@/store'
 
 export default {
   name: 'Comment',
@@ -304,8 +277,7 @@ export default {
   data() {
     return {
       checklist: [],
-      uniqueClassName: (Math.random() + 1).toString(36).substring(2),
-      attachmentFilesPaths: {}
+      uniqueClassName: (Math.random() + 1).toString(36).substring(2)
     }
   },
 
@@ -400,7 +372,6 @@ export default {
     },
 
     pictureAttachments() {
-      this.setAttachmentFilesPaths()
       return [...this.comment.attachment_files]
         .sort((a, b) => a.name.localeCompare(b.name))
         .filter((attachment) => {
@@ -508,18 +479,8 @@ export default {
       return route
     },
 
-    setAttachmentFilesPaths() {
-      for (const attachment in this.pictureAttachments){
-        client.getBlob(
-          `/api/data/attachment-files/${attachment.id}/file/${attachment.name}`,
-          (err, blob) => {
-            if (err) {
-              console.log(err)
-              this.attachmentFilesPaths[attachment.id] = ""
-            }
-            this.attachmentFilesPaths[attachment.id] = URL.createObjectURL(blob)
-          })
-      }
+    getAttachmentPath(attachment) {
+      return `${store.state.login.server}/api/data/attachment-files/${attachment.id}/file/${attachment.name}`
     },
 
     toggleCommentMenu() {
