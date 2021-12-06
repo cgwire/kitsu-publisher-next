@@ -46,7 +46,7 @@ import { fullScreenMixin } from '@/components/mixins/fullscreen'
 import { domMixin } from '@/components/mixins/dom'
 import Spinner from '@/components/widgets/Spinner'
 
-import client from '@/store/api/client'
+import store from '@/store'
 
 export default {
   name: 'PictureViewer',
@@ -88,8 +88,7 @@ export default {
       isLoading: true,
       picturePath: '',
       pictureDlPath: '',
-      pictureGifPath: '',
-      PictureOriginalPath: ''
+      pictureGifPath: ''
     }
   },
 
@@ -140,6 +139,15 @@ export default {
 
     isMovie() {
       return this.extension === 'mp4'
+    },
+
+    pictureOriginalPath() {
+      if (this.preview && this.isAvailable && !this.isMovie) {
+        const previewId = this.preview.id
+        return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.png`
+      } else {
+        return null
+      }
     }
   },
 
@@ -148,7 +156,6 @@ export default {
       if (this.fullScreen) {
         this.isLoading = true
         this.setPictureDlPath()
-        this.setPictureOriginalPath()
         if (this.pictureBig.complete) this.isLoading = false
       } else {
         this.setPicturePath()
@@ -175,7 +182,6 @@ export default {
       this.isLoading = true
       this.setPicturePath()
       this.setPictureDlPath()
-      this.setPictureOriginalPath()
       if (this.currentIndex > 1) {
         this.currentIndex = 1
       }
@@ -205,7 +211,6 @@ export default {
     this.pictureGif.addEventListener('load', this.endLoading)
     window.addEventListener('resize', this.onWindowResize)
     this.setPicturePath()
-    this.setPictureDlPath()
   },
 
   beforeUnmount() {
@@ -297,22 +302,10 @@ export default {
     setPicturePath() {
       if (this.isGif && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        client.getBlob(
-          `/api/pictures/originals/preview-files/${previewId}.gif`,
-          (err, blob) => {
-            if (err) console.log(err)
-            else this.pictureGifPath = URL.createObjectURL(blob)
-          }
-        )
+        this.pictureGifPath = `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.gif`
       } else if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        client.getBlob(
-          `/api/pictures/previews/preview-files/${previewId}.png`,
-          (err, blob) => {
-            if (err) console.log(err)
-            else this.picturePath = URL.createObjectURL(blob)
-          }
-        )
+        this.picturePath = `${store.state.login.server}pictures/previews/preview-files/${previewId}.png`
       }
       this.setPictureDlPath()
     },
@@ -320,30 +313,9 @@ export default {
     setPictureDlPath() {
       if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        client.getBlob(
-          `/api/pictures/originals/preview-files/${previewId}/download`,
-          (err, blob) => {
-            if (err) console.log(err)
-            else this.pictureDlPath = URL.createObjectURL(blob)
-          }
-        )
+        this.pictureDlPath = `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}/download`
       } else {
         this.pictureDlPath = null
-      }
-    },
-
-    setPictureOriginalPath() {
-      if (this.preview && this.isAvailable && !this.isMovie) {
-        const previewId = this.preview.id
-        client.getBlob(
-          `/api/pictures/originals/preview-files/${previewId}.png`,
-          (err, blob) => {
-            if (err) console.log(err)
-            else this.pictureOriginalPath = URL.createObjectURL(blob)
-          }
-        )
-      } else {
-        return (this.pictureOriginalPath = null)
       }
     },
 

@@ -234,10 +234,7 @@ export default {
         const previewId = this.preview.id
         const extension = this.extension ? this.extension : 'png'
         const type = this.isMovie ? 'movies' : 'pictures'
-        return (
-          store.state.login.server +
-          `/api/${type}/originals/preview-files/${previewId}.${extension}`
-        )
+        return `${store.state.login.server}/api/${type}/originals/preview-files/${previewId}.${extension}`
       } else {
         return ''
       }
@@ -246,11 +243,7 @@ export default {
     originalDlPath() {
       if (this.preview) {
         const type = this.isMovie ? 'movies' : 'pictures'
-        return (
-          store.state.login.server +
-          `/api/${type}/originals/preview-files/` +
-          `${this.preview.id}/download`
-        )
+        return `${store.state.login.server}/api/${type}/originals/preview-files/${this.preview.id}/download`
       } else {
         return ''
       }

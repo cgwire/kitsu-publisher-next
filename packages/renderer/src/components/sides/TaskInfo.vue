@@ -247,6 +247,7 @@ import Spinner from '@/components/widgets/Spinner'
 import SubscribeButton from '@/components/widgets/SubscribeButton'
 import TaskTypeName from '@/components/widgets/TaskTypeName'
 import PreviewPlayer from '@/components/previews/PreviewPlayer'
+
 import store from '@/store'
 
 export default {
@@ -494,10 +495,7 @@ export default {
     moviePath() {
       let previewId = null
       previewId = this.currentPreview.id
-      return (
-        store.state.login.server +
-        `/api/movies/originals/preview-files/${previewId}.mp4`
-      )
+      return `${store.state.login.server}/api/movies/originals/preview-files/${previewId}.mp4`
     },
 
     tasktypeStyle() {
@@ -660,18 +658,12 @@ export default {
     getOriginalPath() {
       const previewId = this.currentPreviewId
       const extension = this.extension ? this.extension : 'png'
-      return (
-        store.state.login.server +
-        `/api/pictures/originals/preview-files/${previewId}.${extension}`
-      )
+      return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.${extension}`
     },
 
     getOriginalDlPath() {
       const previewId = this.currentPreviewId
-      return (
-        store.state.login.server +
-        `/api/pictures/originals/preview-files/${previewId}/download`
-      )
+      return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}/download`
     },
 
     setOtherPreviews() {
