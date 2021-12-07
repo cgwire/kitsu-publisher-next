@@ -35,9 +35,10 @@ if (isDevelopment) {
 let mainWindow = null
 
 const createWindow = async () => {
-  // set custom User-Agent in requestHeaders
   session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
+    // set custom User-Agent in requestHeaders
     details.requestHeaders['User-Agent'] = `Kitsu publisher ${app.getVersion()}`
+    // set custom Authorization header with access_token
     try {
       const vuex_store = JSON.parse(store.get('vuex'))
       const url = new URL(vuex_store.login.server)
@@ -63,6 +64,26 @@ const createWindow = async () => {
       webSecurity: false // TODO : REENABLE TO ENABLE CORS
     }
   })
+
+  if (isDevelopment) {
+    switch (process.platform) {
+      case 'darwin':
+        mainWindow.setIcon(
+          join(__dirname, '../../../buildResources', 'icon.icns')
+        )
+        break
+      case 'win32':
+        mainWindow.setIcon(
+          join(__dirname, '../../../buildResources', 'icon.ico')
+        )
+        break
+      default:
+        mainWindow.setIcon(
+          join(__dirname, '../../../buildResources', 'icon.png')
+        )
+        break
+    }
+  }
 
   /**
    * If you install `show: true` then it can cause issues when trying to close the window.
