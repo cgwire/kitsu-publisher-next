@@ -67,11 +67,6 @@ const createWindow = async () => {
 
   if (isDevelopment) {
     switch (process.platform) {
-      case 'darwin':
-        mainWindow.setIcon(
-          join(__dirname, '../../../buildResources', 'icon.icns')
-        )
-        break
       case 'win32':
         mainWindow.setIcon(
           join(__dirname, '../../../buildResources', 'icon.ico')
