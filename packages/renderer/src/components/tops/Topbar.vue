@@ -61,7 +61,7 @@
             {{ $t('main.about') }}
           </a>
         </li>
-        <li class="version">Kitsu {{ kitsuVersion }}</li>
+        <li class="version">Kitsu Publisher {{ kitsuPublisherVersion }}</li>
         <hr />
         <li class="flexrow" @click="onLogoutClicked">
           <icon name="log-out" class="flexrow-item" />
@@ -92,7 +92,7 @@ export default {
 
   data() {
     return {
-      kitsuVersion: 'version', // TODO : change that
+      kitsuPublisherVersion: window.electron.store.get('appVersion'),
       display: {
         shortcutModal: false
       }
