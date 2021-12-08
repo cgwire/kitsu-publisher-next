@@ -65,19 +65,13 @@ const createWindow = async () => {
     }
   })
 
-  if (isDevelopment) {
-    switch (process.platform) {
-      case 'win32':
-        mainWindow.setIcon(
-          join(__dirname, '../../../buildResources', 'icon.ico')
-        )
-        break
-      default:
-        mainWindow.setIcon(
-          join(__dirname, '../../../buildResources', 'icon.png')
-        )
-        break
-    }
+  switch (process.platform) {
+    case 'win32':
+      mainWindow.setIcon(join(__dirname, '../../../buildResources', 'icon.ico'))
+      break
+    default:
+      mainWindow.setIcon(join(__dirname, '../../../buildResources', 'icon.png'))
+      break
   }
 
   /**

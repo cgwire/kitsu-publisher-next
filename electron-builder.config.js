@@ -13,7 +13,11 @@ const config = {
     output: 'dist',
     buildResources: 'buildResources'
   },
-  files: ['packages/**/dist/**'],
+  files: [
+    'packages/**/dist/**',
+    'buildResources/icon.png',
+    'buildResources/icon.ico'
+  ],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION
   },
