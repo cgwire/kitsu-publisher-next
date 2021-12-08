@@ -244,7 +244,7 @@ export default {
     reset_change_password_title: 'Enter a new password',
     reset_password: 'Reset Password',
     reset_password_failed:
-      'Resetting you password failed. Please verify your email.',
+      'Resetting your password failed. Please verify your email/server.',
     reset_password_succeed:
       'Resetting your password succeeded. Please check your inbox.',
     reset_password_title: 'Enter your email to reset your password',

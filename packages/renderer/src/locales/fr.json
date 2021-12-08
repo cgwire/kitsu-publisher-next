@@ -199,7 +199,7 @@
       "reset_change_password_succeed": "Le mot de passe a changé. Revenez à la page de connexion pour vous identifier avec.",
       "reset_change_password_title": "Entrez un nouveau mot de passe",
       "reset_password": "Réinitialiser le mot de passe",
-      "reset_password_failed": "La réinitialisation du mot de passe a échoué. S'il vous plait vérifiez votre email.",
+      "reset_password_failed": "La réinitialisation du mot de passe a échoué. S'il vous plait vérifiez votre email/serveur.",
       "reset_password_succeed": "La réinitialisation du mot de passe a réussi. Consultez votre boite mail pour la suite de la procédure.",
       "reset_password_title": "Entrez votre mail pour réinitialiser le mot de passe",
       "title": "Se connecter à Kitsu",

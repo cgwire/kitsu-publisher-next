@@ -11,6 +11,7 @@
             <p class="control has-icon">
               <input
                 v-focus
+                v-model="server"
                 class="input is-medium server"
                 type="text"
                 :placeholder="$t('login.fields.server')"
@@ -25,6 +26,7 @@
           <div class="field mt1">
             <p class="control has-icon">
               <input
+                v-model="email"
                 class="input is-medium email"
                 type="text"
                 :placeholder="$t('login.fields.email')"
@@ -39,6 +41,7 @@
           <div class="field">
             <p class="control has-icon">
               <input
+                v-model="password"
                 class="input is-medium password"
                 type="password"
                 :placeholder="$t('login.fields.password')"
@@ -90,9 +93,22 @@ export default {
   components: {
     Icon
   },
+  data() {
+    return {
+      server: "",
+      email: "",
+      password: "",
+    }
+  },
 
   computed: {
     ...mapGetters(['isLoginLoading', 'isLoginError', 'isServerError'])
+  },
+
+  beforeMount() {
+    this.server = this.$store.state.login.server
+    this.email = this.$store.state.login.email
+    this.password = this.$store.state.login.password
   },
 
   methods: {
