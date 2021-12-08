@@ -99,7 +99,7 @@ function HTTPDaemon(parent) {
       return
     }
 
-    this.socket = new QTcpSocket(this) // TODO: WARNING : this is not safe for managing multiple connections
+    this.socket = new QTcpSocket(this) // TODO : WARNING : this is not safe for managing multiple connections
     this.socket.readyRead.connect(this, 'readClient')
     this.socket.disconnected.connect(this, 'discardClient')
     this.socket.setSocketDescriptor(socket)

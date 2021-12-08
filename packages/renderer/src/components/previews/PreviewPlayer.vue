@@ -1530,7 +1530,7 @@ export default {
     }
   }
 
-  // TODO: reenable socket
+  // TODO : reenable socket
   /*socket: {
     events: {
       'preview-file:annotation-update'(eventData) {
