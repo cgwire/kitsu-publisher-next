@@ -127,14 +127,14 @@ export default {
           this.isSuccess = false
         })
     },
-  
+
     updateServer(e) {
       this.$store.dispatch('changeServer', e.target.value)
     },
 
     updateEmail(e) {
       this.$store.dispatch('changeEmail', e.target.value)
-    },
+    }
   },
 
   metaInfo() {

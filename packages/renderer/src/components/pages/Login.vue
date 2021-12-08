@@ -10,8 +10,8 @@
           <div class="field mt1">
             <p class="control has-icon">
               <input
-                v-focus
                 v-model="server"
+                v-focus
                 class="input is-medium server"
                 type="text"
                 :placeholder="$t('login.fields.server')"
@@ -95,9 +95,9 @@ export default {
   },
   data() {
     return {
-      server: "",
-      email: "",
-      password: "",
+      server: '',
+      email: '',
+      password: ''
     }
   },
 
