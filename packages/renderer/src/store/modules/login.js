@@ -166,7 +166,9 @@ const mutations = {
   },
 
   [RESET_ALL](state, email) {
+    const server_state = state.server
     Object.assign(state, { ...initialState })
+    state.server = server_state
   }
 }
 
