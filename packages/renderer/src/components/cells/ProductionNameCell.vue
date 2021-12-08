@@ -58,7 +58,6 @@
 <script>
 import colors from '../../lib/colors.js'
 import { mapGetters, mapActions } from 'vuex'
-import store from '@/store'
 
 export default {
   name: 'ProductionNameCell',
@@ -151,7 +150,7 @@ export default {
     },
 
     getThumbnailPath(production) {
-      return `${store.state.login.server}/api/pictures/thumbnails/projects/${production.id}.png`
+      return `${this.$store.state.login.server}/api/pictures/thumbnails/projects/${production.id}.png`
     }
   }
 }

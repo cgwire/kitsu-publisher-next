@@ -46,8 +46,6 @@ import { fullScreenMixin } from '@/components/mixins/fullscreen'
 import { domMixin } from '@/components/mixins/dom'
 import Spinner from '@/components/widgets/Spinner'
 
-import store from '@/store'
-
 export default {
   name: 'PictureViewer',
 
@@ -144,7 +142,7 @@ export default {
     pictureOriginalPath() {
       if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.png`
+        return `${this.$store.state.login.server}/api/pictures/originals/preview-files/${previewId}.png`
       } else {
         return null
       }
@@ -302,10 +300,10 @@ export default {
     setPicturePath() {
       if (this.isGif && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.pictureGifPath = `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.gif`
+        this.pictureGifPath = `${this.$store.state.login.server}/api/pictures/originals/preview-files/${previewId}.gif`
       } else if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.picturePath = `${store.state.login.server}pictures/previews/preview-files/${previewId}.png`
+        this.picturePath = `${this.$store.state.login.server}pictures/previews/preview-files/${previewId}.png`
       }
       this.setPictureDlPath()
     },
@@ -313,7 +311,7 @@ export default {
     setPictureDlPath() {
       if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.pictureDlPath = `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}/download`
+        this.pictureDlPath = `${this.$store.state.login.server}/api/pictures/originals/preview-files/${previewId}/download`
       } else {
         this.pictureDlPath = null
       }

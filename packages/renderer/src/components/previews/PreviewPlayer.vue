@@ -401,8 +401,6 @@ import PreviewViewer from '@/components/previews/PreviewViewer'
 import RevisionPreview from '@/components/previews/RevisionPreview'
 // const TaskInfo = () => import('@/components/sides/TaskInfo')
 
-import store from '@/store'
-
 export default {
   name: 'PreviewPlayer',
 
@@ -610,7 +608,7 @@ export default {
         const previewId = this.currentPreview.id
         const extension = this.extension ? this.extension : 'png'
         const type = this.isMovie ? 'movies' : 'pictures'
-        return `${store.state.login.server}/api/${type}/originals/preview-files/${previewId}.${extension}`
+        return `${this.$store.state.login.server}/api/${type}/originals/preview-files/${previewId}.${extension}`
       } else {
         return ''
       }
@@ -619,7 +617,7 @@ export default {
     originalDlPath() {
       if (this.currentPreview) {
         const type = this.isMovie ? 'movies' : 'pictures'
-        return `${store.state.login.server}/api/${type}/originals/preview-files/${this.currentPreview.id}/download`
+        return `${this.$store.state.login.server}/api/${type}/originals/preview-files/${this.currentPreview.id}/download`
       } else {
         return ''
       }
