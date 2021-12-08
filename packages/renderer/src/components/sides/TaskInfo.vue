@@ -248,8 +248,6 @@ import SubscribeButton from '@/components/widgets/SubscribeButton'
 import TaskTypeName from '@/components/widgets/TaskTypeName'
 import PreviewPlayer from '@/components/previews/PreviewPlayer'
 
-import store from '@/store'
-
 export default {
   name: 'TaskInfo',
   components: {
@@ -495,7 +493,7 @@ export default {
     moviePath() {
       let previewId = null
       previewId = this.currentPreview.id
-      return `${store.state.login.server}/api/movies/originals/preview-files/${previewId}.mp4`
+      return `${this.$store.state.login.server}/api/movies/originals/preview-files/${previewId}.mp4`
     },
 
     tasktypeStyle() {
@@ -658,12 +656,12 @@ export default {
     getOriginalPath() {
       const previewId = this.currentPreviewId
       const extension = this.extension ? this.extension : 'png'
-      return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}.${extension}`
+      return `${this.$store.state.login.server}/api/pictures/originals/preview-files/${previewId}.${extension}`
     },
 
     getOriginalDlPath() {
       const previewId = this.currentPreviewId
-      return `${store.state.login.server}/api/pictures/originals/preview-files/${previewId}/download`
+      return `${this.$store.state.login.server}/api/pictures/originals/preview-files/${previewId}/download`
     },
 
     setOtherPreviews() {
@@ -1000,7 +998,7 @@ export default {
     }
   }
 
-  // TODO: reenable socket
+  // TODO : reenable socket
   /*socket: {
     events: {
       'preview-file:add-file'(eventData) {

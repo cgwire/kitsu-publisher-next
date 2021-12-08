@@ -11,11 +11,25 @@
         <div class="field mt2">
           <p class="control has-icon">
             <input
+              v-model="server"
+              class="input is-medium server"
+              type="text"
+              :placeholder="$t('login.fields.server')"
+              @input="updateServer"
+              @keyup.enter="confirmResetPassword"
+            />
+            <span class="icon">
+              <icon name="server" :width="20" height="20" />
+            </span>
+          </p>
+          <p class="control has-icon">
+            <input
               v-model="email"
               v-focus
               class="input is-medium email"
               type="text"
               :placeholder="$t('login.fields.email')"
+              @input="updateEmail"
               @keyup.enter="confirmResetPassword"
             />
             <span class="icon">
@@ -74,6 +88,7 @@ export default {
   data() {
     return {
       email: '',
+      server: '',
       isLoading: false,
       isError: false,
       isSuccess: false
@@ -82,6 +97,11 @@ export default {
 
   computed: {
     ...mapGetters([])
+  },
+
+  beforeMount() {
+    this.email = this.$store.state.login.email
+    this.server = this.$store.state.login.server
   },
 
   mounted() {
@@ -106,6 +126,14 @@ export default {
           this.isError = true
           this.isSuccess = false
         })
+    },
+
+    updateServer(e) {
+      this.$store.dispatch('changeServer', e.target.value)
+    },
+
+    updateEmail(e) {
+      this.$store.dispatch('changeEmail', e.target.value)
     }
   },
 

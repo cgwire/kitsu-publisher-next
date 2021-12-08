@@ -28,8 +28,6 @@ import Spinner from '../widgets/Spinner'
 
 import { domMixin } from '@/components/mixins/dom'
 
-import store from '@/store'
-
 export default {
   name: 'VideoViewer',
 
@@ -128,9 +126,9 @@ export default {
 
     moviePath() {
       if (this.extension === 'mp4' && this.isAvailable && !this.isHd) {
-        return `${store.state.login.server}/api/movies/low/preview-files/${this.preview.id}.mp4`
+        return `${this.$store.state.login.server}/api/movies/low/preview-files/${this.preview.id}.mp4`
       } else if (this.extension === 'mp4' && this.isAvailable) {
-        return `${store.state.login.server}/api/movies/originals/preview-files/${this.preview.id}.mp4`
+        return `${this.$store.state.login.server}/api/movies/originals/preview-files/${this.preview.id}.mp4`
       } else {
         return null
       }
@@ -138,7 +136,7 @@ export default {
 
     movieDlPath() {
       if (this.preview && this.isAvailable) {
-        return `${store.state.login.server}/api/movies/originals/preview-files/${this.preview.id}/download`
+        return `${this.$store.state.login.server}/api/movies/originals/preview-files/${this.preview.id}/download`
       } else {
         return ''
       }
@@ -146,7 +144,7 @@ export default {
 
     posterPath() {
       if (this.extension === 'mp4' && this.isAvailable) {
-        return `${store.state.login.server}/api/pictures/previews/preview-files/${this.preview.id}.png`
+        return `${this.$store.state.login.server}/api/pictures/previews/preview-files/${this.preview.id}.png`
       } else {
         return null
       }

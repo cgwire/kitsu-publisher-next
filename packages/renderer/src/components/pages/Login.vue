@@ -10,6 +10,7 @@
           <div class="field mt1">
             <p class="control has-icon">
               <input
+                v-model="server"
                 v-focus
                 class="input is-medium server"
                 type="text"
@@ -25,6 +26,7 @@
           <div class="field mt1">
             <p class="control has-icon">
               <input
+                v-model="email"
                 class="input is-medium email"
                 type="text"
                 :placeholder="$t('login.fields.email')"
@@ -39,6 +41,7 @@
           <div class="field">
             <p class="control has-icon">
               <input
+                v-model="password"
                 class="input is-medium password"
                 type="password"
                 :placeholder="$t('login.fields.password')"
@@ -67,6 +70,9 @@
         <p v-show="isLoginError" class="control error">
           {{ $t('login.login_failed') }}
         </p>
+        <p v-show="isServerError" class="control error">
+          {{ $t('login.server_error') }}
+        </p>
         <p class="has-text-centered">
           <router-link :to="{ name: 'reset-password' }">
             {{ $t('login.forgot_password') }}
@@ -87,9 +93,22 @@ export default {
   components: {
     Icon
   },
+  data() {
+    return {
+      server: '',
+      email: '',
+      password: ''
+    }
+  },
 
   computed: {
-    ...mapGetters(['isLoginLoading', 'isLoginError'])
+    ...mapGetters(['isLoginLoading', 'isLoginError', 'isServerError'])
+  },
+
+  beforeMount() {
+    this.server = this.$store.state.login.server
+    this.email = this.$store.state.login.email
+    this.password = this.$store.state.login.password
   },
 
   methods: {

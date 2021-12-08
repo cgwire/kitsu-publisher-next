@@ -59,7 +59,7 @@ const createWindow = async () => {
     webPreferences: {
       nativeWindowOpen: true,
       preload: join(__dirname, '../../preload/dist/index.cjs'),
-      nodeIntegration: true, // TODO :
+      nodeIntegration: true, // TODO : DISABLE nodeIntegration
       contextIsolation: true,
       webSecurity: false // TODO : REENABLE TO ENABLE CORS
     }
@@ -67,11 +67,6 @@ const createWindow = async () => {
 
   if (isDevelopment) {
     switch (process.platform) {
-      case 'darwin':
-        mainWindow.setIcon(
-          join(__dirname, '../../../buildResources', 'icon.icns')
-        )
-        break
       case 'win32':
         mainWindow.setIcon(
           join(__dirname, '../../../buildResources', 'icon.ico')

@@ -6,6 +6,7 @@ import {
   LOGIN_RUN,
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
+  SERVER_FAILURE,
   LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
   DATA_LOADING_START,
@@ -23,6 +24,7 @@ const initialState = {
   isLdap: false,
   isLoginLoading: false,
   isLoginError: false,
+  isServerError: false,
   isDataLoading: false
 }
 
@@ -38,6 +40,7 @@ const getters = {
   isLdap: (state) => state.isLdap,
   isLoginLoading: (state) => state.isLoginLoading,
   isLoginError: (state) => state.isLoginError,
+  isServerError: (state) => state.isServerError,
   isDataLoading: (state) => state.isDataLoading
 }
 
@@ -62,7 +65,11 @@ const actions = {
     commit(LOGIN_RUN)
     auth.logIn(state.email, state.password, (err) => {
       if (err) {
-        commit(LOGIN_FAILURE)
+        if (err.status == 400) {
+          commit(LOGIN_FAILURE)
+        } else {
+          commit(SERVER_FAILURE)
+        }
         callback(err, false)
       } else {
         commit(LOGIN_SUCCESS)
@@ -124,11 +131,13 @@ const mutations = {
   [LOGIN_RUN](state) {
     state.isLoginLoading = true
     state.isLoginError = false
+    state.isServerError = false
   },
 
   [LOGIN_SUCCESS](state, email) {
     state.isLoginLoading = false
     state.isLoginError = false
+    state.isServerError = false
   },
 
   [LOGIN_FAILURE](state, email) {
@@ -136,9 +145,15 @@ const mutations = {
     state.isLoginError = true
   },
 
+  [SERVER_FAILURE](state, server) {
+    state.isLoginLoading = false
+    state.isServerError = true
+  },
+
   [LOGOUT_SUCCESS](state, email) {
     state.isLoginLoading = false
     state.isLoginError = false
+    state.isServerError = false
   },
 
   [DATA_LOADING_START](state, payload) {
@@ -151,7 +166,9 @@ const mutations = {
   },
 
   [RESET_ALL](state, email) {
+    const server_state = state.server
     Object.assign(state, { ...initialState })
+    state.server = server_state
   }
 }
 
