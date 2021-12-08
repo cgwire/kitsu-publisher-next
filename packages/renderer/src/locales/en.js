@@ -230,6 +230,8 @@ export default {
     forgot_password: 'Forgot password?',
     login: 'Log in',
     login_failed: 'Log in failed, please verify your credentials',
+    server_error:
+      'The connection to the server failed, please verify the address',
     login_page: 'Cancel',
     redirecting: 'Redirecting in {secondsLeft} seconds...',
     reset_change_password: 'Change password',

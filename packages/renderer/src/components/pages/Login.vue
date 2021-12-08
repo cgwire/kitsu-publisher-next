@@ -67,6 +67,9 @@
         <p v-show="isLoginError" class="control error">
           {{ $t('login.login_failed') }}
         </p>
+        <p v-show="isServerError" class="control error">
+          {{ $t('login.server_error') }}
+        </p>
         <p class="has-text-centered">
           <router-link :to="{ name: 'reset-password' }">
             {{ $t('login.forgot_password') }}
@@ -89,7 +92,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['isLoginLoading', 'isLoginError'])
+    ...mapGetters(['isLoginLoading', 'isLoginError', 'isServerError'])
   },
 
   methods: {

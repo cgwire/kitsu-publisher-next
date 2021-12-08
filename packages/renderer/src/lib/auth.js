@@ -16,7 +16,7 @@ const auth = {
       .send({ email, password })
       .end((err, res) => {
         if (err) {
-          if (res.body.default_password) {
+          if (res && res.body && res.body.default_password) {
             err.default_password = res.body.default_password
             err.token = res.body.token
           }
