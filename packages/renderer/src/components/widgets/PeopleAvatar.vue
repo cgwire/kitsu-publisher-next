@@ -1,6 +1,6 @@
 <template>
   <span
-    v-if="isLink"
+    v-if="isLink && person"
     class="avatar has-text-centered"
     :style="{
       background: person.color,
@@ -30,7 +30,7 @@
   </span>
 
   <span
-    v-else
+    v-else-if="person"
     class="avatar has-text-centered"
     :title="person.full_name"
     :style="{
@@ -76,11 +76,15 @@ export default {
 
   watch: {
     person() {
-      this.reloadAvatar()
+      if (this.person) {
+        this.reloadAvatar()
+      }
     },
 
     'person.uniqueHash'() {
-      this.reloadAvatar()
+      if (this.person) {
+        this.reloadAvatar()
+      }
     }
   },
 
