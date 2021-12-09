@@ -11,7 +11,7 @@ import {
 
 const initialState = {
   currentProductionScreen: 'assets',
-  isDarkTheme: false,
+  isDarkTheme: true,
   isSidebarHidden: true,
   isUserMenuHidden: true,
   lastProductionScreen: 'assets',
