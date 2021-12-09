@@ -95,7 +95,7 @@ export default {
   methods: {
     reloadAvatar() {
       this.avatarPath =
-        this.person.avatarPath + '?unique=' + this.person.uniqueHash
+        `${this.$store.state.login.server}${this.person.avatarPath}?unique=${this.person.uniqueHash}`
       this.avatarKey = this.person.id + '-' + this.person.uniqueHash
     }
   }
