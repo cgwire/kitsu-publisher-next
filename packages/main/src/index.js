@@ -1,6 +1,7 @@
 import { app, BrowserWindow, session /**shell*/ } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
+const open = require("open")
 
 import Store from 'electron-store'
 const store = new Store()
@@ -73,6 +74,21 @@ const createWindow = async () => {
       mainWindow.setIcon(join(__dirname, '../../../buildResources', 'icon.png'))
       break
   }
+
+  //open the pages different from the Kitsu server in the default browser
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    try {
+      const vuex_store = JSON.parse(store.get('vuex'))
+      const url_server = new URL(vuex_store.login.server)
+      if (url.startsWith(url_server) && vuex_store.login.access_token) {
+        return { action: 'allow'}
+      }
+    } catch (error) {
+      // do nothing
+    }
+    open(url)
+    return { action: 'deny' }
+  })
 
   /**
    * If you install `show: true` then it can cause issues when trying to close the window.
