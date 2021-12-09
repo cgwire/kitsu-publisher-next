@@ -30,7 +30,6 @@
           {{ priority }}
         </span>
       </span>
-      <!-- TODO : add image with initials again 
       <span
         v-for="personId in assignees"
         v-if="isAssignees && !isCurrentUserClient"
@@ -55,7 +54,6 @@
           {{ personMap.get(personId).initials }}
         </span>
       </span>
-      -->
     </div>
     <div v-else class="wrapper">
       <span
