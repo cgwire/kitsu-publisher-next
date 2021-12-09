@@ -49,7 +49,7 @@ const store = createStore({
   strict: process.env.NODE_ENV !== 'production',
   plugins: [
     createPersistedState({
-      paths: ['login.access_token', 'login.server', 'login.email'],
+      paths: ['login.access_token', 'login.server', 'login.email', 'main.isDarkTheme'],
       storage: {
         getItem: (key) => window.electron.store.get(key),
         setItem: (key, value) => window.electron.store.set(key, value),
