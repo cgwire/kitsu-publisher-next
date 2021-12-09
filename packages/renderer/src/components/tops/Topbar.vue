@@ -5,7 +5,27 @@
       :class="{ 'is-active': !isUserMenuHidden }"
       @click="toggleUserMenu()"
     />
-
+    <nav class="nav">
+      <div class="nav-right">
+        <div
+          ref="user-name"
+          :class="{
+            'nav-item': true,
+            'user-nav': true,
+            active: !isUserMenuHidden
+          }"
+          @click="toggleUserMenu"
+        >
+          <people-avatar
+            ref="avatar"
+            class="avatar"
+            :no-cache="true"
+            :person="user"
+            :is-link="false"
+          />
+        </div>
+      </div>
+    </nav>
     <nav
       ref="user-menu"
       class="user-menu"
@@ -82,11 +102,13 @@ import { mapGetters, mapActions } from 'vuex'
 import Icon from '@/components/widgets/Icon'
 
 import ShortcutModal from '@/components/modals/ShortcutModal'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
 
 export default {
   name: 'Topbar',
   components: {
     Icon,
+    PeopleAvatar,
     ShortcutModal
   },
 
@@ -100,7 +122,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['isDarkTheme', 'isUserMenuHidden'])
+    ...mapGetters(['isDarkTheme', 'isUserMenuHidden', 'user'])
   },
 
   methods: {
@@ -230,6 +252,7 @@ export default {
 }
 
 .nav-right {
+  margin-left: auto;
   padding-right: 0;
   flex-grow: 0;
 }
