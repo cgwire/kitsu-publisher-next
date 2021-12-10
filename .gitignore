@@ -53,6 +53,6 @@ release.sh
 tests/test-bundle.js
 package-lock.json
 build/
-packages/main/dist/
-packages/renderer/dist/
-packages/preload/dist/
+app/main/dist/
+app/renderer/dist/
+app/preload/dist/

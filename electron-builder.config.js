@@ -14,7 +14,7 @@ const config = {
     buildResources: 'build_resources'
   },
   files: [
-    'packages/**/dist/**',
+    'app/**/dist/**',
     'build_resources/icon.png',
     'build_resources/icon.ico'
   ],

@@ -4,7 +4,7 @@
   "description": "Desktop publisher for Kitsu",
   "author": "CGWire <contact@cg-wire.com>",
   "repository": "https://github.com/cgwire/kitsu-publisher-next",
-  "main": "packages/main/dist/index.cjs",
+  "main": "app/main/dist/index.cjs",
   "scripts": {
     "dev": "node scripts/watch.js",
     "prebuild": "cross-env MODE=production npm run build:js",
