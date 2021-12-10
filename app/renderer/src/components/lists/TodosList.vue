@@ -58,7 +58,8 @@
             :key="entry + '-' + i"
             :class="{
               'datatable-row': true,
-              'datatable-row--selectable': true,
+              'datatable-row-cursor': !done,
+              'datatable-row--selectable': !done,
               selected:
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
             }"
@@ -458,7 +459,7 @@ export default {
   border-top: 0;
 }
 
-.datatable .datatable-row {
+.datatable .datatable-row-cursor {
   cursor: pointer;
 }
 
