@@ -303,7 +303,7 @@ export default {
         this.pictureGifPath = `${this.$store.state.login.server}/api/pictures/originals/preview-files/${previewId}.gif`
       } else if (this.preview && this.isAvailable && !this.isMovie) {
         const previewId = this.preview.id
-        this.picturePath = `${this.$store.state.login.server}pictures/previews/preview-files/${previewId}.png`
+        this.picturePath = `${this.$store.state.login.server}/api/pictures/previews/preview-files/${previewId}.png`
       }
       this.setPictureDlPath()
     },
