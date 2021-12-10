@@ -15,6 +15,7 @@
         />
       </div>
       <div class="flexrow task-information">
+        <!-- TODO : reactivate change-wideness-button
         <button-simple
           v-if="isExtraWide && isPreview"
           class="flexrow-item change-wideness-button"
@@ -43,13 +44,15 @@
           :title="$t('tasks.bigger')"
           @click="toggleWidth"
         />
+        -->
+        <!-- TODO : reactivate set-thumbnail-button
         <button-simple
           v-if="isCurrentUserManager && isPreview && extension !== 'gif'"
           class="flexrow-item set-thumbnail-button"
           icon="image"
           :title="$t('tasks.set_preview')"
           @click="setCurrentPreviewAsEntityThumbnail"
-        />
+        />-->
         <subscribe-button
           v-if="!isAssigned"
           class="flexrow-item"
@@ -236,7 +239,7 @@ import { getTaskTypeStyle } from '@/lib/render'
 
 import AddComment from '@/components/widgets/AddComment'
 import AddPreviewModal from '@/components/modals/AddPreviewModal'
-import ButtonSimple from '@/components/widgets/ButtonSimple'
+//import ButtonSimple from '@/components/widgets/ButtonSimple'
 import Comment from '@/components/widgets/Comment'
 import DeleteModal from '@/components/modals/DeleteModal'
 import EditCommentModal from '@/components/modals/EditCommentModal'
@@ -250,7 +253,7 @@ export default {
   components: {
     AddComment,
     AddPreviewModal,
-    ButtonSimple,
+    //ButtonSimple,
     Comment,
     DeleteModal,
     EditCommentModal,

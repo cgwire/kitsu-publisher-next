@@ -58,7 +58,8 @@
             :key="entry + '-' + i"
             :class="{
               'datatable-row': true,
-              'datatable-row-cursor': !done,
+              'datable-row-cursor': !done,
+              'datatable-row-done': done,
               'datatable-row--selectable': !done,
               selected:
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
@@ -154,7 +155,10 @@
       </p>
     </div>
 
-    <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info mt1">
+    <p
+      v-if="tasks.length && !isLoading"
+      class="has-text-centered footer-info mt1"
+    >
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
   </div>
@@ -461,6 +465,10 @@ export default {
 
 .datatable .datatable-row-cursor {
   cursor: pointer;
+}
+
+.datatable .datatable-row-done {
+  background-color: transparent;
 }
 
 .name {
