@@ -88,11 +88,7 @@
                   :empty-height="40"
                   :entity="{ preview_file_id: entry.entity_preview_file_id }"
                 />
-                <!-- TODO : reenable route-link to entityPath
-                <router-link :to="entityPath(entry)">
-                  {{ entry.full_entity_name }}
-                </router-link>
-                -->
+                {{ entry.full_entity_name }}
               </div>
             </td>
             <description-cell
