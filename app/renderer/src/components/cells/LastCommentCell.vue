@@ -4,6 +4,7 @@
       <people-avatar
         v-if="task.last_comment.person"
         class="flexrow-item avatar-wrapper"
+        :isLink="false"
         :size="25"
         :font-size="14"
         :person="task.last_comment.person"

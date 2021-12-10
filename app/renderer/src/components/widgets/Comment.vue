@@ -21,6 +21,7 @@
           />
           <people-avatar
             class="flexrow-item"
+            :isLink="false"
             :size="25"
             :font-size="12"
             :person="comment.person"
@@ -178,6 +179,7 @@
         />
         <people-avatar
           class="flexrow-item"
+          :isLink="false"
           :person="comment.person"
           :size="25"
           :font-size="12"
