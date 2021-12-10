@@ -109,7 +109,6 @@
           :done="true"
         />
 
-        <!-- TODO : reenable timesheet-list
         <timesheet-list
           v-if="isTabActive('timesheets')"
           ref="timesheet-list"
@@ -127,7 +126,6 @@
           @set-day-off="onSetDayOff"
           @unset-day-off="onUnsetDayOff"
         />
-        -->
       </div>
     </div>
 
@@ -147,7 +145,7 @@ import { parseDate } from '@/lib/time'
 //import SearchField from '@/components/widgets/SearchField'
 //import SearchQueryList from '@/components/widgets/SearchQueryList'
 import TaskInfo from '@/components/sides/TaskInfo'
-//import TimesheetList from '@/components/lists/TimesheetList'
+import TimesheetList from '@/components/lists/TimesheetList'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
@@ -158,7 +156,7 @@ export default {
     //SearchField,
     //SearchQueryList,
     TaskInfo,
-    //TimesheetList,
+    TimesheetList,
     TodosList
   },
 
