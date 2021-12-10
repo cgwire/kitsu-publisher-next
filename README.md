@@ -13,20 +13,20 @@ directly from their tools.
 [![Build
 badge](https://travis-ci.com/cgwire/kitsu-publisher-next.svg?branch=master)](https://travis-ci.com/cgwire/kitsu-publisher-next)
 
-## DCCs status
+## DCC integrations status:
 
-Started development:
+Work in progress:
 
 - Blender
 - Toonboom Harmony
 
-Planned:
+## Development Environment
 
-- Unreal Engine
-
-## Documentation
+### Pre-requisites
 
 To develop or to build the Electron app you need [Node.js](https://nodejs.org/en/)>=16.11 installed.
+
+### Dependencies
 
 To install all the dependencies needed by the Electron app you have to run in the project folder:
 
@@ -34,13 +34,15 @@ To install all the dependencies needed by the Electron app you have to run in th
 npm install
 ```
 
-### Development environment
+### Run
 
 To run the Electron app in development mode you have to run an npm script:
 
 ```console
 npm run dev
 ```
+
+It will spawn an electron instance and a Vite development server.
 
 ### Build the electron app
 
