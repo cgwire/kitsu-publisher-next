@@ -30,7 +30,7 @@
             class="avatar"
             :no-cache="true"
             :person="user"
-            :is-link="false"
+            :isLink="false"
           />
         </div>
       </div>

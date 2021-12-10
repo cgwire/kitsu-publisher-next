@@ -20,8 +20,7 @@ const config = {
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData:
-          '@import "./packages/renderer/src/styles/variables.scss";'
+        additionalData: '@import "./app/renderer/src/styles/variables.scss";'
       }
     }
   },

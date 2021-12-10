@@ -27,9 +27,11 @@
             >
               {{ $t('tasks.fields.entity') }}
             </th>
+            <!-- TODO : reactivate description-cell
             <th scope="col" class="description">
               {{ $t('assets.fields.description') }}
             </th>
+            -->
             <th scope="col" class="estimation" :title="$t('main.estimation')">
               {{ $t('main.estimation_short') }}
             </th>
@@ -56,7 +58,9 @@
             :key="entry + '-' + i"
             :class="{
               'datatable-row': true,
-              'datatable-row--selectable': true,
+              'datable-row-cursor': !done,
+              'datatable-row-done': done,
+              'datatable-row--selectable': !done,
               selected:
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
             }"
@@ -92,10 +96,12 @@
                 {{ entry.full_entity_name }}
               </div>
             </td>
+            <!-- TODO : reactivate description-cell
             <description-cell
               class="description"
               :entry="{ description: entry.entity_description }"
             />
+            -->
             <td class="estimation">
               {{ formatDuration(entry.estimation) }}
             </td>
@@ -149,7 +155,10 @@
       </p>
     </div>
 
-    <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info">
+    <p
+      v-if="tasks.length && !isLoading"
+      class="has-text-centered footer-info mt1"
+    >
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
   </div>
@@ -164,7 +173,7 @@ import { PAGE_SIZE } from '@/lib/pagination'
 import { formatSimpleDate } from '@/lib/time'
 
 import EntityThumbnail from '@/components/widgets/EntityThumbnail'
-import DescriptionCell from '@/components/cells/DescriptionCell'
+//import DescriptionCell from '@/components/cells/DescriptionCell'
 import LastCommentCell from '@/components/cells/LastCommentCell'
 import ProductionNameCell from '@/components/cells/ProductionNameCell'
 import TaskTypeCell from '@/components/cells/TaskTypeName'
@@ -176,7 +185,7 @@ export default {
 
   components: {
     EntityThumbnail,
-    DescriptionCell,
+    //DescriptionCell,
     LastCommentCell,
     ProductionNameCell,
     TableInfo,
@@ -454,8 +463,12 @@ export default {
   border-top: 0;
 }
 
-.datatable .datatable-row {
+.datatable .datatable-row-cursor {
   cursor: pointer;
+}
+
+.datatable .datatable-row-done {
+  background-color: transparent;
 }
 
 .name {

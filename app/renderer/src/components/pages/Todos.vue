@@ -26,6 +26,7 @@
                 {{ $t('tasks.done') }} ({{ displayedDoneTasks.length }})
               </router-link>
             </li>
+            <!-- TODO : reactivate timesheets
             <li
               :class="{ 'is-active': isTabActive('timesheets') }"
               @click="selectTab('timesheets')"
@@ -38,7 +39,7 @@
               >
                 {{ $t('timesheets.title') }}
               </router-link>
-            </li>
+            </li>-->
           </ul>
         </div>
 
@@ -108,8 +109,7 @@
           :is-error="isTodosLoadingError"
           :done="true"
         />
-
-        <!-- TODO : reenable timesheet-list
+        <!-- TODO : reactivate timesheets
         <timesheet-list
           v-if="isTabActive('timesheets')"
           ref="timesheet-list"
@@ -126,8 +126,7 @@
           @time-spent-change="onTimeSpentChange"
           @set-day-off="onSetDayOff"
           @unset-day-off="onUnsetDayOff"
-        />
-        -->
+        />-->
       </div>
     </div>
 
