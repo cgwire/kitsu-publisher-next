@@ -1,7 +1,7 @@
 import { app, BrowserWindow, session /**shell*/ } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
-const open = require("open")
+const open = require('open')
 
 import Store from 'electron-store'
 const store = new Store()
@@ -81,7 +81,7 @@ const createWindow = async () => {
       const vuex_store = JSON.parse(store.get('vuex'))
       const url_server = new URL(vuex_store.login.server)
       if (url.startsWith(url_server) && vuex_store.login.access_token) {
-        return { action: 'allow'}
+        return { action: 'allow' }
       }
     } catch (error) {
       // do nothing
