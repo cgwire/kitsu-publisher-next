@@ -161,7 +161,7 @@
 
     <table-info :is-loading="isLoading" :is-error="isError" />
 
-    <p v-if="!isLoading" class="has-text-centered footer-info">
+    <p v-if="!isLoading" class="has-text-centered footer-info mt1">
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
 

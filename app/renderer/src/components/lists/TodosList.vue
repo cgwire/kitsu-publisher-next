@@ -153,7 +153,7 @@
       </p>
     </div>
 
-    <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info">
+    <p v-if="tasks.length && !isLoading" class="has-text-centered footer-info mt1">
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
   </div>
