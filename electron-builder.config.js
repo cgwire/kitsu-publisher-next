@@ -11,12 +11,12 @@ const config = {
   copyright: 'Copyright © 2021 ${author}',
   directories: {
     output: 'dist',
-    buildResources: 'buildResources'
+    buildResources: 'build_resources'
   },
   files: [
     'packages/**/dist/**',
-    'buildResources/icon.png',
-    'buildResources/icon.ico'
+    'build_resources/icon.png',
+    'build_resources/icon.ico'
   ],
   extraMetadata: {
     version: process.env.VITE_APP_VERSION

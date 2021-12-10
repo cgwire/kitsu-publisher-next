@@ -68,10 +68,10 @@ const createWindow = async () => {
 
   switch (process.platform) {
     case 'win32':
-      mainWindow.setIcon(join(__dirname, '../../../buildResources', 'icon.ico'))
+      mainWindow.setIcon(join(__dirname, '../../../build_resources', 'icon.ico'))
       break
     default:
-      mainWindow.setIcon(join(__dirname, '../../../buildResources', 'icon.png'))
+      mainWindow.setIcon(join(__dirname, '../../../build_resources', 'icon.png'))
       break
   }
 
