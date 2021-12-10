@@ -84,15 +84,12 @@
             >
               <div class="flexrow">
                 <entity-thumbnail
-                  :empty-width="60"
-                  :empty-height="40"
+                  :width="60"
+                  :height="40"
+                  :withLink="false"
                   :entity="{ preview_file_id: entry.entity_preview_file_id }"
                 />
-                <!-- TODO : reenable route-link to entityPath
-                <router-link :to="entityPath(entry)">
-                  {{ entry.full_entity_name }}
-                </router-link>
-                -->
+                {{ entry.full_entity_name }}
               </div>
             </td>
             <description-cell

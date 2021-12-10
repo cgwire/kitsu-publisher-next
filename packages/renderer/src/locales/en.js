@@ -313,6 +313,7 @@ export default {
     frameOut: 'Frames Out',
     from: 'From',
     go_productions: 'Go to productions',
+    go_todos: 'Go back to my tasks',
     history: 'history',
     info: 'Information',
     home: 'return to home page',

@@ -1,5 +1,5 @@
 <template>
-  <div v-tooltip.right="tooltipOptions" class="flexrow production-name">
+  <div class="flexrow production-name">
     <!-- TODO : reenable productionRoute
     <router-link
       v-if="!noLink"

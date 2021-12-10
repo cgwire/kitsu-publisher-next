@@ -7,6 +7,7 @@
 
 <script>
 import Topbar from './tops/Topbar'
+
 export default {
   name: 'MainWrapper',
   components: {
