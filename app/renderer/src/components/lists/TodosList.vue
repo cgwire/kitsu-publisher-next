@@ -27,9 +27,11 @@
             >
               {{ $t('tasks.fields.entity') }}
             </th>
+            <!-- TODO : reactivate description-cell
             <th scope="col" class="description">
               {{ $t('assets.fields.description') }}
             </th>
+            -->
             <th scope="col" class="estimation" :title="$t('main.estimation')">
               {{ $t('main.estimation_short') }}
             </th>
@@ -92,10 +94,12 @@
                 {{ entry.full_entity_name }}
               </div>
             </td>
+            <!-- TODO : reactivate description-cell
             <description-cell
               class="description"
               :entry="{ description: entry.entity_description }"
             />
+            -->
             <td class="estimation">
               {{ formatDuration(entry.estimation) }}
             </td>
@@ -164,7 +168,7 @@ import { PAGE_SIZE } from '@/lib/pagination'
 import { formatSimpleDate } from '@/lib/time'
 
 import EntityThumbnail from '@/components/widgets/EntityThumbnail'
-import DescriptionCell from '@/components/cells/DescriptionCell'
+//import DescriptionCell from '@/components/cells/DescriptionCell'
 import LastCommentCell from '@/components/cells/LastCommentCell'
 import ProductionNameCell from '@/components/cells/ProductionNameCell'
 import TaskTypeCell from '@/components/cells/TaskTypeName'
@@ -176,7 +180,7 @@ export default {
 
   components: {
     EntityThumbnail,
-    DescriptionCell,
+    //DescriptionCell,
     LastCommentCell,
     ProductionNameCell,
     TableInfo,
