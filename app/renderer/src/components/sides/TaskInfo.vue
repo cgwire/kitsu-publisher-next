@@ -3,9 +3,7 @@
     <div class="page-header">
       <div class="flexrow header-title">
         <div class="title flexrow-item">
-          <router-link :to="taskEntityPath">
             {{ task ? title : 'Loading...' }}
-          </router-link>
         </div>
         <task-type-name
           v-if="currentTaskType"
