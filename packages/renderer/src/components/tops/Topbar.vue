@@ -6,6 +6,15 @@
       @click="toggleUserMenu()"
     />
     <nav class="nav">
+      <div class="nav-left">
+        <div v-if="!$route.path.startsWith('/todos')" class="nav-item">
+          <router-link :to="'/todos'" class="flexrow">
+            <icon class="back" name="chevron-left" :width="24" />
+            {{ $t('main.go_todos') }}
+          </router-link>
+        </div>
+      </div>
+
       <div class="nav-right">
         <div
           ref="user-name"
