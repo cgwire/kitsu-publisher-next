@@ -69,9 +69,6 @@
           >
             {{ preview.revision }}
           </span>
-          <router-link class="history-button flexrow-item" :to="taskPath">
-            ...
-          </router-link>
         </div>
       </div>
     </div>
