@@ -1,4 +1,5 @@
 import { contextBridge } from 'electron'
+import { readFileSync } from 'fs'
 
 import Store from 'electron-store'
 const store = new Store()
@@ -19,6 +20,11 @@ const api = {
     },
     delete: (key) => {
       return store.delete(key)
+    }
+  },
+  file: {
+    readFileSync: (filepath) => {
+      return readFileSync(filepath)
     }
   }
 }

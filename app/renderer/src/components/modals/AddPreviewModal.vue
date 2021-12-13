@@ -312,7 +312,7 @@ export default {
       ).then((response) => {
         const formData = new FormData()
         const file = new File(
-          [require('fs').readFileSync(response.data.file)],
+          [window.electron.file.readFileSync(response.data.file)],
           response.data.file,
           { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
         )
@@ -351,7 +351,7 @@ export default {
       ).then((response) => {
         const formData = new FormData()
         const file = new File(
-          [require('fs').readFileSync(response.data.file)],
+          [window.electron.file.readFileSync(response.data.file)],
           response.data.file,
           { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
         )
