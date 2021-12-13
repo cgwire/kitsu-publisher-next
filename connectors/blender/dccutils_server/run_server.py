@@ -159,7 +159,7 @@ def take_render_animation(
 
 
 def server_start():
-    uvicorn.run(app, host="127.0.0.1", port=8089)
+    uvicorn.run(app, host="127.0.0.1", port=10101)
 
 
 def server_start_threading():  # TODO : create a server stop

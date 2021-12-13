@@ -209,8 +209,8 @@ export default {
       camera_selected: null,
       list_renderers: null,
       renderer_selected: null,
-      dccutils_blender: new DCCClient('http://localhost:8089'),
-      dccutils_harmony: new DCCClient('http://localhost:8085')
+      dccutils_blender: new DCCClient('http://localhost:10101'), // TODO : change that to use a specified port
+      dccutils_harmony: new DCCClient('http://localhost:10102') // TODO : change that to use a specified port
     }
   },
 
