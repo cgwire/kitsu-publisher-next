@@ -19,47 +19,45 @@
       </div>
     </figure>
     <div class="media-content">
-      <!-- TODO : Fix this
-      <at-ta
+      <!-- TODO : reactivate at-ta
+        <at-ta
         :members="atOptions"
         name-key="full_name"
         :limit="2"
         @input="onTextChanged"
-      >
-        <template v-if="team && team.item" slot="item" slot-scope="team">
-          <template v-if="team.item.isTime"> ⏱️ frame </template>
-          <template v-else>
-            <div class="flexrow">
-              <people-avatar
-                class="flexrow-item"
-                :person="team.item"
-                :size="20"
-                :font-size="11"
-                :no-cache="true"
-              />
-              <span class="flexrow-item">
-                {{ team.item.full_name }}
-              </span>
-            </div>
-          </template>
+      >-->
+      <template v-if="team && team.item" slot="item" slot-scope="team">
+        <template v-if="team.item.isTime"> ⏱️ frame </template>
+        <template v-else>
+          <div class="flexrow">
+            <people-avatar
+              class="flexrow-item"
+              :person="team.item"
+              :size="20"
+              :font-size="11"
+              :no-cache="true"
+            />
+            <span class="flexrow-item">
+              {{ team.item.full_name }}
+            </span>
+          </div>
         </template>
-        <textarea
-          ref="comment-textarea"
-          v-model="text"
-          v-focus
-          class="textarea flexrow-item"
-          :placeholder="$t('comments.add_comment')"
-          :disabled="isLoading"
-          @keyup.enter.ctrl="
-            runAddComment(text, attachment, checklist, task_status_id)
-          "
-          @keyup.enter.meta="
-            runAddComment(text, attachment, checklist, task_status_id)
-          "
-        >
-        </textarea>
-      </at-ta>
-    -->
+      </template>
+      <textarea
+        ref="comment-textarea"
+        v-model="text"
+        v-focus
+        class="textarea flexrow-item"
+        :placeholder="$t('comments.add_comment')"
+        :disabled="isLoading"
+        @keyup.enter.ctrl="
+          runAddComment(text, attachment, checklist, task_status_id)
+        "
+        @keyup.enter.meta="
+          runAddComment(text, attachment, checklist, task_status_id)
+        "
+      />
+      <!--</at-ta>-->
       <checklist
         v-if="checklist.length > 0"
         :checklist="checklist"

@@ -5,10 +5,11 @@
         <div class="profile-header-content has-text-centered">
           <people-avatar
             ref="avatar"
-            :no-cache="true"
+            :noCache="true"
+            :isLink="false"
             :person="user"
             :size="150"
-            :font-size="60"
+            :fontSize="60"
           />
 
           <p v-if="!isLdap">

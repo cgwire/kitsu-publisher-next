@@ -3,7 +3,7 @@
     <div class="page-header">
       <div class="flexrow header-title">
         <div class="title flexrow-item">
-            {{ task ? title : 'Loading...' }}
+          {{ task ? title : 'Loading...' }}
         </div>
         <task-type-name
           v-if="currentTaskType"
