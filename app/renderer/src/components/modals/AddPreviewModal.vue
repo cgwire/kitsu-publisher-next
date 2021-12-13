@@ -29,87 +29,92 @@
           @fileselected="onFileSelected"
         />
 
-        <h3>BLENDER</h3>
-        <span class="select">
-          <select
-            class="select-input"
-            @change="(event) => onBlenderCameraChanged(event)"
-          >
-            <option
-              v-for="option in blender_list_cameras"
-              :key="`${option}`"
-              :value="option"
-              :selected="option === blender_camera_selected"
+        <h3 class="title">Blender</h3>
+
+        <p>
+          <span class="select">
+            <select
+              class="select-input"
+              @change="(event) => onBlenderCameraChanged(event)"
             >
-              {{ option }}
-            </option>
-          </select>
-        </span>
+              <option
+                v-for="option in blender_list_cameras"
+                :key="`${option}`"
+                :value="option"
+                :selected="option === blender_camera_selected"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </span>
 
-        <span class="select">
-          <select
-            class="select-input"
-            @change="(event) => onBlenderRendererChanged(event)"
-          >
-            <option
-              v-for="option in blender_list_renderers"
-              :key="`${option[1]}`"
-              :value="option[1]"
-              :selected="option[1] === blender_renderer_selected"
+          <span class="select">
+            <select
+              class="select-input"
+              @change="(event) => onBlenderRendererChanged(event)"
             >
-              {{ option[0] }}
-            </option>
-          </select>
-        </span>
+              <option
+                v-for="option in blender_list_renderers"
+                :key="`${option[1]}`"
+                :value="option[1]"
+                :selected="option[1] === blender_renderer_selected"
+              >
+                {{ option[0] }}
+              </option>
+            </select>
+          </span>
 
-        <button class="button is-link" @click="onBlenderTakeScreenshotClick()">
-          {{ 'take screenshot' }}
-        </button>
+          <button class="button" @click="onBlenderTakeScreenshotClick()">
+            {{ $t('tasks.take_screenshot') }}
+          </button>
 
-        <button class="button is-link" @click="onBlenderTakeAnimationClick()">
-          {{ 'take animation' }}
-        </button>
+          <button class="button" @click="onBlenderTakeAnimationClick()">
+            {{ $t('tasks.take_animation') }}
+          </button>
+        </p>
 
-        <h3>HARMONY</h3>
-        <span class="select">
-          <select
-            class="select-input"
-            @change="(event) => onHarmonyCameraChanged(event)"
-          >
-            <option
-              v-for="option in harmony_list_cameras"
-              :key="`${option}`"
-              :value="option"
-              :selected="option === harmony_camera_selected"
+        <h3 class="title">Toon Boom Harmony</h3>
+        <p>
+          <span class="select">
+            <select
+              class="select-input"
+              @change="(event) => onHarmonyCameraChanged(event)"
             >
-              {{ option }}
-            </option>
-          </select>
-        </span>
+              <option
+                v-for="option in harmony_list_cameras"
+                :key="`${option}`"
+                :value="option"
+                :selected="option === harmony_camera_selected"
+              >
+                {{ option }}
+              </option>
+            </select>
+          </span>
 
-        <span class="select">
-          <select
-            class="select-input"
-            @change="(event) => onHarmonyRendererChanged(event)"
-          >
-            <option
-              v-for="option in harmony_list_renderers"
-              :key="`${option[1]}`"
-              :value="option[1]"
-              :selected="option[1] === harmony_renderer_selected"
+          <span class="select">
+            <select
+              class="select-input"
+              @change="(event) => onHarmonyRendererChanged(event)"
             >
-              {{ option[0] }}
-            </option>
-          </select>
-        </span>
+              <option
+                v-for="option in harmony_list_renderers"
+                :key="`${option[1]}`"
+                :value="option[1]"
+                :selected="option[1] === harmony_renderer_selected"
+              >
+                {{ option[0] }}
+              </option>
+            </select>
+          </span>
 
-        <button class="button is-link" @click="onHarmonyTakeScreenshotClick()">
-          {{ 'take screenshot' }}
-        </button>
+          <button class="button" @click="onHarmonyTakeScreenshotClick()">
+            {{ $t('tasks.take_screenshot') }}
+          </button>
 
-        <button class="button is-link" @click="onHarmonyTakeAnimationClick()">
-          {{ 'take animation' }}
-        </button>
+          <button class="button" @click="onHarmonyTakeAnimationClick()">
+            {{ $t('tasks.take_animation') }}
+          </button>
+        </p>
 
         <p v-if="isError" class="error">
           {{ $t('tasks.add_preview_error') }}

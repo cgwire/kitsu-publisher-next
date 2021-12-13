@@ -815,6 +815,8 @@
     },
     "tasks": {
       "add_preview": "Attacher une préviz",
+      "take_animation": "Attacher une animation",
+      "take_screenshot": "Attacher une capture d'écran",
       "add_preview_error": "Une erreur est survenue en ajoutant la preview.",
       "assign": "Assigner une tâche à : | Assigner {nbSelectedTasks} tâches à :",
       "back_to_list": "Retour à la liste",
