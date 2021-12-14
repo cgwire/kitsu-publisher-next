@@ -31,9 +31,9 @@ Do_Install()
     echo "Installation of the plugin"
     $PYTHON_EXECUTABLE -m pip install $SCRIPT_PATH -t ~/.config/blender/$BLENDER_VERSION/scripts/addons/modules -U
     cp -f $SCRIPT_PATH/kitsu-publisher.py ~/.config/blender/$BLENDER_VERSION/scripts/addons/
-    echo "Plugin for blender installed in ~/.config/blender/$BLENDER_VERSION/scripts/addons"
+    echo "Plugin for blender installed in ~/.config/blender/$BLENDER_VERSION/scripts/addons/"
     echo "Enabling the plugin in Blender"
-    $BLENDER_EXECUTABLE --python $SCRIPT_PATH/auto-enable.py
+    $BLENDER_EXECUTABLE -b -P $SCRIPT_PATH/auto-enable.py
     echo "Plugin enabled"
     exit 0
 }
