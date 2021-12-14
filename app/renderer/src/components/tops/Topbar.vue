@@ -70,11 +70,13 @@
             {{ $t('main.tutorials') }}
           </a>
         </li>
+        <!-- TODO : reenable shortcuts>
         <li>
           <a @click="display.shortcutModal = true">
             {{ $t('keyboard.shortcuts') }}
           </a>
         </li>
+        -->
         <hr />
         <li>
           <a href="https://discord.gg/VbCxtKN" target="_blank"> Discord </a>
