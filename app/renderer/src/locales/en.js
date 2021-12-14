@@ -949,6 +949,8 @@ export default {
 
   tasks: {
     add_preview: 'Add preview',
+    take_animation: 'Take animation',
+    take_screenshot: 'Take screenshot',
     add_preview_error: 'An error occurred while adding preview.',
     all_tasks: 'All tasks',
     assign: 'Assign one task to: | Assign {nbSelectedTasks} tasks to:',

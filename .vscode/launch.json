@@ -1,6 +1,13 @@
 {
   "configurations": [
     {
+      "name": "PowerShell Launch Script",
+      "type": "PowerShell",
+      "request": "launch",
+      "script": "enter path or command to execute e.g.: ${workspaceFolder}/src/foo.ps1 or Invoke-Pester",
+      "cwd": "${workspaceFolder}"
+    },
+    {
       "type": "pwa-chrome",
       "name": "http://localhost:4000",
       "request": "launch",

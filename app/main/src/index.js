@@ -60,7 +60,7 @@ const createWindow = async () => {
     webPreferences: {
       nativeWindowOpen: true,
       preload: join(__dirname, '../../preload/dist/index.cjs'),
-      nodeIntegration: false, 
+      nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false // TODO : REENABLE TO ENABLE CORS
     }
