@@ -21,20 +21,20 @@ Help()
 
 Install_Pip()
 {
-    echo "Installation of pip"
+    echo "Installation of pip."
     $PYTHON_EXECUTABLE -m ensurepip --upgrade
-    echo "Pip installed"
+    echo "Pip installed."
 }
 
 Do_Install()
 {
-    echo "Installation of the plugin"
+    echo "Installation of the plugin."
     $PYTHON_EXECUTABLE -m pip install $SCRIPT_PATH -t ~/.config/blender/$BLENDER_VERSION/scripts/addons/modules -U
     cp -f $SCRIPT_PATH/kitsu-publisher.py ~/.config/blender/$BLENDER_VERSION/scripts/addons/
     echo "Plugin for blender installed in ~/.config/blender/$BLENDER_VERSION/scripts/addons/"
-    echo "Enabling the plugin in Blender"
+    echo "Enabling the plugin in Blender."
     $BLENDER_EXECUTABLE -b -P $SCRIPT_PATH/auto-enable.py
-    echo "Plugin enabled"
+    echo "Plugin enabled."
     exit 0
 }
 
@@ -45,7 +45,7 @@ case $1 in
         # Blender needs to be installed via the package manager and python3-pip too
         # Deactivate your virtualenv if you have one activated.
         if ! command -v blender &> /dev/null; then
-            echo "Blender could not be found as a system package"
+            echo "Blender could not be found as a system package."
             exit
         fi
         BLENDER_EXECUTABLE=blender
@@ -58,7 +58,7 @@ case $1 in
         BLENDER_SNAP_LOCATION=/snap/blender/current
         BLENDER_EXECUTABLE=$BLENDER_SNAP_LOCATION/blender
         if [[ ! -f $BLENDER_EXECUTABLE ]]; then
-            echo "Blender could not be found as a snap package"
+            echo "Blender could not be found as a snap package at $BLENDER_SNAP_LOCATION."
             exit
         fi
         BLENDER_VERSION=$($BLENDER_EXECUTABLE -v | head -n 1 | cut -d' ' -f2 | cut -d'.' -f1-2)
@@ -71,7 +71,7 @@ case $1 in
         UNPACKED_DIRECTORY="${i#*=}"
         BLENDER_EXECUTABLE=$UNPACKED_DIRECTORY/blender
         if [[ ! -f $BLENDER_EXECUTABLE ]]; then
-            echo "Blender could not be found as a unpacked directory"
+            echo "Blender could not be found as a unpacked directory at $UNPACKED_DIRECTORY."
             exit
         fi
         BLENDER_VERSION=$($BLENDER_EXECUTABLE -v | head -n 1 | cut -d' ' -f2 | cut -d'.' -f1-2)
