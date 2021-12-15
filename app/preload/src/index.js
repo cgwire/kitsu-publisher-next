@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { readFileSync } from 'fs'
 
 import Store from 'electron-store'
@@ -26,7 +26,9 @@ const api = {
     readFileSync: (filepath) => {
       return readFileSync(filepath)
     }
-  }
+  },
+  toggleDarkTheme: (darkTheme) =>
+    ipcRenderer.invoke('dark-theme:toggle', darkTheme)
 }
 
 /**
