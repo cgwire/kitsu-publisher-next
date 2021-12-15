@@ -20,6 +20,125 @@ Work in progress:
 - Blender
 - Toonboom Harmony
 
+## Installation
+
+### Installation of the Kitsu Publisher
+
+You need to download (or to build if you want to : see [Development Environment](#development-environment)) your preferred installer/package/portable for the app corresponding to your OS in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon).
+
+All comands have the keyword {current_version} in the filenames, you need to replace the version with the current version of the Kitsu Publisher.
+
+#### On Linux
+
+  - deb package (for debian based distributions):
+
+    - To install the package:
+
+    ```console
+    dpkg -i kitsu-publisher-{current_version}_amd64.deb
+    ```
+
+    - The package is now in your applications and in your $PATH.
+
+  - rpm package (for RHEL based distributions):
+
+    - To install the package:
+
+    ```console
+    rpm -i kitsu-publisher-{current_version}_x86_64.deb
+    ```
+
+    - The package is now in your applications and in your $PATH.
+
+  - snap package:
+
+    - To install the package:
+
+    ```console
+    snap install kitsu-publisher-{current_version}_amd64.snap --dangerous
+    ```
+
+    - The package is now in your applications and in your $PATH.
+
+  - tar.gz archive:
+
+    - To extract the archive:
+
+    ```console
+    tar -xf kitsu-publisher-{current_version}.tar.gz
+    ```
+
+    - To run the app:
+
+    ```console
+    kitsu-publisher-{current_version}/kitsu-publisher
+    ```
+
+  - AppImage:
+
+    - to run the app:
+
+    ```console
+    ./Kitsu publisher-{current_version}.AppImage
+    ```
+
+#### On Windows
+
+  - coming soon
+
+#### On macOS
+
+  - coming soon
+
+### Installation of the DCCs connectors
+
+You need to download the connectors-{current_version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon). You have to unzip the archive. 
+
+#### Blender
+
+  - You need to go inside the blender directory.
+
+  - On Windows (with PowerShell):
+
+    - If Blender is installed with an installer (it supports multiple Blender installations):
+
+    ```console
+    install.ps1 -installer
+    ```
+
+    - If Blender is a portable app:
+
+    ```console
+    install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
+    ```
+
+  - On Linux:
+
+    - If Blender is installed with a system package (for example: deb or rpm):
+
+    ```console
+    ./install.sh --system
+    ```
+
+    - If Blender is an unpacked directory (tar.xz archive):
+
+    ```console
+    ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
+    ```
+
+    - If Blender is installed with a snap package:
+
+    ```console
+    ./install.sh --snap
+    ```
+
+  - On macOS:
+
+    - coming soon
+#### Toonboom Harmony
+
+  - coming soon
+
 ## Development Environment
 
 ### Pre-requisites
