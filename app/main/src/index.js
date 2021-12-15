@@ -3,7 +3,8 @@ import {
   BrowserWindow,
   session,
   nativeTheme,
-  ipcMain /**shell*/
+  ipcMain,
+  Menu /**shell*/
 } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
@@ -79,6 +80,12 @@ const createWindow = async () => {
       webSecurity: false // TODO : REENABLE TO ENABLE CORS
     }
   })
+
+  const old_menu = Menu.getApplicationMenu()
+  const new_menu = old_menu?.items.filter((item) => item.role !== 'help')
+  Menu.setApplicationMenu(Menu.buildFromTemplate(new_menu))
+  mainWindow.setAutoHideMenuBar(true)
+  mainWindow.menuBarVisible = false
 
   switch (process.platform) {
     case 'win32':
