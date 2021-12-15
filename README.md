@@ -34,9 +34,9 @@ All comands have the keyword {current_version} in the filenames, you need to rep
 
     - To install the package:
 
-    ```console
-    dpkg -i kitsu-publisher-{current_version}_amd64.deb
-    ```
+      ```console
+      dpkg -i kitsu-publisher-{current_version}_amd64.deb
+      ```
 
     - The package is now in your applications and in your $PATH.
 
@@ -44,9 +44,9 @@ All comands have the keyword {current_version} in the filenames, you need to rep
 
     - To install the package:
 
-    ```console
-    rpm -i kitsu-publisher-{current_version}_x86_64.deb
-    ```
+      ```console
+      rpm -i kitsu-publisher-{current_version}_x86_64.deb
+      ```
 
     - The package is now in your applications and in your $PATH.
 
@@ -54,9 +54,9 @@ All comands have the keyword {current_version} in the filenames, you need to rep
 
     - To install the package:
 
-    ```console
-    snap install kitsu-publisher-{current_version}_amd64.snap --dangerous
-    ```
+      ```console
+      snap install kitsu-publisher-{current_version}_amd64.snap --dangerous
+      ```
 
     - The package is now in your applications and in your $PATH.
 
@@ -64,23 +64,23 @@ All comands have the keyword {current_version} in the filenames, you need to rep
 
     - To extract the archive:
 
-    ```console
-    tar -xf kitsu-publisher-{current_version}.tar.gz
-    ```
+      ```console
+      tar -xf kitsu-publisher-{current_version}.tar.gz
+      ```
 
     - To run the app:
 
-    ```console
-    kitsu-publisher-{current_version}/kitsu-publisher
-    ```
+      ```console
+      kitsu-publisher-{current_version}/kitsu-publisher
+      ```
 
   - AppImage:
 
     - to run the app:
 
-    ```console
-    ./Kitsu publisher-{current_version}.AppImage
-    ```
+      ```console
+      ./Kitsu publisher-{current_version}.AppImage
+      ```
 
 #### On Windows
 
@@ -102,35 +102,35 @@ You need to download the connectors-{current_version}.zip archive in the [releas
 
     - If Blender is installed with an installer (it supports multiple Blender installations):
 
-    ```console
-    install.ps1 -installer
-    ```
+      ```console
+      install.ps1 -installer
+      ```
 
     - If Blender is a portable app:
 
-    ```console
-    install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
-    ```
+      ```console
+      install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
+      ```
 
   - On Linux:
 
     - If Blender is installed with a system package (for example: deb or rpm):
 
-    ```console
-    ./install.sh --system
-    ```
+      ```console
+      ./install.sh --system
+      ```
 
     - If Blender is an unpacked directory (tar.xz archive):
 
-    ```console
-    ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
-    ```
+      ```console
+      ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
+      ```
 
     - If Blender is installed with a snap package:
 
-    ```console
-    ./install.sh --snap
-    ```
+      ```console
+      ./install.sh --snap
+      ```
 
   - On macOS:
 
@@ -198,15 +198,15 @@ You need to run npm scripts:
 
 - If you only want to build an unpackaged directory:
 
-  ```console
-  npm run build
-  ```
+    ```console
+    npm run build
+    ```
 
 - If you want to build for all targets:
 
-  ```console
-  npm run build:all
-  ```
+    ```console
+    npm run build:all
+    ```
 
 ## Contributing
 
