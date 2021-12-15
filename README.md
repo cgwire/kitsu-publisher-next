@@ -30,114 +30,115 @@ All comands have the keyword {current_version} in the filenames, you need to rep
 
 #### On Linux
 
-  - deb package (for debian based distributions):
+- deb package (for debian based distributions):
 
-    - To install the package:
+  - To install the package:
 
-      ```console
-      dpkg -i kitsu-publisher-{current_version}_amd64.deb
-      ```
+    ```console
+    dpkg -i kitsu-publisher-{current_version}_amd64.deb
+    ```
 
-    - The package is now in your applications and in your $PATH.
+  - The package is now in your applications and in your $PATH.
 
-  - rpm package (for RHEL based distributions):
+- rpm package (for RHEL based distributions):
 
-    - To install the package:
+  - To install the package:
 
-      ```console
-      rpm -i kitsu-publisher-{current_version}_x86_64.deb
-      ```
+    ```console
+    rpm -i kitsu-publisher-{current_version}_x86_64.deb
+    ```
 
-    - The package is now in your applications and in your $PATH.
+  - The package is now in your applications and in your $PATH.
 
-  - snap package:
+- snap package:
 
-    - To install the package:
+  - To install the package:
 
-      ```console
-      snap install kitsu-publisher-{current_version}_amd64.snap --dangerous
-      ```
+    ```console
+    snap install kitsu-publisher-{current_version}_amd64.snap --dangerous
+    ```
 
-    - The package is now in your applications and in your $PATH.
+  - The package is now in your applications and in your $PATH.
 
-  - tar.gz archive:
+- tar.gz archive:
 
-    - To extract the archive:
+  - To extract the archive:
 
-      ```console
-      tar -xf kitsu-publisher-{current_version}.tar.gz
-      ```
+    ```console
+    tar -xf kitsu-publisher-{current_version}.tar.gz
+    ```
 
-    - To run the app:
+  - To run the app:
 
-      ```console
-      kitsu-publisher-{current_version}/kitsu-publisher
-      ```
+    ```console
+    kitsu-publisher-{current_version}/kitsu-publisher
+    ```
 
-  - AppImage:
+- AppImage:
 
-    - to run the app:
+  - to run the app:
 
-      ```console
-      ./Kitsu publisher-{current_version}.AppImage
-      ```
+    ```console
+    ./Kitsu publisher-{current_version}.AppImage
+    ```
 
 #### On Windows
 
-  - coming soon
+- coming soon
 
 #### On macOS
 
-  - coming soon
+- coming soon
 
 ### Installation of the DCCs connectors
 
-You need to download the connectors-{current_version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon). You have to unzip the archive. 
+You need to download the connectors-{current_version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon). You have to unzip the archive.
 
 #### Blender
 
-  - You need to go inside the blender directory.
+- You need to go inside the blender directory.
 
-  - On Windows (with PowerShell):
+- On Windows (with PowerShell):
 
-    - If Blender is installed with an installer (it supports multiple Blender installations):
+  - If Blender is installed with an installer (it supports multiple Blender installations):
 
-      ```console
-      install.ps1 -installer
-      ```
+    ```console
+    install.ps1 -installer
+    ```
 
-    - If Blender is a portable app:
+  - If Blender is a portable app:
 
-      ```console
-      install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
-      ```
+    ```console
+    install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
+    ```
 
-  - On Linux:
+- On Linux:
 
-    - If Blender is installed with a system package (for example: deb or rpm):
+  - If Blender is installed with a system package (for example: deb or rpm):
 
-      ```console
-      ./install.sh --system
-      ```
+    ```console
+    ./install.sh --system
+    ```
 
-    - If Blender is an unpacked directory (tar.xz archive):
+  - If Blender is an unpacked directory (tar.xz archive):
 
-      ```console
-      ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
-      ```
+    ```console
+    ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
+    ```
 
-    - If Blender is installed with a snap package:
+  - If Blender is installed with a snap package:
 
-      ```console
-      ./install.sh --snap
-      ```
+    ```console
+    ./install.sh --snap
+    ```
 
-  - On macOS:
-
-    - coming soon
-#### Toonboom Harmony
+- On macOS:
 
   - coming soon
+
+#### Toonboom Harmony
+
+- coming soon
 
 ## Development Environment
 
@@ -188,9 +189,9 @@ It will spawn an electron instance and a Vite development server.
 
 - On macOS you need (with [Homebrew](https://brew.sh/)):
 
-    ```console
-    brew install pkg-config cairo pango libpng jpeg giflib librsvg
-    ```
+  ```console
+  brew install pkg-config cairo pango libpng jpeg giflib librsvg
+  ```
 
 #### Building the app
 
@@ -198,15 +199,15 @@ You need to run npm scripts:
 
 - If you only want to build an unpackaged directory:
 
-    ```console
-    npm run build
-    ```
+  ```console
+  npm run build
+  ```
 
 - If you want to build for all targets:
 
-    ```console
-    npm run build:all
-    ```
+  ```console
+  npm run build:all
+  ```
 
 ## Contributing
 
