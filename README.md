@@ -46,30 +46,32 @@ It will spawn an electron instance and a Vite development server.
 
 ### Build the electron app
 
-#### Requirements
+#### Pre-requisites
 
 - On debian based Linux you need:
 
   - To install these packages:
 
     ```console
-    sudo apt-get install build-essential libcairo2-dev libpango1.0-dev \
+    apt-get install build-essential libcairo2-dev libpango1.0-dev \
     libjpeg-dev libgif-dev librsvg2-dev
     ```
 
   - If you want to build specific target like rpm you need to install:
 
     ```console
-    sudo apt-get install rpm
+    apt-get install rpm
     ```
 
 - On Windows you need:
 
-  - coming soon
+  - See the [wiki](https://github.com/Automattic/node-canvas/wiki/Installation:-Windows) of node-canvas.
 
-- On macOS you need:
+- On macOS you need (with [Homebrew](https://brew.sh/)):
 
-  - coming soon
+    ```console
+    brew install pkg-config cairo pango libpng jpeg giflib librsvg
+    ```
 
 #### Building the app
 
