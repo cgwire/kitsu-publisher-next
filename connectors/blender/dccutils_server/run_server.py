@@ -73,7 +73,7 @@ def take_viewport_screenshot(extension: str, output_path: str = ""):
         output_path = os.path.join(
             tempfile.gettempdir(),
             "blender-%s%s"
-            % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), extension_str),
+            % (datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"), extension_str),
         )
     context.push_state()
     try:
@@ -98,7 +98,7 @@ def take_render_screenshot(
         output_path = os.path.join(
             tempfile.gettempdir(),
             "blender-%s%s"
-            % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), extension_str),
+            % (datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"), extension_str),
         )
     context.push_state()
     try:
@@ -121,7 +121,7 @@ def take_viewport_animation(output_path: str, extension: str):
         output_path = os.path.join(
             tempfile.gettempdir(),
             "blender-%s%s"
-            % (datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), extension_str),
+            % (datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"), extension_str),
         )
     context.push_state()
     try:

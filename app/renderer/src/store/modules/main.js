@@ -32,6 +32,7 @@ const getters = {
 const actions = {
   toggleDarkTheme({ commit, state }) {
     commit(TOGGLE_DARK_THEME)
+    window.electron.toggleDarkTheme(state.isDarkTheme).then()
     if (localStorage) {
       localStorage.setItem('dark-theme', state.isDarkTheme)
     }

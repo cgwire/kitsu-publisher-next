@@ -1,4 +1,11 @@
-import { app, BrowserWindow, session /**shell*/ } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  session,
+  nativeTheme,
+  ipcMain,
+  Menu /**shell*/
+} from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
 const open = require('open')
@@ -7,6 +14,14 @@ import Store from 'electron-store'
 const store = new Store()
 
 store.set('appVersion', app.getVersion())
+
+// enable darkmode for electron at startup
+try {
+  const vuex_store = JSON.parse(store.get('vuex'))
+  nativeTheme.themeSource = vuex_store.main.isDarkTheme ? 'dark' : 'light'
+} catch (error) {
+  nativeTheme.themeSource = 'dark'
+}
 
 const isSingleInstance = app.requestSingleInstanceLock()
 const isDevelopment = import.meta.env.MODE === 'development'
@@ -66,6 +81,12 @@ const createWindow = async () => {
     }
   })
 
+  const old_menu = Menu.getApplicationMenu()
+  const new_menu = old_menu?.items.filter((item) => item.role !== 'help')
+  Menu.setApplicationMenu(Menu.buildFromTemplate(new_menu))
+  mainWindow.setAutoHideMenuBar(true)
+  mainWindow.menuBarVisible = false
+
   switch (process.platform) {
     case 'win32':
       mainWindow.setIcon(
@@ -119,6 +140,11 @@ const createWindow = async () => {
       : new URL('../renderer/dist/index.html', 'file://' + __dirname).toString()
 
   await mainWindow.loadURL(pageUrl)
+
+  ipcMain.handle('dark-theme:toggle', (event, darkTheme) => {
+    nativeTheme.themeSource = darkTheme ? 'dark' : 'light'
+    return nativeTheme.shouldUseDarkColors
+  })
 }
 
 /** TODO : reenable CORS
