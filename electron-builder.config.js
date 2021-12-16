@@ -16,12 +16,12 @@ const config = {
     category: 'Graphics'
   },
   win: {
-    target: ['nsis', 'portable', 'zip', 'msi'],
+    target: ['nsis', 'portable', 'zip', 'msi']
   },
   nsis: {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
-    menuCategory: "CGWire"
+    menuCategory: 'CGWire'
   }
 }
 
