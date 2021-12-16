@@ -26,7 +26,7 @@ Work in progress:
 
 You need to download (or to build if you want to : see [Development Environment](#development-environment)) your preferred installer/package/portable for the app corresponding to your OS in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon).
 
-All comands have the keyword {current_version} in the filenames, you need to replace the version with the current version of the Kitsu Publisher.
+All comands have the keyword {version} in the filenames, you need to replace the version with the current version of the Kitsu Publisher.
 
 #### On Linux
 
@@ -35,7 +35,7 @@ All comands have the keyword {current_version} in the filenames, you need to rep
   - To install the package:
 
     ```console
-    dpkg -i kitsu-publisher-{current_version}_amd64.deb
+    dpkg -i kitsu-publisher-{version}_amd64.deb
     ```
 
   - The package is now in your applications and in your $PATH.
@@ -45,7 +45,7 @@ All comands have the keyword {current_version} in the filenames, you need to rep
   - To install the package:
 
     ```console
-    rpm -i kitsu-publisher-{current_version}_x86_64.deb
+    rpm -i kitsu-publisher-{version}_x86_64.deb
     ```
 
   - The package is now in your applications and in your $PATH.
@@ -55,7 +55,7 @@ All comands have the keyword {current_version} in the filenames, you need to rep
   - To install the package:
 
     ```console
-    snap install kitsu-publisher-{current_version}_amd64.snap --dangerous
+    snap install kitsu-publisher-{version}_amd64.snap --dangerous
     ```
 
   - The package is now in your applications and in your $PATH.
@@ -65,13 +65,13 @@ All comands have the keyword {current_version} in the filenames, you need to rep
   - To extract the archive:
 
     ```console
-    tar -xf kitsu-publisher-{current_version}.tar.gz
+    tar -xf kitsu-publisher-{version}.tar.gz
     ```
 
   - To run the app:
 
     ```console
-    kitsu-publisher-{current_version}/kitsu-publisher
+    kitsu-publisher-{version}/kitsu-publisher
     ```
 
 - AppImage:
@@ -79,12 +79,32 @@ All comands have the keyword {current_version} in the filenames, you need to rep
   - to run the app:
 
     ```console
-    ./Kitsu publisher-{current_version}.AppImage
+    ./Kitsu publisher-{version}.AppImage
     ```
 
 #### On Windows
 
-- coming soon
+- NSIS Installer (Kitsu publisher Setup {version}.exe):
+
+  - Double-click on the installer and follow the instructions.
+
+  - The package is now in your applications.
+
+- Msi installer:
+
+  - Double-click on the installer and it will install directly the app.
+
+  - The package is now in your applications.
+
+- Portable application (Kitsu publisher {version}.exe):
+
+  - Double-click on the executable to run the app.
+
+- Zip portable application:
+
+  - Extract the zip.
+
+  - Double click on the executable inside the extracted folder to run the app.
 
 #### On macOS
 
@@ -92,7 +112,7 @@ All comands have the keyword {current_version} in the filenames, you need to rep
 
 ### Installation of the DCCs connectors
 
-You need to download the connectors-{current_version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon). You have to unzip the archive.
+You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon). You have to unzip the archive.
 
 #### Blender
 
