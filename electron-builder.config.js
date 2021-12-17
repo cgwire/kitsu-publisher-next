@@ -18,6 +18,9 @@ const config = {
   win: {
     target: ['nsis', 'portable', 'zip', 'msi']
   },
+  mac: {
+    target: ['dmg', 'pkg', '7z', 'zip']
+  },
   nsis: {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
