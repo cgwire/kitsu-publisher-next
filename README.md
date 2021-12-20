@@ -18,7 +18,7 @@ badge](https://travis-ci.com/cgwire/kitsu-publisher-next.svg?branch=master)](htt
 Work in progress:
 
 - Blender
-- Toonboom Harmony
+- Toon Boom Harmony
 
 ## Installation
 
@@ -156,9 +156,21 @@ You need to download the connectors-{version}.zip archive in the [releases](http
 
   - coming soon
 
-#### Toonboom Harmony
+#### Toon Boom Harmony
 
-- coming soon
+- You need to go inside the harmony directory.
+
+- On Windows (with PowerShell):
+
+  - If Toon Boom Harmony is installed with an installer (it supports multiple Toon Boom Harmony installations):
+
+    ```console
+    install.ps1 -installer
+    ```
+
+- On macOS:
+
+  - coming soon
 
 ## Development Environment
 
