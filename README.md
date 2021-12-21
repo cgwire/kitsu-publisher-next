@@ -112,7 +112,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 ### Installation of the DCCs connectors
 
-You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon). You have to unzip the archive.
+You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest). You have to unzip the archive.
 
 #### Blender
 
@@ -123,13 +123,13 @@ You need to download the connectors-{version}.zip archive in the [releases](http
   - If Blender is installed with an installer (it supports multiple Blender installations):
 
     ```console
-    install.ps1 -installer
+    .\install.ps1 -installer
     ```
 
   - If Blender is a portable app:
 
     ```console
-    install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
+    .\install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
     ```
 
 - On Linux:
@@ -165,7 +165,7 @@ You need to download the connectors-{version}.zip archive in the [releases](http
   - If Toon Boom Harmony is installed with an installer (it supports multiple Toon Boom Harmony installations):
 
     ```console
-    install.ps1 -installer
+    .\install.ps1 -installer
     ```
 
 - On macOS:
