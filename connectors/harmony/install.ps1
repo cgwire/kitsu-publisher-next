@@ -100,8 +100,7 @@ try {
     } else 
     {
         if (! $noprompt) {
-            $installer = ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Toon Boom Harmony plugin for the Kitsu Publisher? (Y/N)")
-            if ($installer) {
+            if (ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Toon Boom Harmony plugin for the Kitsu Publisher? (Y/N)")) {
                 Install-All
             }
             else {

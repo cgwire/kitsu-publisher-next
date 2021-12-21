@@ -2,8 +2,25 @@
     [switch]$help = $false,
     [switch]$installer = $false,
     [switch]$portable = $false,
-    [string]$portable_path = ""
+    [string]$portable_path = "",
+    [switch]$noprompt = $false
  )
+
+function ConvertTo-Boolean {
+    param($Variable)
+    if ($Variable.ToLower() -eq "y") {
+        $true
+    }
+    if ($Variable.ToLower() -eq "n") {
+        $false
+    }
+    if ($Variable.ToLower() -eq "yes") {
+        $true
+    }
+    if ($Variable.ToLower() -eq "no") {
+        $false
+    }
+}
 
 function Get-Help {
     # Display Help
@@ -17,6 +34,8 @@ function Get-Help {
     Write-Output "  Install the plugin for an installer installation."
     Write-Output "-portable PATH"
     Write-Output "  Install the plugin for a portable directory installation. You need to specify the path to this directory."
+    Write-Output "-noprompt"
+    Write-Output "  Disable the ending prompt."
 }
 
 function Install-Pip {
@@ -36,11 +55,7 @@ function Install {
     Write-Output "Plugin enabled."
 }
 
-if($help)
-{
-    Get-Help
-} elseif ($installer)
-{
+function Installer {
     $UninstallKeys = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
                     'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
                     'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
@@ -69,8 +84,17 @@ if($help)
             Install
         }
     }
-} elseif ($portable)
-{
+}
+
+function Portable {
+    if ($portable_path -eq "") {
+        if (!$noprompt) {
+            $portable_path = Read-Host -Prompt "Type the path to your portable Blender "
+        }
+        else {
+            throw "You need to give the path to your portable Blender (-help for help)."
+        }
+    }
     $blender_executable = [IO.Path]::Combine($portable_path, "blender.exe")
     if (-not (Test-Path $blender_executable)) 
     {
@@ -82,7 +106,39 @@ if($help)
     $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($portable_path, $blender_version, "python", "bin", "python*.exe"))).FullName
     Install-Pip
     Install
-} else 
-{
-    throw "You need to specify a target (-help for help)."
+}
+
+try {
+    if($help)
+    {
+        Get-Help
+    } elseif ($installer)
+    {
+        Installer
+    } elseif ($portable)
+    {
+        Portable
+    } else 
+    {
+        if (! $noprompt) {
+            if (ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Blender plugin for the Kitsu Publisher for Blender installer installation? (Y/N)")) {
+                Installer
+            }
+            elseif (ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Blender plugin for the Kitsu Publisher for Blender portable? (Y/N)")) {
+                Portable
+            }
+            else {
+                throw "Installation aborted."
+            }
+        }
+        else {
+            throw "You need to specify a target (-help for help)."
+        }
+    }
+} catch {
+    Write-Host -Foreground Red -Background Black ($_)
+} finally {
+    if (! $noprompt) {
+        Read-Host -Prompt "Press any key to finish"
+    }
 }
