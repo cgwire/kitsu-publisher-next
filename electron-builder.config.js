@@ -25,7 +25,8 @@ const config = {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     menuCategory: 'CGWire'
-  }
+  },
+  publish: ["github"]
 }
 
 module.exports = config
