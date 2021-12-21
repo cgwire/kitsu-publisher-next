@@ -8,10 +8,7 @@ var output = file_system.createWriteStream(
 var archive = archiver('zip', { zlib: { level: 9 } })
 
 output.on('close', function () {
-  console.log(archive.pointer() + ' total bytes')
-  console.log(
-    'archiver has been finalized and the output file descriptor has closed.'
-  )
+  console.log('Connectors zip size : ' + archive.pointer() + 'bytes.')
 })
 
 archive.on('error', function (err) {
