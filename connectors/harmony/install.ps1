@@ -32,16 +32,24 @@ function Download-Install-OpenHarmony {
     foreach ($key in $UninstallKeysHarmony) {
         $split_for_subdir = ($key.getValue("DisplayName") -split " ")
         $subdir_harmony_appdata = $split_for_subdir[0] + " " + $split_for_subdir[1] + " " + $split_for_subdir[2] + " " + $split_for_subdir[4]
-        $scripts_path_harmony_appdata = [IO.Path]::Combine($harmony_app_data_folder, $subdir_harmony_appdata, $key.getValue("VersionMajor").ToString()+"00-scripts")
-        New-Item -ItemType Directory -Force -Path $scripts_path_harmony_appdata | Out-Null
         $content = "include(`"" + [IO.Path]::Combine($open_harmony_folder, "openHarmony.js") + "`");"
         $content = $content.Replace("\", "/")
-        $file_with_content = [IO.Path]::Combine($scripts_path_harmony_appdata, "openHarmony.js")
-        New-Item $file_with_content -ItemType File -Force -Value $content | Out-Null
-        Write-Output "OpenHarmony installed in $file_with_content."
+        $package_path_harmony_appdata = [IO.Path]::Combine($harmony_app_data_folder, $subdir_harmony_appdata, $key.getValue("VersionMajor").ToString()+"00-scripts", "packages", "Kitsu Publisher Plugin")
+        Remove-Item $package_path_harmony_appdata -Recurse -ErrorAction Ignore
+        New-Item ([IO.Path]::Combine($package_path_harmony_appdata, "openHarmony.js")) -ItemType File -Force -Value $content | Out-Null
+        Write-Output "OpenHarmony installed in $package_path_harmony_appdata."
     }
 }
 
+function Install-Kitsu-Publisher-Plugin {
+    foreach ($key in $UninstallKeysHarmony) {
+        $split_for_subdir = ($key.getValue("DisplayName") -split " ")
+        $subdir_harmony_appdata = $split_for_subdir[0] + " " + $split_for_subdir[1] + " " + $split_for_subdir[2] + " " + $split_for_subdir[4]
+        $package_path_harmony_appdata = [IO.Path]::Combine($harmony_app_data_folder, $subdir_harmony_appdata, $key.getValue("VersionMajor").ToString()+"00-scripts", "packages")
+        Copy-Item -Path ([IO.Path]::Combine($PSScriptRoot, "Kitsu Publisher Plugin")) -Destination $package_path_harmony_appdata -recurse -Force
+        Write-Output "Kitsu Publisher plugin for Toon Boom Harmony installed in $package_path_harmony_appdata."
+    }
+}
 
 if($help)
 {
@@ -64,7 +72,7 @@ if($help)
         throw "Toon Boom Harmony is not installed on this computer." 
     }
     Download-Install-OpenHarmony
-
+    Install-Kitsu-Publisher-Plugin
 } else 
 {
     throw "You need to specify a target (-help for help)."

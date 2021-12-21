@@ -1,6 +1,6 @@
 'use strict'
 include('./exceptions.js')
-include('openHarmony.js')
+include('./../openHarmony.js')
 
 function HTTPDaemon(parent) {
   QTcpServer.call(this, parent)
@@ -22,7 +22,7 @@ function HTTPDaemon(parent) {
   this.routes = {}
 
   this.add_route = function (route, methods, afunction) {
-    this.routes[route] = { methods: methods, function: afunction }
+    this.routes[route] = { methods: methods, afunction: afunction }
   }
 
   this.readClient = function () {
@@ -44,7 +44,7 @@ function HTTPDaemon(parent) {
           0
         ) {
           try {
-            result = this.routes[request.url.path()]['function'](
+            result = this.routes[request.url.path()]['afunction'](
               request.method,
               request.url
             )

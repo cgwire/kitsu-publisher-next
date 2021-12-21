@@ -1,7 +1,7 @@
 HTTPServer = require('./HTTP/server.js')
 HTTPExceptions = require('./HTTP/exceptions.js')
 include('./exceptions.js')
-include('openHarmony.js')
+include('./openHarmony.js')
 
 server = new HTTPServer.HTTPDaemon()
 
