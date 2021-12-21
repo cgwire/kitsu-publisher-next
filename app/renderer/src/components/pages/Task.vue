@@ -1172,8 +1172,7 @@ export default {
     }
   },
 
-  // TODO : reenable socket
-  /*socket: {
+  socket: {
     events: {
       'preview-file:add-file'(eventData) {
         this.onPreviewAdded(eventData)
@@ -1187,7 +1186,7 @@ export default {
         this.onRemoteAcknowledge(eventData, 'unack')
       }
     }
-  },*/
+  },
 
   metaInfo() {
     let title = 'Loading task... - Kitsu'

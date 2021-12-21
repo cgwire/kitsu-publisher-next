@@ -3,8 +3,8 @@ import { sync } from 'vuex-router-sync'
 
 import Lazyload from 'vue3-lazyload'
 import VueFeather from 'vue-feather'
-//import VueWebsocket from 'vue-websocket-next'
-//import IO from 'socket.io-client'
+import VueWebsocket from 'vue-websocket-next'
+import IO from 'socket.io-client'
 
 import App from './App'
 import i18n from './lib/i18n'
@@ -16,7 +16,6 @@ const app = createApp(App)
 app.use(i18n)
 app.use(router)
 app.use(store)
-//app.use(VueWebsocket, IO, '/events')
 app.use(Lazyload)
 
 app.component(VueFeather.name, VueFeather)
@@ -41,5 +40,7 @@ app.config.globalProperties.$locale = {
     return i18n.locale
   }
 }
+
+app.use(VueWebsocket, IO, `${store.state.login.server}/events`)
 
 app.mount('#app')

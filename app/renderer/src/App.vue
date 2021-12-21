@@ -120,9 +120,8 @@ export default {
         })
       }
     }
-  }
-  // TODO : reenable socket
-  /*socket: {
+  },
+  socket: {
     events: {
       'project:new'(eventData) {
         if (!this.productionMap.get(eventData.project_id)) {
@@ -388,7 +387,7 @@ export default {
         }
       }
     }
-  }*/
+  }
 }
 </script>
 

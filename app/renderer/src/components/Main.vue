@@ -12,12 +12,11 @@ export default {
   name: 'MainWrapper',
   components: {
     Topbar
-  }
+  },
 
-  // TODO : reenable socket
-  /*mounted() {
+  mounted() {
     this.$socket.connect()
-  }*/
+  }
 }
 </script>
 
