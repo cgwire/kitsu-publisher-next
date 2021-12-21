@@ -16,7 +16,9 @@
     "test": "node tests/app.spec.js",
     "lint": "eslint --ext .js,.vue,.ts --ignore-path .eslintignore --fix .",
     "format": "prettier . --ignore-path .gitignore --write",
-    "zip_connectors": "node scripts/zip_connectors.js"
+    "zip_connectors": "node scripts/zip_connectors.js",
+    "prepublish": "cross-env MODE=production npm run build:js",
+    "publish": "electron-builder build --config electron-builder.config.js -p always"
   },
   "dependencies": {
     "apisauce": "2.1.2",
