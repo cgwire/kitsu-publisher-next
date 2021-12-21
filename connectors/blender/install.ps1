@@ -1,7 +1,8 @@
  param (
     [switch]$help = $false,
     [switch]$installer = $false,
-    [string]$portable = ""
+    [switch]$portable = $false,
+    [string]$portable_path = ""
  )
 
 function Get-Help {
@@ -44,31 +45,41 @@ if($help)
                     'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
                     'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
                     )
+    
+    $InstallLocationsBlender = [System.Collections.ArrayList]::new()
     foreach ($key in (Get-ChildItem $UninstallKeys)) {
         if ($key.getValue("DisplayName") -eq "blender" ) {
-            $blender_executable = [IO.Path]::Combine($key.getValue("InstallLocation"), "blender.exe")
-            if (Test-Path $blender_executable) 
-            {
-                $blender_version = (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')[0] 
-                $blender_version = ($blender_version -split ' ')[1] -split '\.'
-                $blender_version = $blender_version[0] + "." + $blender_version[1]
-                $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($key.getValue("InstallLocation"), $blender_version, "python", "bin", "python*.exe"))).FullName
-                Install-Pip
-                Install
-            }
+            [void]$InstallLocationsBlender.Add($key.getValue("InstallLocation"))
+        }
+    }
+
+    if ($InstallLocationsBlender.count -eq 0) {
+        throw "Blender is not installed on this computer." 
+    }
+    foreach ($InstallLocation in $InstallLocationsBlender) {
+        $blender_executable = [IO.Path]::Combine($InstallLocation, "blender.exe")
+        if (Test-Path $blender_executable) 
+        {
+            Write-Output "Found installer installation of Blender in $InstallLocation."
+            $blender_version = (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')[0] 
+            $blender_version = ($blender_version -split ' ')[1] -split '\.'
+            $blender_version = $blender_version[0] + "." + $blender_version[1]
+            $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($InstallLocation, $blender_version, "python", "bin", "python*.exe"))).FullName
+            Install-Pip
+            Install
         }
     }
 } elseif ($portable)
 {
-    $blender_executable = [IO.Path]::Combine($portable, "blender.exe")
+    $blender_executable = [IO.Path]::Combine($portable_path, "blender.exe")
     if (-not (Test-Path $blender_executable)) 
     {
-        throw [System.IO.FileNotFoundException] "Blender could not be found as a portable directory at $portable."
+        throw [System.IO.FileNotFoundException] "Blender could not be found as a portable directory at $portable_path."
     }
     $blender_version = (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')[0] 
     $blender_version = ($blender_version -split ' ')[1] -split '\.'
     $blender_version = $blender_version[0] + "." + $blender_version[1]
-    $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($portable, $blender_version, "python", "bin", "python*.exe"))).FullName
+    $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($portable_path, $blender_version, "python", "bin", "python*.exe"))).FullName
     Install-Pip
     Install
 } else 

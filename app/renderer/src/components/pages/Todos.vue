@@ -426,8 +426,7 @@ export default {
     }
   },
 
-  // TODO : reenable socket
-  /*socket: {
+  socket: {
     events: {
       'task:assign'(eventData) {
         this.onAssignation(eventData)
@@ -437,7 +436,7 @@ export default {
         this.onAssignation(eventData)
       }
     }
-  },*/
+  },
 
   metaInfo() {
     return {

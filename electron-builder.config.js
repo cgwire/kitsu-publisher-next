@@ -13,7 +13,7 @@ const config = {
   ],
   linux: {
     target: ['AppImage', 'deb', 'rpm', 'tar.gz', 'snap'],
-    category: 'Graphics'
+    category: 'Graphics',
   },
   win: {
     target: ['nsis', 'portable', 'zip', 'msi']
@@ -25,6 +25,10 @@ const config = {
     oneClick: false,
     allowToChangeInstallationDirectory: true,
     menuCategory: 'CGWire'
+  },
+  publish: ["github"],
+  snap: {
+    publish: "github"
   }
 }
 

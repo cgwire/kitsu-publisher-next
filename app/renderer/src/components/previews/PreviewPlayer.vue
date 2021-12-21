@@ -1526,10 +1526,9 @@ export default {
         this.currentIndex = newIndex + 1
       })
     }
-  }
+  },
 
-  // TODO : reenable socket
-  /*socket: {
+  socket: {
     events: {
       'preview-file:annotation-update'(eventData) {
         if (
@@ -1551,7 +1550,7 @@ export default {
         }
       }
     }
-  }*/
+  }
 }
 </script>
 

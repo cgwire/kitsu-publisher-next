@@ -994,10 +994,9 @@ export default {
     onTimeUpdated(time) {
       this.currentTime = time
     }
-  }
+  },
 
-  // TODO : reenable socket
-  /*socket: {
+  socket: {
     events: {
       'preview-file:add-file'(eventData) {
         this.onPreviewAdded(eventData)
@@ -1026,7 +1025,7 @@ export default {
         this.onRemoteAcknowledge(eventData, 'unack')
       }
     }
-  }*/
+  }
 }
 </script>
 

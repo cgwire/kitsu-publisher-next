@@ -141,8 +141,7 @@ export default {
 
     onLogoutClicked() {
       this.logout((err, success) => {
-        // TODO : reenable socket
-        //this.$socket.disconnect()
+        this.$socket.disconnect()
         if (err) console.error(err)
         this.toggleUserMenu()
         if (success) this.$router.push('/login')
