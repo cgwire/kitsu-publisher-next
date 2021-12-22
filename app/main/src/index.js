@@ -9,6 +9,7 @@ import {
 import { join } from 'path'
 import { URL } from 'url'
 const open = require('open')
+const windowStateKeeper = require('electron-window-state');
 
 import Store from 'electron-store'
 const store = new Store()
@@ -70,16 +71,24 @@ const createWindow = async () => {
     callback({ cancel: false, requestHeaders: details.requestHeaders })
   })
 
+  let mainWindowState = windowStateKeeper({
+    defaultWidth: 1024,
+    defaultHeight: 768,
+  })
+
   mainWindow = new BrowserWindow({
     show: false, // Use 'ready-to-show' event to show window
     webPreferences: {
-      nativeWindowOpen: true,
       preload: join(__dirname, '../../preload/dist/index.cjs'),
-      nodeIntegration: false,
-      contextIsolation: true,
-      webSecurity: false // TODO : REENABLE TO ENABLE CORS
-    }
+      webSecurity: false, // TODO : REENABLE TO ENABLE CORS
+    },
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
   })
+
+  mainWindowState.manage(mainWindow);
 
   const old_menu = Menu.getApplicationMenu()
   const new_menu = old_menu?.items.filter((item) => item.role !== 'help')

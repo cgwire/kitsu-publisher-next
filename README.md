@@ -100,7 +100,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 - Portable application:
 
-  - Double-click on the executable (Kitsu-publisher-{version].exe}) to run the app.
+  - Double-click on the executable (Kitsu-publisher-{version}.exe) to run the app.
 
 - Zip portable application:
 
@@ -116,9 +116,9 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 #### Pre-requisites
 
-You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest). After that, you have to unzip the archive (with right-click "Extract All" on Windows or gunzip on Linux/macOS for example).
+You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest). After that, you have to unzip the archive (with right-click "Extract All" on Windows or unzip on Linux/macOS for example).
 
-#### Blender
+#### Blender (version>2.80)
 
 - You need to go inside the blender directory.
 
