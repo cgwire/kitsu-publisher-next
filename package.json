@@ -12,13 +12,13 @@
     "prebuild:all": "cross-env MODE=production npm run build:js",
     "build:all": "electron-builder build --config electron-builder.config.js",
     "build:js": "node scripts/build.js",
+    "zip_connectors": "node scripts/zip_connectors.js",
+    "prebuild_publish": "cross-env MODE=production npm run build:js",
+    "build_publish": "electron-builder build --config electron-builder.config.js -p always",
     "pretest": "npm run build:js",
     "test": "node tests/app.spec.js",
     "lint": "eslint --ext .js,.vue,.ts --ignore-path .eslintignore --fix .",
-    "format": "prettier . --ignore-path .gitignore --write",
-    "zip_connectors": "node scripts/zip_connectors.js",
-    "prepublish": "cross-env MODE=production npm run build:js",
-    "publish": "electron-builder build --config electron-builder.config.js -p always"
+    "format": "prettier . --ignore-path .gitignore --write"
   },
   "dependencies": {
     "apisauce": "2.1.2",
