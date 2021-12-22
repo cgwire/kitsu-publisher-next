@@ -25,6 +25,7 @@
     "color-hash": "2.0.1",
     "color-string": "1.6.0",
     "electron-store": "8.0.1",
+    "electron-window-state": "5.0.3",
     "fabric": "4.6.0",
     "marked": "3.0.4",
     "moment-timezone": "0.5.34",
