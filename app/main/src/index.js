@@ -72,8 +72,8 @@ const createWindow = async () => {
   })
 
   let mainWindowState = windowStateKeeper({
-    defaultWidth: 800,
-    defaultHeight: 800,
+    defaultWidth: 1024,
+    defaultHeight: 768,
   })
 
   mainWindow = new BrowserWindow({
