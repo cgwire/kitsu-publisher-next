@@ -1,10 +1,27 @@
 param (
     [switch]$help = $false,
-    [switch]$installer = $false
+    [switch]$installer = $false,
+    [switch]$noprompt = $false
  )
 
 $open_harmony_zip_url = "https://github.com/cfourney/OpenHarmony/archive/refs/tags/0.10.3.zip"
 $harmony_app_data_folder = [IO.Path]::Combine($env:APPDATA, "Toon Boom Animation")
+
+function ConvertTo-Boolean {
+    param($Variable)
+    if ($Variable.ToLower() -eq "y") {
+        $true
+    }
+    if ($Variable.ToLower() -eq "n") {
+        $false
+    }
+    if ($Variable.ToLower() -eq "yes") {
+        $true
+    }
+    if ($Variable.ToLower() -eq "no") {
+        $false
+    }
+}
 
 function Get-Help {
     # Display Help
@@ -16,6 +33,8 @@ function Get-Help {
     Write-Output "  Print this help."
     Write-Output "-installer"
     Write-Output "  Install the plugin for an installer installation."
+    Write-Output "-noprompt"
+    Write-Output "  Disable the ending prompt."
 }
 
 function Download-Install-OpenHarmony {
@@ -51,16 +70,12 @@ function Install-Kitsu-Publisher-Plugin {
     }
 }
 
-if($help)
-{
-    Get-Help
-} elseif ($installer)
-{
+function Install-All {
     $UninstallKeys = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
-                    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
-                    'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
-                    )
-    
+        'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
+        'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
+        )
+
     $UninstallKeysHarmony = [System.Collections.ArrayList]::new()
     foreach ($key in (Get-ChildItem $UninstallKeys)) {
         if ($key.getValue("DisplayName") -Like "Toon Boom Harmony *" ) {
@@ -73,7 +88,33 @@ if($help)
     }
     Download-Install-OpenHarmony
     Install-Kitsu-Publisher-Plugin
-} else 
-{
-    throw "You need to specify a target (-help for help)."
+}
+
+try {
+    if($help)
+    {
+        Get-Help
+    } elseif ($installer)
+    {
+        Install-All
+    } else 
+    {
+        if (! $noprompt) {
+            if (ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Toon Boom Harmony plugin for the Kitsu Publisher? (Y/N)")) {
+                Install-All
+            }
+            else {
+                throw "Installation aborted."
+            }
+        }
+        else {
+            throw "You need to specify a target (-help for help)."
+        }
+    }
+} catch {
+    Write-Host -Foreground Red -Background Black ($_)
+} finally {
+    if (! $noprompt) {
+        Read-Host -Prompt "Press any key to finish"
+    }
 }
