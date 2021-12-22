@@ -24,7 +24,9 @@ Work in progress:
 
 ### Installation of the Kitsu Publisher
 
-You need to download (or to build if you want to : see [Development Environment](#development-environment)) your preferred installer/package/portable for the app corresponding to your OS in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest) (coming soon).
+#### Pre-requisites
+
+You need to download (or to build if you want to : see [Development Environment](#development-environment)) your preferred installer/package/portable for the app corresponding to your OS in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest).
 
 All comands have the keyword {version} in the filenames, you need to replace the version with the current version of the Kitsu Publisher.
 
@@ -35,7 +37,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
   - To install the package:
 
     ```console
-    dpkg -i kitsu-publisher-{version}_amd64.deb
+    dpkg -i kitsu-publisher_{version}_amd64.deb
     ```
 
   - The package is now in your applications and in your $PATH.
@@ -45,7 +47,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
   - To install the package:
 
     ```console
-    rpm -i kitsu-publisher-{version}_x86_64.deb
+    rpm -i kitsu-publisher_{version}_x86_64.rpm
     ```
 
   - The package is now in your applications and in your $PATH.
@@ -55,7 +57,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
   - To install the package:
 
     ```console
-    snap install kitsu-publisher-{version}_amd64.snap --dangerous
+    snap install kitsu-publisher_{version}_amd64.snap --dangerous
     ```
 
   - The package is now in your applications and in your $PATH.
@@ -84,27 +86,27 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 #### On Windows
 
-- NSIS Installer (Kitsu publisher Setup {version}.exe):
+- NSIS Installer:
 
-  - Double-click on the installer and follow the instructions.
+  - Double-click on the installer (Kitsu-publisher-Setup-{version}.exe) and follow the instructions.
 
   - The package is now in your applications.
 
 - Msi installer:
 
-  - Double-click on the installer and it will install directly the app.
+  - Double-click on the installer (Kitsu-publisher-{version}-ia32.msi) and it will install directly the app.
 
   - The package is now in your applications.
 
-- Portable application (Kitsu publisher {version}.exe):
+- Portable application:
 
-  - Double-click on the executable to run the app.
+  - Double-click on the executable (Kitsu-publisher-{version].exe}) to run the app.
 
 - Zip portable application:
 
-  - Extract the zip.
+  - Extract the zip (Kitsu-publisher-{version}-ia32-win.zip) by right-clicking and select "Extract All" and then follow the instructions.
 
-  - Double click on the executable inside the extracted folder to run the app.
+  - Double click on the executable (Kitsu publisher.exe) inside the extracted folder to run the app.
 
 #### On macOS
 
@@ -112,7 +114,9 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 ### Installation of the DCCs connectors
 
-You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest). You have to unzip the archive.
+#### Pre-requisites
+
+You need to download the connectors-{version}.zip archive in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest). After that, you have to unzip the archive (with right-click "Extract All" on Windows or gunzip on Linux/macOS for example).
 
 #### Blender
 
@@ -120,16 +124,12 @@ You need to download the connectors-{version}.zip archive in the [releases](http
 
 - On Windows (with PowerShell):
 
-  - If Blender is installed with an installer (it supports multiple Blender installations):
+  - If you want to be guided through the installation of the plugin, you have to right-click on the script install.ps1 and select "Run with PowerShell" to run the script in prompt mode. If you have multiple installations from installer of Blender it will install the plugin for all the installations (not if you select a portable Blender).
+
+  - If you want to run the script with PowerShell command line it's possible, look at the help with:
 
     ```console
-    .\install.ps1 -installer
-    ```
-
-  - If Blender is a portable app:
-
-    ```console
-    .\install.ps1 -portable PATH_TO_YOUR_PORTABLE_BLENDER
+    .\install.ps1 -help
     ```
 
 - On Linux:
@@ -162,10 +162,12 @@ You need to download the connectors-{version}.zip archive in the [releases](http
 
 - On Windows (with PowerShell):
 
-  - If Toon Boom Harmony is installed with an installer (it supports multiple Toon Boom Harmony installations):
+  - If you want to be guided through the installation of the plugin, you have to right-click on the script install.ps1 and select "Run with PowerShell" to run the script in prompt mode. If you have multiple installations from installer of Toon Boom Harmony it will install the plugin for all the installations.
+
+  - If you want to run the script with PowerShell command line it's possible, look at the help with:
 
     ```console
-    .\install.ps1 -installer
+    .\install.ps1 -help
     ```
 
 - On macOS:
