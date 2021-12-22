@@ -8,7 +8,7 @@ var output = file_system.createWriteStream(
 var archive = archiver('zip', { zlib: { level: 9 } })
 
 output.on('close', function () {
-  console.log('Connectors zip size : ' + archive.pointer() + 'bytes.')
+  console.log('Connectors zip size : ' + archive.pointer() + ' bytes.')
 })
 
 archive.on('error', function (err) {
