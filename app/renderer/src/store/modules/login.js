@@ -77,7 +77,9 @@ const actions = {
             polling: {
               extraHeaders: {
                 Authorization: `Bearer ${state.access_token}`,
-                'User-Agent': `Kitsu publisher ${window.electron.store.get('appVersion')}`
+                'User-Agent': `Kitsu publisher ${window.electron.store.get(
+                  'appVersion'
+                )}`
               }
             }
           }

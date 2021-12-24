@@ -34,28 +34,28 @@ const api = {
       socketio = io(address, opts)
     },
     destroy: () => {
-      if (socketio) {
+      if (socketio !== null) {
         socketio.disconnect()
       }
       socketio = null
     },
     on: (event, fun) => {
-      if (socketio) {
+      if (socketio !== null) {
         socketio.on(event, fun)
       }
     },
     off: (event, fun) => {
-      if (socketio) {
+      if (socketio !== null) {
         socketio.off(event, fun)
       }
     },
     connect: () => {
-      if (socketio) {
+      if (socketio !== null) {
         socketio.connect()
       }
     },
     disconnect: () => {
-      if (socketio) {
+      if (socketio !== null) {
         socketio.disconnect()
       }
     }
