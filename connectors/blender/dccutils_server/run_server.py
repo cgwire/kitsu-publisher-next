@@ -20,49 +20,49 @@ def home():
     return {"Hello": "FastAPI"}
 
 
-@app.get("/get_cameras")
+@app.get("/get-cameras")
 def get_cameras():
     return [camera[0] for camera in context.list_cameras()]
 
 
-@app.get("/set_camera")
+@app.get("/set-camera")
 def set_camera(camera: str):
     return context.set_camera(camera)
 
 
-@app.get("/get_current_scene")
+@app.get("/get-current-scene")
 def get_current_scene():
     return context.get_current_scene()
 
 
-@app.get("/get_current_color_space")
+@app.get("/get-current-color-space")
 def get_current_color_space():
     return context.get_current_color_space()
 
 
-@app.get("/set_current_color_space")
+@app.get("/set-current-color-space")
 def set_current_color_space(color_space: str):
     return context.set_current_color_space(color_space)
 
 
-@app.get("/get_renderers")
+@app.get("/get-renderers")
 def get_renderers():
     return context.get_available_renderers()
 
 
 if is_blender:
 
-    @app.get("/get_blender_version")
+    @app.get("/get-blender-version")
     def get_blender_version():
         return context.get_blender_version()
 
 
-@app.get("/get_extensions")
+@app.get("/get-extensions")
 def get_extensions(is_video: bool = False):
     return context.list_extensions(is_video)
 
 
-@app.get("/take_viewport_screenshot")
+@app.get("/take-viewport-screenshot")
 def take_viewport_screenshot(extension: str, output_path: str = ""):
     if not output_path:
         extension_str = ""
@@ -85,7 +85,7 @@ def take_viewport_screenshot(extension: str, output_path: str = ""):
     return {"file": output_path}
 
 
-@app.get("/take_render_screenshot")
+@app.get("/take-render-screenshot")
 def take_render_screenshot(
     renderer: str, extension: str, output_path: str = "", use_colorspace: bool = False
 ):
@@ -110,7 +110,7 @@ def take_render_screenshot(
     return {"file": output_path}
 
 
-@app.get("/take_viewport_animation")
+@app.get("/take-viewport-animation")
 def take_viewport_animation(output_path: str, extension: str):
     if not output_path:
         extension_str = ""
@@ -133,7 +133,7 @@ def take_viewport_animation(output_path: str, extension: str):
     return {"file": output_path}
 
 
-@app.get("/take_render_animation")
+@app.get("/take-render-animation")
 def take_render_animation(
     renderer: str, extension: str, output_path: str = "", use_colorspace: bool = False
 ):

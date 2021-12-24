@@ -11,15 +11,15 @@ server.add_route('/', ['GET'], function (method, url) {
   }
 })
 
-server.add_route('/get_cameras', ['GET'], function (method, url) {
+server.add_route('/get-cameras', ['GET'], function (method, url) {
   return node.getNodes(['CAMERA'])
 })
 
-server.add_route('/set_camera', ['GET'], function (method, url) {
+server.add_route('/set-camera', ['GET'], function (method, url) {
   throw new MissingQueryError('missing query')
 })
 
-server.add_route('/get_renderers', ['GET'], function (method, url) {
+server.add_route('/get-renderers', ['GET'], function (method, url) {
   nodes = node.getNodes(['DISPLAY'])
   nodes_str = []
   for (var n = 0; n < nodes.length; n++) {
@@ -28,13 +28,13 @@ server.add_route('/get_renderers', ['GET'], function (method, url) {
   return nodes_str
 })
 
-server.add_route('/get_extensions', ['GET'], function (method, url) {
+server.add_route('/get-extensions', ['GET'], function (method, url) {
   return ['true', '1', 'yes'].indexOf(url.queryItemValue('is_video')) >= 0
     ? ['.mov']
     : ['.png']
 })
 
-server.add_route('/take_render_screenshot', ['GET'], function (method, url) {
+server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
   renderer = url.queryItemValue('renderer')
   if (!renderer) {
     throw new HTTPExceptions.MissingQueryError(
@@ -77,7 +77,7 @@ server.add_route('/take_render_screenshot', ['GET'], function (method, url) {
   }
 })
 
-server.add_route('/take_render_animation', ['GET'], function (method, url) {
+server.add_route('/take-render-animation', ['GET'], function (method, url) {
   renderer = url.queryItemValue('renderer')
   if (!renderer) {
     throw new HTTPExceptions.MissingQueryError(
