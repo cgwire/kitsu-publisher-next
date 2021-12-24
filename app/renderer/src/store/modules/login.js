@@ -72,6 +72,16 @@ const actions = {
         }
         callback(err, false)
       } else {
+        window.electron.socketio.create(`${state.server}/events`, {
+          transportOptions: {
+            polling: {
+              extraHeaders: {
+                Authorization: `Bearer ${state.access_token}`,
+                'User-Agent': `Kitsu publisher ${window.electron.store.get('appVersion')}`
+              }
+            }
+          }
+        })
         commit(LOGIN_SUCCESS)
         callback(null, true)
       }

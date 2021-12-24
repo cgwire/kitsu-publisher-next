@@ -4,7 +4,6 @@ import { sync } from 'vuex-router-sync'
 import Lazyload from 'vue3-lazyload'
 import VueFeather from 'vue-feather'
 import VueWebsocket from 'vue-websocket-next'
-import IO from 'socket.io-client'
 
 import App from './App'
 import i18n from './lib/i18n'
@@ -41,6 +40,19 @@ app.config.globalProperties.$locale = {
   }
 }
 
-app.use(VueWebsocket, IO, `${store.state.login.server}/events`)
+if (store.state.login.server) {
+  window.electron.socketio.create(`${store.state.login.server}/events`, {
+    transportOptions: {
+      polling: {
+        extraHeaders: {
+          Authorization: `Bearer ${store.state.login.access_token}`,
+          'User-Agent': `Kitsu publisher ${window.electron.store.get('appVersion')}`
+        }
+      }
+    }
+  })
+}
+
+app.use(VueWebsocket, null, window.electron.socketio)
 
 app.mount('#app')

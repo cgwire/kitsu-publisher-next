@@ -1,16 +1,16 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { readFileSync } from 'fs'
+const io = require('socket.io-client')
 
 import Store from 'electron-store'
 const store = new Store()
+let socketio = null
 
 const apiKey = 'electron'
 /**
  * @see https://github.com/electron/electron/issues/21437#issuecomment-573522360
  */
 const api = {
-  versions: process.versions,
-  //appVersion: app.getVersion(),
   store: {
     get: (key) => {
       return store.get(key)
@@ -28,7 +28,38 @@ const api = {
     }
   },
   toggleDarkTheme: (darkTheme) =>
-    ipcRenderer.invoke('dark-theme:toggle', darkTheme)
+    ipcRenderer.invoke('dark-theme:toggle', darkTheme),
+  socketio: {
+    create: (address, opts) => {
+      socketio = io(address, opts)
+    },
+    destroy: () => {
+      if (socketio) {
+        socketio.disconnect()
+      }
+      socketio = null
+    },
+    on: (event, fun) => {
+      if (socketio) {
+        socketio.on(event, fun)
+      }
+    },
+    off: (event, fun) => {
+      if (socketio) {
+        socketio.off(event, fun)
+      }
+    },
+    connect: () => {
+      if (socketio) {
+        socketio.connect()
+      }
+    },
+    disconnect: () => {
+      if (socketio) {
+        socketio.disconnect()
+      }
+    }
+  }
 }
 
 /**
