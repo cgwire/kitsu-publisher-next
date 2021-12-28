@@ -56,3 +56,4 @@ build/
 app/main/dist/
 app/renderer/dist/
 app/preload/dist/
+connectors/**/dccutils_server.egg-info
