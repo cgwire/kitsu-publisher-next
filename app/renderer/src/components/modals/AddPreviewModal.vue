@@ -297,6 +297,7 @@ export default {
 <style lang="scss" scoped>
 .icon-right {
   float: right;
+  cursor: pointer;
 }
 
 .modal-content {
