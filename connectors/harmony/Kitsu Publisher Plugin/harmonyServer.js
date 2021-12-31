@@ -7,12 +7,19 @@ server = new HTTPServer.HTTPDaemon()
 
 server.add_route('/', ['GET'], function (method, url) {
   return {
-    Hello: 'World'
+    dcc_name: 'Toon Boom Harmony',
+    dcc_version: $.app.version,
+    current_project: $.scene.path._path
   }
 })
 
 server.add_route('/get-cameras', ['GET'], function (method, url) {
-  return node.getNodes(['CAMERA'])
+  nodes = node.getNodes(['CAMERA'])
+  nodes_str = []
+  for (var n = 0; n < nodes.length; n++) {
+    nodes_str.push(node.getName(nodes[n]))
+  }
+  return nodes_str
 })
 
 server.add_route('/set-camera', ['GET'], function (method, url) {
@@ -23,15 +30,15 @@ server.add_route('/get-renderers', ['GET'], function (method, url) {
   nodes = node.getNodes(['DISPLAY'])
   nodes_str = []
   for (var n = 0; n < nodes.length; n++) {
-    nodes_str.push(node.getName(nodes[n]))
+    nodes_str.push([node.getName(nodes[n]), node.getName(nodes[n])])
   }
   return nodes_str
 })
 
 server.add_route('/get-extensions', ['GET'], function (method, url) {
   return ['true', '1', 'yes'].indexOf(url.queryItemValue('is_video')) >= 0
-    ? ['.mov']
-    : ['.png']
+    ? [[".mov", "QUICKTIME"]]
+    : [[".png", "PNG"]]
 })
 
 server.add_route('/take-render-screenshot', ['GET'], function (method, url) {

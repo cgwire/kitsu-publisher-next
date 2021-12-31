@@ -1,4 +1,5 @@
 'use strict'
+
 include('./exceptions.js')
 include('./../openHarmony.js')
 
@@ -6,7 +7,10 @@ function HTTPDaemon(parent) {
   QTcpServer.call(this, parent)
 
   this.start = function (port) {
+    $.log('Server will start on port ' + String(port))
     this.listen(QHostAddress.Any, port)
+    $.log('INFO:  Server is listening')
+    $.log('INFO:  Server is running on http://127.0.0.1:' + String(port))
   }
 
   this.disabled = false
@@ -31,12 +35,15 @@ function HTTPDaemon(parent) {
     }
 
     if (this.socket.canReadLine()) {
-      status_line = this.socket.readLine().split(32)
+      status_line = this.socket.readLine().toString().trim()
+      status_line_split = status_line.split(' ')
       request = {
-        method: status_line[0].toString(),
-        url: new QUrl(status_line[1].toString()),
-        protocol: status_line[2].toString()
+        method: status_line_split[0],
+        url: new QUrl(status_line_split[1]),
+        protocol: status_line_split[2]
       }
+
+      log = 'INFO:  \"' + status_line + '\" '
 
       if (this.routes.hasOwnProperty(request.url.path())) {
         if (
@@ -49,39 +56,39 @@ function HTTPDaemon(parent) {
               request.url
             )
             this.socket.write(new QByteArray('HTTP/1.1 200 Ok\r\n'))
+            log = log + '200 OK'
           } catch (e) {
             result = { detail: e.name + ' : ' + e.message }
             if (e instanceof MissingQueryError) {
               this.socket.write(new QByteArray('HTTP/1.1 400 Bad Request\r\n'))
+              log = log + '400 Bad Request'
             } else {
               this.socket.write(
                 new QByteArray('HTTP/1.1 500 Internal Server Error\r\n')
               )
+              log = log + '500 Internal Server Error'
             }
           }
-          this.socket.write(
-            new QByteArray(
-              'Content-Type: application/json; charset="utf-8"\r\n'
-            )
-          )
-          this.socket.write(new QByteArray('\r\n'))
-          this.socket.write(new QByteArray(JSON.stringify(result)))
         } else {
           this.socket.write(new QByteArray('HTTP/1.1 501 Not Implemented\r\n'))
-          this.socket.write(
-            new QByteArray('Content-Type: text/html; charset="utf-8"\r\n')
-          )
-          this.socket.write(new QByteArray('\r\n'))
-          this.socket.write(new QByteArray('<h1>Not Implemented</h1>\n'))
+          log = log + '501 Not Implemented'
+          result = {detail: 'Not Implemented'}
         }
       } else {
         this.socket.write(new QByteArray('HTTP/1.1 404 Not Found\r\n'))
-        this.socket.write(
-          new QByteArray('Content-Type: text/html; charset="utf-8"\r\n')
-        )
-        this.socket.write(new QByteArray('\r\n'))
-        this.socket.write(new QByteArray('<h1>Not Found</h1>\n'))
+        log = log + '404 Not Found'
+        result = {detail: 'Not Found'}
       }
+
+      this.socket.write(
+        new QByteArray(
+          'Content-Type: application/json; charset="utf-8"\r\n'
+        )
+      )
+      this.socket.write(new QByteArray('\r\n'))
+      this.socket.write(new QByteArray(JSON.stringify(result)))
+
+      $.log(log)
 
       this.socket.close()
       if (this.socket.state() == QAbstractSocket.UnconnectedState) {
