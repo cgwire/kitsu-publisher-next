@@ -37,8 +37,8 @@ server.add_route('/get-renderers', ['GET'], function (method, url) {
 
 server.add_route('/get-extensions', ['GET'], function (method, url) {
   return ['true', '1', 'yes'].indexOf(url.queryItemValue('is_video')) >= 0
-    ? [[".mov", "QUICKTIME"]]
-    : [[".png", "PNG"]]
+    ? [['.mov', 'QUICKTIME']]
+    : [['.png', 'PNG']]
 })
 
 server.add_route('/take-render-screenshot', ['GET'], function (method, url) {

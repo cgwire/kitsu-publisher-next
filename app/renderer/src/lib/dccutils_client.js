@@ -43,7 +43,10 @@ class DCCClient {
   getCameras() {
     return this.get('get-cameras').then((data) => {
       this.cameras = data
-      this.camera_selected = this.cameras[0]
+
+      if (this.cameras.length > 0) {
+        this.camera_selected = this.cameras[0]
+      }
       return Promise.resolve(data)
     })
   }
@@ -73,8 +76,12 @@ class DCCClient {
   getRenderers() {
     return this.get('get-renderers').then((data) => {
       this.renderers = data
-      this.renderer_selected =
-        this.dcc_name == 'Blender' ? 'BLENDER_WORKBENCH' : this.renderers[0][1]
+      if (this.renderers.length > 0) {
+        this.renderer_selected =
+          this.dcc_name == 'Blender'
+            ? 'BLENDER_WORKBENCH'
+            : this.renderers[0][1]
+      }
       return Promise.resolve(data)
     })
   }
@@ -83,10 +90,14 @@ class DCCClient {
     return this.get('get-extensions', { is_video: is_video }).then((data) => {
       if (is_video) {
         this.video_extensions = data
-        this.video_extension_selected = this.video_extensions[0][1]
+        if (this.video_extensions.length > 0) {
+          this.video_extension_selected = this.video_extensions[0][1]
+        }
       } else {
         this.image_extensions = data
-        this.image_extension_selected = this.image_extensions[0][1]
+        if (this.image_extensions.length > 0) {
+          this.image_extension_selected = this.image_extensions[0][1]
+        }
       }
     })
   }
@@ -149,10 +160,10 @@ class DCCClientManager {
       new_client
         .getInformation()
         .then(() => {
-          new_client.getCameras()
-          new_client.getRenderers()
-          new_client.getExtensions(true)
-          new_client.getExtensions(false)
+          new_client.getCameras().then()
+          new_client.getRenderers().then()
+          new_client.getExtensions(true).then()
+          new_client.getExtensions(false).then()
           this.connectedClients.push(new_client)
         })
         .catch(() => {

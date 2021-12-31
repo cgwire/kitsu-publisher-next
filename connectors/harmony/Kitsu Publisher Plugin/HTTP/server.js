@@ -43,7 +43,7 @@ function HTTPDaemon(parent) {
         protocol: status_line_split[2]
       }
 
-      log = 'INFO:  \"' + status_line + '\" '
+      log = 'INFO:  "' + status_line + '" '
 
       if (this.routes.hasOwnProperty(request.url.path())) {
         if (
@@ -72,18 +72,16 @@ function HTTPDaemon(parent) {
         } else {
           this.socket.write(new QByteArray('HTTP/1.1 501 Not Implemented\r\n'))
           log = log + '501 Not Implemented'
-          result = {detail: 'Not Implemented'}
+          result = { detail: 'Not Implemented' }
         }
       } else {
         this.socket.write(new QByteArray('HTTP/1.1 404 Not Found\r\n'))
         log = log + '404 Not Found'
-        result = {detail: 'Not Found'}
+        result = { detail: 'Not Found' }
       }
 
       this.socket.write(
-        new QByteArray(
-          'Content-Type: application/json; charset="utf-8"\r\n'
-        )
+        new QByteArray('Content-Type: application/json; charset="utf-8"\r\n')
       )
       this.socket.write(new QByteArray('\r\n'))
       this.socket.write(new QByteArray(JSON.stringify(result)))
@@ -92,13 +90,13 @@ function HTTPDaemon(parent) {
 
       this.socket.close()
       if (this.socket.state() == QAbstractSocket.UnconnectedState) {
-        //delete this.socket
+        this.socket.deleteLater()
       }
     }
   }
 
   this.discardClient = function () {
-    //this.socket.deleteLater()
+    this.socket.deleteLater()
   }
 
   this.incomingConnection = function (socket) {
