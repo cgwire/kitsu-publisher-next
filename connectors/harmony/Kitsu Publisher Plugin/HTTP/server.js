@@ -6,11 +6,21 @@ include('./../openHarmony.js')
 function HTTPDaemon(parent) {
   QTcpServer.call(this, parent)
 
-  this.start = function (port) {
-    $.log('Server will start on port ' + String(port))
-    this.listen(QHostAddress.Any, port)
-    $.log('INFO:  Server is listening')
-    $.log('INFO:  Server is running on http://127.0.0.1:' + String(port))
+  this.start = function (portIntervalMin, portIntervalMax) {
+    if (portIntervalMin === undefined) {
+      portIntervalMin = 10000
+    }
+    if (portIntervalMax === undefined) {
+      portIntervalMax = 10099
+    }
+    for (var port=portIntervalMin; port <= portIntervalMax; port ++ ) {
+      if (this.listen(QHostAddress.Any, port)) {
+        $.log('INFO:  Server is listening')
+        $.log('INFO:  Server is running on http://127.0.0.1:' + String(port))
+        return 
+      }
+    }
+    $.log('Cannot find a free port in the range [' + String(portIntervalMin) + '...' + String(portIntervalMax) + ']')
   }
 
   this.disabled = false

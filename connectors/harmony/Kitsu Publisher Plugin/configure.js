@@ -5,7 +5,7 @@ function configure(packageFolder, packageName) {
   if (about.isPaintMode()) return
 
   harmonyServer = require('./harmonyServer.js')
-  harmonyServer.server.start(10102)
+  harmonyServer.server.start()
 }
 
 exports.configure = configure
