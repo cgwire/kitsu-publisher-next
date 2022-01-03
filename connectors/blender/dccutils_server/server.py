@@ -19,7 +19,10 @@ def server_start(port_range=range(10000, 10100)):
     if port:
         uvicorn.run(app, host="127.0.0.1", port=port)
     else:
-        print("Cannot find a free port in the range [%i...%i]" % (port_range[0], port_range[len(port_range-1)]))
+        print(
+            "Cannot find a free port in the range [%i...%i]"
+            % (port_range[0], port_range[len(port_range - 1)])
+        )
 
 
 def server_start_threading(

@@ -38,7 +38,7 @@
             <icon
               name="refresh-cw"
               :width="20"
-              height="20"
+              :height="20"
               @click="DCCClientManager.refreshConnectedClients()"
             />
           </span>
@@ -50,7 +50,7 @@
             <icon
               name="refresh-cw"
               :width="20"
-              height="20"
+              :height="20"
               @click="DCCClientManager.refreshConnectedClients()"
             />
           </span>

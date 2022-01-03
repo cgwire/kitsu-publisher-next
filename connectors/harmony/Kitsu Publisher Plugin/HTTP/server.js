@@ -13,14 +13,20 @@ function HTTPDaemon(parent) {
     if (portIntervalMax === undefined) {
       portIntervalMax = 10099
     }
-    for (var port=portIntervalMin; port <= portIntervalMax; port ++ ) {
+    for (var port = portIntervalMin; port <= portIntervalMax; port++) {
       if (this.listen(QHostAddress.Any, port)) {
         $.log('INFO:  Server is listening')
         $.log('INFO:  Server is running on http://127.0.0.1:' + String(port))
-        return 
+        return
       }
     }
-    $.log('Cannot find a free port in the range [' + String(portIntervalMin) + '...' + String(portIntervalMax) + ']')
+    $.log(
+      'Cannot find a free port in the range [' +
+        String(portIntervalMin) +
+        '...' +
+        String(portIntervalMax) +
+        ']'
+    )
   }
 
   this.disabled = false

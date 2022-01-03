@@ -78,9 +78,7 @@ class DCCClient {
       this.renderers = data
       if (this.renderers.length > 0) {
         this.rendererSelected =
-          this.DCCName == 'Blender'
-            ? 'BLENDER_WORKBENCH'
-            : this.renderers[0][1]
+          this.DCCName == 'Blender' ? 'BLENDER_WORKBENCH' : this.renderers[0][1]
       }
       return Promise.resolve(data)
     })
