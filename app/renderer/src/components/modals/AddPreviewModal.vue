@@ -31,15 +31,15 @@
 
         <hr />
 
-        <h3 v-if="dcc_client_manager.connectedClients.length > 0" class="title">
-          {{ dcc_client_manager.connectedClients.length }}
+        <h3 v-if="DCCClientManager.connectedClients.length > 0" class="title">
+          {{ DCCClientManager.connectedClients.length }}
           {{ $t('tasks.dcc_connectors') }}
           <span class="icon icon-right">
             <icon
               name="refresh-cw"
               :width="20"
               height="20"
-              @click="dcc_client_manager.refreshConnectedClients()"
+              @click="DCCClientManager.refreshConnectedClients()"
             />
           </span>
         </h3>
@@ -51,40 +51,40 @@
               name="refresh-cw"
               :width="20"
               height="20"
-              @click="dcc_client_manager.refreshConnectedClients()"
+              @click="DCCClientManager.refreshConnectedClients()"
             />
           </span>
         </h3>
 
         <div
-          v-for="(dcc_client, index) in dcc_client_manager.connectedClients"
+          v-for="(DCCClient, index) in DCCClientManager.connectedClients"
           :key="index"
           class="box content"
         >
           <h3 class="title">
-            {{ dcc_client.dcc_name }} v{{ dcc_client.dcc_version }}
+            {{ DCCClient.DCCName }} v{{ DCCClient.DCCVersion }}
           </h3>
 
-          <h5 v-if="dcc_client.current_project === ''" class="title">
+          <h5 v-if="DCCClient.currentProject === ''" class="title">
             {{ $t('tasks.no_opened_project') }}
           </h5>
 
           <h5 v-else class="title">
             {{ $t('tasks.currently_opened_project') }}
-            {{ dcc_client.current_project }}
+            {{ DCCClient.currentProject }}
           </h5>
 
           <p>
             <span class="select">
               <select
                 class="select-input"
-                @change="(event) => dcc_client.setCamera(event.target.value)"
+                @change="(event) => DCCClient.setCamera(event.target.value)"
               >
                 <option
-                  v-for="camera in dcc_client.cameras"
+                  v-for="camera in DCCClient.cameras"
                   :key="`${camera}`"
                   :value="camera"
-                  :selected="camera === dcc_client.camera_selected"
+                  :selected="camera === DCCClient.cameraSelected"
                 >
                   {{ camera }}
                 </option>
@@ -94,24 +94,24 @@
             <span class="select">
               <select
                 class="select-input"
-                @change="(event) => dcc_client.setRenderer(event.target.value)"
+                @change="(event) => DCCClient.setRenderer(event.target.value)"
               >
                 <option
-                  v-for="renderer in dcc_client.renderers"
+                  v-for="renderer in DCCClient.renderers"
                   :key="`${renderer[1]}`"
                   :value="renderer[1]"
-                  :selected="renderer[1] === dcc_client.renderer_selected"
+                  :selected="renderer[1] === DCCClient.rendererSelected"
                 >
                   {{ renderer[0] }}
                 </option>
               </select>
             </span>
 
-            <button class="button" @click="onTake(dcc_client, false)">
+            <button class="button" @click="onTake(DCCClient, false)">
               {{ $t('tasks.take_screenshot') }}
             </button>
 
-            <button class="button" @click="onTake(dcc_client, true)">
+            <button class="button" @click="onTake(DCCClient, true)">
               {{ $t('tasks.take_animation') }}
             </button>
           </p>
@@ -208,7 +208,7 @@ export default {
   data() {
     return {
       forms: null,
-      dcc_client_manager: new DCCClientManager()
+      DCCClientManager: new DCCClientManager()
     }
   },
 
@@ -228,7 +228,7 @@ export default {
 
   mounted() {
     this.forms = null
-    this.dcc_client_manager.refreshConnectedClients()
+    this.DCCClientManager.refreshConnectedClients()
 
     window.addEventListener('paste', this.onPaste, false)
   },
@@ -268,22 +268,22 @@ export default {
       return form.get('file').type.startsWith('video')
     },
 
-    onTake(dcc_client, is_animation = false) {
-      ;(is_animation
-        ? dcc_client.takeRenderAnimation(
-            dcc_client.renderer_selected,
-            dcc_client.video_extension_selected
+    onTake(DCCClient, isAnimation = false) {
+      ;(isAnimation
+        ? DCCClient.takeRenderAnimation(
+            DCCClient.rendererSelected,
+            DCCClient.videoExtensionSelected
           )
-        : dcc_client.takeRenderScreenshot(
-            dcc_client.renderer_selected,
-            dcc_client.image_extension_selected
+        : DCCClient.takeRenderScreenshot(
+            DCCClient.rendererSelected,
+            DCCClient.imageExtensionSelected
           )
       ).then((data) => {
         const formData = new FormData()
         const file = new File(
           [window.electron.file.readFileSync(data.file)],
           data.file,
-          { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
+          { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
         )
         formData.append('file', file, file.name)
         this.forms = [formData]
