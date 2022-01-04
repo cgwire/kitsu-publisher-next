@@ -1,8 +1,3 @@
-'use strict'
-
-include('./exceptions.js')
-include('./../openHarmony.js')
-
 function HTTPDaemon(parent) {
   QTcpServer.call(this, parent)
 
@@ -15,12 +10,14 @@ function HTTPDaemon(parent) {
     }
     for (var port = portIntervalMin; port <= portIntervalMax; port++) {
       if (this.listen(QHostAddress.Any, port)) {
-        $.log('INFO:  Server is listening')
-        $.log('INFO:  Server is running on http://127.0.0.1:' + String(port))
+        globals.$.log('INFO:  Server is listening')
+        globals.$.log(
+          'INFO:  Server is running on http://0.0.0.0:' + String(port)
+        )
         return
       }
     }
-    $.log(
+    globals.$.log(
       'Cannot find a free port in the range [' +
         String(portIntervalMin) +
         '...' +
@@ -75,9 +72,11 @@ function HTTPDaemon(parent) {
             log = log + '200 OK'
           } catch (e) {
             result = { detail: e.name + ' : ' + e.message }
-            if (e instanceof MissingQueryError) {
-              this.socket.write(new QByteArray('HTTP/1.1 400 Bad Request\r\n'))
-              log = log + '400 Bad Request'
+            if (e instanceof globals.HTTPExceptions.MissingQueryError) {
+              this.socket.write(
+                new QByteArray('HTTP/1.1 422 Unprocessable Entity\r\n')
+              )
+              log = log + '422 Unprocessable Entity'
             } else {
               this.socket.write(
                 new QByteArray('HTTP/1.1 500 Internal Server Error\r\n')
@@ -102,9 +101,10 @@ function HTTPDaemon(parent) {
       this.socket.write(new QByteArray('\r\n'))
       this.socket.write(new QByteArray(JSON.stringify(result)))
 
-      $.log(log)
+      globals.$.log(log)
 
       this.socket.close()
+
       if (this.socket.state() == QAbstractSocket.UnconnectedState) {
         this.socket.deleteLater()
       }

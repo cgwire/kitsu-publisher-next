@@ -1,15 +1,12 @@
-HTTPServer = require('./HTTP/server.js')
-HTTPExceptions = require('./HTTP/exceptions.js')
-include('./exceptions.js')
-include('./openHarmony.js')
+HTTPServer = require(globals.packageFolder + '/HTTP/server.js')
 
 server = new HTTPServer.HTTPDaemon()
 
 server.add_route('/', ['GET'], function (method, url) {
   return {
     dcc_name: 'Toon Boom Harmony',
-    dcc_version: $.app.version,
-    current_project: $.scene.path._path
+    dcc_version: globals.$.app.version,
+    current_project: globals.$.scene.path._path
   }
 })
 
@@ -44,13 +41,13 @@ server.add_route('/get-extensions', ['GET'], function (method, url) {
 server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
   renderer = url.queryItemValue('renderer')
   if (!renderer) {
-    throw new HTTPExceptions.MissingQueryError(
+    throw new globals.HTTPExceptions.MissingQueryError(
       'Missing query argument <renderer>'
     )
   }
   extension = url.queryItemValue('extension')
   if (!extension) {
-    throw new HTTPExceptions.MissingQueryError(
+    throw new globals.HTTPExceptions.MissingQueryError(
       'Missing query argument <extension>'
     )
   }
@@ -74,10 +71,10 @@ server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
   use_colorspace =
     ['true', '1', 'yes'].indexOf(url.queryItemValue('use_colorspace')) >= 0
   return {
-    file: $.scene.exportLayoutImage(
+    file: globals.$.scene.exportLayoutImage(
       output_path,
       undefined,
-      $.scene.currentFrame,
+      globals.$.scene.currentFrame,
       use_colorspace,
       1
     )._path
@@ -87,7 +84,7 @@ server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
 server.add_route('/take-render-animation', ['GET'], function (method, url) {
   renderer = url.queryItemValue('renderer')
   if (!renderer) {
-    throw new HTTPExceptions.MissingQueryError(
+    throw new globals.HTTPExceptions.MissingQueryError(
       'Missing query argument <renderer>'
     )
   }
@@ -97,7 +94,7 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
     nodes_str.push(node.getName(nodes[n]))
   }
   if (nodes_str.indexOf(renderer) === -1) {
-    throw new HTTPExceptions.MissingQueryError(
+    throw new globals.HTTPExceptions.MissingQueryError(
       "Can't create QuickTime export (" +
         output_path +
         ') because the renderer (' +
@@ -107,7 +104,7 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
   }
   extension = url.queryItemValue('extension')
   if (!extension) {
-    throw new HTTPExceptions.MissingQueryError(
+    throw new globals.HTTPExceptions.MissingQueryError(
       'Missing query argument <extension>'
     )
   }
@@ -128,10 +125,18 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
       date.getSeconds()
     output_path = System.getenv('TEMP') + '/harmony-' + date + extension
   }
-  output_path = new $.oFile(output_path)
+  output_path = new globals.$.oFile(output_path)
   use_colorspace =
     ['true', '1', 'yes'].indexOf(url.queryItemValue('use_colorspace')) >= 0
-  if ($.scene.exportQT(output_path, $.scene.defaultDisplay, 1, true, false)) {
+  if (
+    globals.$.scene.exportQT(
+      output_path,
+      globals.$.scene.defaultDisplay,
+      1,
+      true,
+      false
+    )
+  ) {
     return { file: output_path.toString() }
   } else {
     throw new Error("Can't create QuickTime export (" + output_path + ')')
