@@ -243,7 +243,7 @@ export default {
 
     refreshConnectedDCCClients() {
       this.DCCClients = []
-      for (let port = 10000; port < 10100; port++) {
+      for (let port = 10000; port <= 10099; port++) {
         let newClient = new DCCClient(`http://localhost:${port}`)
         newClient
           .getInformation()
