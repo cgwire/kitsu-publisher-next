@@ -17,7 +17,7 @@ def find_free_port(port_range=range(10000, 10100)):
 def server_start(port_range=range(10000, 10100)):
     port = find_free_port(port_range)
     if port:
-        uvicorn.run(app, host="127.0.0.1", port=port)
+        uvicorn.run(app, host="0.0.0.0", port=port)
     else:
         print(
             "Cannot find a free port in the range [%i...%i]"
