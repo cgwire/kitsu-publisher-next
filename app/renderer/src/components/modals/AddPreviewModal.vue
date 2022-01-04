@@ -31,15 +31,15 @@
 
         <hr />
 
-        <h3 v-if="DCCClientManager.connectedClients.length > 0" class="title">
-          {{ DCCClientManager.connectedClients.length }}
+        <h3 v-if="DCCClients.length > 0" class="title">
+          {{ DCCClients.length }}
           {{ $t('tasks.dcc_connectors') }}
           <span class="icon icon-right">
             <icon
               name="refresh-cw"
               :width="20"
               :height="20"
-              @click="DCCClientManager.refreshConnectedClients()"
+              @click="refreshConnectedDCCClients()"
             />
           </span>
         </h3>
@@ -51,13 +51,13 @@
               name="refresh-cw"
               :width="20"
               :height="20"
-              @click="DCCClientManager.refreshConnectedClients()"
+              @click="refreshConnectedDCCClients()"
             />
           </span>
         </h3>
 
         <div
-          v-for="(DCCClient, index) in DCCClientManager.connectedClients"
+          v-for="(DCCClient, index) in DCCClients"
           :key="index"
           class="box content"
         >
@@ -171,7 +171,7 @@ import { modalMixin } from '@/components/modals/base_modal'
 import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
 import Icon from '@/components/widgets/Icon'
-import { DCCClientManager } from '@/lib/dccutils_client'
+import DCCClient from '@/lib/dccutils_client'
 
 export default {
   name: 'AddPreviewModal',
@@ -208,7 +208,7 @@ export default {
   data() {
     return {
       forms: null,
-      DCCClientManager: new DCCClientManager()
+      DCCClients: []
     }
   },
 
@@ -228,7 +228,8 @@ export default {
 
   mounted() {
     this.forms = null
-    this.DCCClientManager.refreshConnectedClients()
+
+    this.refreshConnectedDCCClients()
 
     window.addEventListener('paste', this.onPaste, false)
   },
@@ -239,6 +240,29 @@ export default {
 
   methods: {
     ...mapActions([]),
+
+    refreshConnectedDCCClients() {
+      this.DCCClients = []
+      for (let port = 10000; port < 10100; port++) {
+        let newClient = new DCCClient(`http://localhost:${port}`)
+        newClient
+          .getInformation()
+          .then(() => {
+            newClient.getCameras().then(() => {
+              newClient.getRenderers().then(() => {
+                newClient.getExtensions(true).then(() => {
+                  newClient.getExtensions(false).then(() => {
+                    this.DCCClients.push(newClient)
+                  })
+                })
+              })
+            })
+          })
+          .catch(() => {
+            // do nothing
+          })
+      }
+    },
 
     onFileSelected(forms) {
       this.forms = forms

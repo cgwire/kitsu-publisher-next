@@ -97,6 +97,7 @@ class DCCClient {
           this.imageExtensionSelected = this.imageExtensions[0][1]
         }
       }
+      return Promise.resolve(data)
     })
   }
 
@@ -145,30 +146,4 @@ class DCCClient {
   }
 }
 
-class DCCClientManager {
-  // TODO : create iterator
-  constructor() {
-    this.connectedClients = []
-  }
-
-  refreshConnectedClients() {
-    this.connectedClients = []
-    for (let port = 10000; port < 10100; port++) {
-      let newClient = new DCCClient(`http://localhost:${port}`)
-      newClient
-        .getInformation()
-        .then(() => {
-          newClient.getCameras().then()
-          newClient.getRenderers().then()
-          newClient.getExtensions(true).then()
-          newClient.getExtensions(false).then()
-          this.connectedClients.push(newClient)
-        })
-        .catch(() => {
-          // do nothing
-        })
-    }
-  }
-}
-
-export { DCCClient, DCCClientManager }
+export default DCCClient
