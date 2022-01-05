@@ -75,7 +75,7 @@
           </h5>
 
           <p>
-            <span class="select">
+            <span v-if="DCCClient.cameras.length > 0" class="select">
               <select
                 class="select-input"
                 @change="(event) => DCCClient.setCamera(event.target.value)"
@@ -91,7 +91,7 @@
               </select>
             </span>
 
-            <span class="select">
+            <span v-if="DCCClient.renderers.length > 0" class="select">
               <select
                 class="select-input"
                 @change="(event) => DCCClient.setRenderer(event.target.value)"

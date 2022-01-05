@@ -1,3 +1,5 @@
+include(globals.packageFolder + '/openHarmony.js')
+
 function HTTPDaemon(parent) {
   QTcpServer.call(this, parent)
 
@@ -10,14 +12,12 @@ function HTTPDaemon(parent) {
     }
     for (var port = portIntervalMin; port <= portIntervalMax; port++) {
       if (this.listen(QHostAddress.Any, port)) {
-        globals.$.log('INFO:  Server is listening')
-        globals.$.log(
-          'INFO:  Server is running on http://0.0.0.0:' + String(port)
-        )
+        $.log('INFO:  Server is listening')
+        $.log('INFO:  Server is running on http://0.0.0.0:' + String(port))
         return
       }
     }
-    globals.$.log(
+    $.log(
       'Cannot find a free port in the range [' +
         String(portIntervalMin) +
         '...' +
@@ -46,6 +46,9 @@ function HTTPDaemon(parent) {
     if (this.disabled) {
       return
     }
+
+    $ = globals.$
+    oNode = globals.$.oNode
 
     if (this.socket.canReadLine()) {
       status_line = this.socket.readLine().toString().trim()
@@ -101,7 +104,7 @@ function HTTPDaemon(parent) {
       this.socket.write(new QByteArray('\r\n'))
       this.socket.write(new QByteArray(JSON.stringify(result)))
 
-      globals.$.log(log)
+      $.log(log)
 
       this.socket.close()
 

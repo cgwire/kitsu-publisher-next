@@ -5,8 +5,8 @@ server = new HTTPServer.HTTPDaemon()
 server.add_route('/', ['GET'], function (method, url) {
   return {
     dcc_name: 'Toon Boom Harmony',
-    dcc_version: globals.$.app.version,
-    current_project: globals.$.scene.path._path
+    dcc_version: $.app.version,
+    current_project: $.scene.path._path
   }
 })
 
@@ -32,10 +32,14 @@ server.add_route('/get-renderers', ['GET'], function (method, url) {
   return nodes_str
 })
 
+globals.getExtensions = function (isVideo) {
+  return isVideo ? [['.mov', 'QUICKTIME']] : [['.png', 'PNG']]
+}
+
 server.add_route('/get-extensions', ['GET'], function (method, url) {
-  return ['true', '1', 'yes'].indexOf(url.queryItemValue('is_video')) >= 0
-    ? [['.mov', 'QUICKTIME']]
-    : [['.png', 'PNG']]
+  return globals.getExtensions(
+    ['true', '1', 'yes'].indexOf(url.queryItemValue('is_video')) >= 0
+  )
 })
 
 server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
@@ -51,6 +55,14 @@ server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
       'Missing query argument <extension>'
     )
   }
+
+  image_extensions = globals.getExtensions(false)
+  for (var n = 0; n < image_extensions.length; n++) {
+    if (image_extensions[n][1] == extension) {
+      extension = image_extensions[n][0]
+    }
+  }
+
   output_path = url.queryItemValue('output_path')
   if (!output_path) {
     date = new Date()
@@ -68,13 +80,14 @@ server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
       date.getSeconds()
     output_path = System.getenv('TEMP') + '/harmony-' + date + extension
   }
+
   use_colorspace =
     ['true', '1', 'yes'].indexOf(url.queryItemValue('use_colorspace')) >= 0
   return {
-    file: globals.$.scene.exportLayoutImage(
+    file: $.scene.exportLayoutImage(
       output_path,
       undefined,
-      globals.$.scene.currentFrame,
+      $.scene.currentFrame,
       use_colorspace,
       1
     )._path
@@ -108,6 +121,14 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
       'Missing query argument <extension>'
     )
   }
+
+  video_extensions = globals.getExtensions(true)
+  for (var n = 0; n < video_extensions.length; n++) {
+    if (video_extensions[n][1] == extension) {
+      extension = video_extensions[n][0]
+    }
+  }
+
   output_path = url.queryItemValue('output_path')
   if (!output_path) {
     date = new Date()
@@ -125,18 +146,10 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
       date.getSeconds()
     output_path = System.getenv('TEMP') + '/harmony-' + date + extension
   }
-  output_path = new globals.$.oFile(output_path)
+  output_path = new $.oFile(output_path)
   use_colorspace =
     ['true', '1', 'yes'].indexOf(url.queryItemValue('use_colorspace')) >= 0
-  if (
-    globals.$.scene.exportQT(
-      output_path,
-      globals.$.scene.defaultDisplay,
-      1,
-      true,
-      false
-    )
-  ) {
+  if ($.scene.exportQT(output_path, $.scene.defaultDisplay, 1, true, false)) {
     return { file: output_path.toString() }
   } else {
     throw new Error("Can't create QuickTime export (" + output_path + ')')
