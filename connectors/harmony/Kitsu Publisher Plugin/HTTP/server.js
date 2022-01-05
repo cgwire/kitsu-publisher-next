@@ -1,12 +1,29 @@
-'use strict'
-include('./exceptions.js')
-include('./../openHarmony.js')
+include(globals.packageFolder + '/openHarmony.js')
 
 function HTTPDaemon(parent) {
   QTcpServer.call(this, parent)
 
-  this.start = function (port) {
-    this.listen(QHostAddress.Any, port)
+  this.start = function (portIntervalMin, portIntervalMax) {
+    if (portIntervalMin === undefined) {
+      portIntervalMin = 10000
+    }
+    if (portIntervalMax === undefined) {
+      portIntervalMax = 10099
+    }
+    for (var port = portIntervalMin; port <= portIntervalMax; port++) {
+      if (this.listen(QHostAddress.Any, port)) {
+        $.log('INFO:  Server is listening')
+        $.log('INFO:  Server is running on http://0.0.0.0:' + String(port))
+        return
+      }
+    }
+    $.log(
+      'Cannot find a free port in the range [' +
+        String(portIntervalMin) +
+        '...' +
+        String(portIntervalMax) +
+        ']'
+    )
   }
 
   this.disabled = false
@@ -30,13 +47,19 @@ function HTTPDaemon(parent) {
       return
     }
 
+    $ = globals.$
+    oNode = globals.$.oNode
+
     if (this.socket.canReadLine()) {
-      status_line = this.socket.readLine().split(32)
+      status_line = this.socket.readLine().toString().trim()
+      status_line_split = status_line.split(' ')
       request = {
-        method: status_line[0].toString(),
-        url: new QUrl(status_line[1].toString()),
-        protocol: status_line[2].toString()
+        method: status_line_split[0],
+        url: new QUrl(status_line_split[1]),
+        protocol: status_line_split[2]
       }
+
+      log = 'INFO:  "' + status_line + '" '
 
       if (this.routes.hasOwnProperty(request.url.path())) {
         if (
@@ -49,49 +72,50 @@ function HTTPDaemon(parent) {
               request.url
             )
             this.socket.write(new QByteArray('HTTP/1.1 200 Ok\r\n'))
+            log = log + '200 OK'
           } catch (e) {
             result = { detail: e.name + ' : ' + e.message }
-            if (e instanceof MissingQueryError) {
-              this.socket.write(new QByteArray('HTTP/1.1 400 Bad Request\r\n'))
+            if (e instanceof globals.HTTPExceptions.MissingQueryError) {
+              this.socket.write(
+                new QByteArray('HTTP/1.1 422 Unprocessable Entity\r\n')
+              )
+              log = log + '422 Unprocessable Entity'
             } else {
               this.socket.write(
                 new QByteArray('HTTP/1.1 500 Internal Server Error\r\n')
               )
+              log = log + '500 Internal Server Error'
             }
           }
-          this.socket.write(
-            new QByteArray(
-              'Content-Type: application/json; charset="utf-8"\r\n'
-            )
-          )
-          this.socket.write(new QByteArray('\r\n'))
-          this.socket.write(new QByteArray(JSON.stringify(result)))
         } else {
           this.socket.write(new QByteArray('HTTP/1.1 501 Not Implemented\r\n'))
-          this.socket.write(
-            new QByteArray('Content-Type: text/html; charset="utf-8"\r\n')
-          )
-          this.socket.write(new QByteArray('\r\n'))
-          this.socket.write(new QByteArray('<h1>Not Implemented</h1>\n'))
+          log = log + '501 Not Implemented'
+          result = { detail: 'Not Implemented' }
         }
       } else {
         this.socket.write(new QByteArray('HTTP/1.1 404 Not Found\r\n'))
-        this.socket.write(
-          new QByteArray('Content-Type: text/html; charset="utf-8"\r\n')
-        )
-        this.socket.write(new QByteArray('\r\n'))
-        this.socket.write(new QByteArray('<h1>Not Found</h1>\n'))
+        log = log + '404 Not Found'
+        result = { detail: 'Not Found' }
       }
 
+      this.socket.write(
+        new QByteArray('Content-Type: application/json; charset="utf-8"\r\n')
+      )
+      this.socket.write(new QByteArray('\r\n'))
+      this.socket.write(new QByteArray(JSON.stringify(result)))
+
+      $.log(log)
+
       this.socket.close()
+
       if (this.socket.state() == QAbstractSocket.UnconnectedState) {
-        //delete this.socket
+        this.socket.deleteLater()
       }
     }
   }
 
   this.discardClient = function () {
-    //this.socket.deleteLater()
+    this.socket.deleteLater()
   }
 
   this.incomingConnection = function (socket) {

@@ -11,16 +11,16 @@ bl_info = {
     "category": "Import-Export",
 }
 
+
 def register():
     dccutils_server.server_start_threading()
 
+
 def unregister():
-    pass # add a stop for the server
+    pass  # add a stop for the server
 
 
 # This allows you to run the script directly from Blender's Text editor
 # to test the add-on without having to install it.
 if __name__ == "__main__":
     register()
-
-

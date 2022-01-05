@@ -65,7 +65,7 @@ function Installer {
     foreach ($key in (Get-ChildItem $UninstallKeys)) {
         if ($key.getValue("DisplayName") -eq "blender" ) {
             $display_version = $key.getValue("DisplayVersion") -split '\.'
-            if (([int]$display_version[0] -ge 2) -and ([int]$display_version[1] -ge 80)) {
+            if (([int]$display_version[0] -ge 3) -or (([int]$display_version[0] -ge 2) -and [int]$display_version[1] -ge 80)) {
                 [void]$InstallLocationsBlender.Add($key.getValue("InstallLocation"))
             }
         }

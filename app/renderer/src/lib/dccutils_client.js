@@ -4,86 +4,144 @@ class DCCClient {
   constructor(baseURL) {
     this.baseURL = baseURL
     this.api = apisauce.create({ baseURL: this.baseURL })
-    this.context == 'BLENDER'
+    this.DCCName = ''
+    this.DCCVersion = ''
+    this.currentProject = ''
+    this.cameras = []
+    this.cameraSelected = ''
+    this.renderers = []
+    this.rendererSelected = ''
+    this.videoExtensions = []
+    this.videoExtensionSelected = ''
+    this.imageExtensions = []
+    this.imageExtensionSelected = ''
   }
 
   get(url, params = {}) {
-    return this.api.get(url, params)
+    return this.api.get(url, params).then((response) => {
+      if (response.status === null) {
+        return Promise.reject(
+          `Response status code is null, the connection have probably been refused.`
+        )
+      } else if (response.status !== 200) {
+        return Promise.reject(
+          `Response status code is not 200, it's ${response.status}.`
+        )
+      } else return Promise.resolve(response.data)
+    })
+  }
+
+  getInformation() {
+    return this.get('/').then((data) => {
+      this.DCCName = data['dcc_name']
+      this.DCCVersion = data['dcc_version']
+      this.currentProject = data['current_project']
+      return Promise.resolve(data)
+    })
   }
 
   getCameras() {
-    return this.get('get_cameras')
+    return this.get('get-cameras').then((data) => {
+      this.cameras = data
+
+      if (this.cameras.length > 0) {
+        this.cameraSelected = this.cameras[0]
+      }
+      return Promise.resolve(data)
+    })
   }
 
   setCamera(camera) {
-    return this.get('set_camera', { camera: camera })
+    return this.get('set-camera', { camera: camera }).then(() => {
+      this.cameraSelected = camera
+    })
+  }
+
+  setRenderer(renderer) {
+    this.rendererSelected = renderer
   }
 
   getCurrentScene() {
-    return this.get('get_current_scene')
+    return this.get('get-current-scene')
   }
 
   getCurrentColorSpace() {
-    return this.get('get_current_color_space')
+    return this.get('get-current-color-space')
   }
 
   setCurrentColorSpace(color_space) {
-    return this.get('set_current_color_space', { color_space: color_space })
+    return this.get('set-current-color-space', { color_space: color_space })
   }
 
   getRenderers() {
-    return this.get('get_renderers')
-  }
-
-  getBlenderVersion() {
-    return this.get('get_blender_version')
+    return this.get('get-renderers').then((data) => {
+      this.renderers = data
+      if (this.renderers.length > 0) {
+        this.rendererSelected =
+          this.DCCName == 'Blender' ? 'BLENDER_WORKBENCH' : this.renderers[0][1]
+      }
+      return Promise.resolve(data)
+    })
   }
 
   getExtensions(is_video) {
-    return this.get('get_extensions', { is_video: is_video })
+    return this.get('get-extensions', { is_video: is_video }).then((data) => {
+      if (is_video) {
+        this.videoExtensions = data
+        if (this.videoExtensions.length > 0) {
+          this.videoExtensionSelected = this.videoExtensions[0][1]
+        }
+      } else {
+        this.imageExtensions = data
+        if (this.imageExtensions.length > 0) {
+          this.imageExtensionSelected = this.imageExtensions[0][1]
+        }
+      }
+      return Promise.resolve(data)
+    })
   }
 
   takeRenderScreenshot(
     renderer,
     extension,
-    output_path = '',
-    use_colorspace = false
+    outputPath = '',
+    useColorspace = false
   ) {
-    return this.get('take_render_screenshot', {
+    return this.get('take-render-screenshot', {
       renderer: renderer,
-      output_path: output_path,
+      output_path: outputPath,
       extension: extension,
-      use_colorspace: use_colorspace
+      use_colorspace: useColorspace
     })
   }
 
-  takeViewportScreenshot(output_path, extension, use_colorspace = false) {
-    return this.get('take_viewport_screenshot', {
-      output_path: output_path,
+  takeViewportScreenshot(extension, outputPath = '', useColorspace = false) {
+    return this.get('take-viewport-screenshot', {
+      output_path: outputPath,
       extension: extension,
-      use_colorspace: use_colorspace
+      use_colorspace: useColorspace
     })
   }
 
   takeRenderAnimation(
     renderer,
     extension,
-    output_path = '',
-    use_colorspace = false
+    outputPath = '',
+    useColorspace = false
   ) {
-    return this.get('take_render_animation', {
+    return this.get('take-render-animation', {
       renderer: renderer,
-      output_path: output_path,
+      output_path: outputPath,
       extension: extension,
-      use_colorspace: use_colorspace
+      use_colorspace: useColorspace
     })
   }
 
-  takeViewportAnimation(output_path, extension, use_colorspace = false) {
-    return this.get('take_viewport_animation', {
-      output_path: output_path,
+  takeViewportAnimation(extension, outputPath, useColorspace = false) {
+    return this.get('take-viewport-animation', {
+      output_path: outputPath,
       extension: extension,
-      use_colorspace: use_colorspace
+      use_colorspace: useColorspace
     })
   }
 }

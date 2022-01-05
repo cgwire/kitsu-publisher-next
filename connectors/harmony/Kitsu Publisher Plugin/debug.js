@@ -9,11 +9,6 @@ var globals = {
   HTTPExceptions: HTTPExceptions
 }
 
-function configure(packageFolder, packageName) {
-  if (about.isPaintMode()) return
-  harmonyServer = require(packageFolder + '/harmonyServer.js')
-  harmonyServer.server.start()
-}
+configure = require(packageFolder + '/configure.js')
 
-exports.globals = globals
-exports.configure = configure
+configure.configure(packageFolder)

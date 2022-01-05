@@ -29,113 +29,93 @@
           @fileselected="onFileSelected"
         />
 
-        <h3 class="title">Blender</h3>
+        <hr />
 
-        <p>
-          <span class="select">
-            <select
-              class="select-input"
-              @change="(event) => onBlenderCameraChanged(event)"
-            >
-              <option
-                v-for="option in blender_list_cameras"
-                :key="`${option}`"
-                :value="option"
-                :selected="option === blender_camera_selected"
-              >
-                {{ option }}
-              </option>
-            </select>
+        <h3 v-if="DCCClients.length > 0" class="title">
+          {{ DCCClients.length }}
+          {{ $t('tasks.dcc_connectors') }}
+          <span class="icon icon-right">
+            <icon
+              name="refresh-cw"
+              :width="20"
+              :height="20"
+              @click="refreshConnectedDCCClients()"
+            />
           </span>
+        </h3>
 
-          <span class="select">
-            <select
-              class="select-input"
-              @change="(event) => onBlenderRendererChanged(event)"
-            >
-              <option
-                v-for="option in blender_list_renderers"
-                :key="`${option[1]}`"
-                :value="option[1]"
-                :selected="option[1] === blender_renderer_selected"
-              >
-                {{ option[0] }}
-              </option>
-            </select>
+        <h3 v-else class="title">
+          {{ $t('tasks.no_dcc_connectors') }}
+          <span class="icon icon-right">
+            <icon
+              name="refresh-cw"
+              :width="20"
+              :height="20"
+              @click="refreshConnectedDCCClients()"
+            />
           </span>
+        </h3>
 
-          <button class="button" @click="onBlenderTakeScreenshotClick()">
-            {{ $t('tasks.take_screenshot') }}
-          </button>
+        <div
+          v-for="(DCCClient, index) in DCCClients"
+          :key="index"
+          class="box content"
+        >
+          <h3 class="title">
+            {{ DCCClient.DCCName }} v{{ DCCClient.DCCVersion }}
+          </h3>
 
-          <button class="button" @click="onBlenderTakeAnimationClick()">
-            {{ $t('tasks.take_animation') }}
-          </button>
-        </p>
+          <h5 v-if="DCCClient.currentProject === ''" class="title">
+            {{ $t('tasks.no_opened_project') }}
+          </h5>
 
-        <h3 class="title">Toon Boom Harmony</h3>
-        <p>
-          <span class="select">
-            <select
-              class="select-input"
-              @change="(event) => onHarmonyCameraChanged(event)"
-            >
-              <option
-                v-for="option in harmony_list_cameras"
-                :key="`${option}`"
-                :value="option"
-                :selected="option === harmony_camera_selected"
+          <h5 v-else class="title">
+            {{ $t('tasks.currently_opened_project') }}
+            {{ DCCClient.currentProject }}
+          </h5>
+
+          <p>
+            <span v-if="DCCClient.cameras.length > 0" class="select">
+              <select
+                class="select-input"
+                @change="(event) => DCCClient.setCamera(event.target.value)"
               >
-                {{ option }}
-              </option>
-            </select>
-          </span>
+                <option
+                  v-for="camera in DCCClient.cameras"
+                  :key="`${camera}`"
+                  :value="camera"
+                  :selected="camera === DCCClient.cameraSelected"
+                >
+                  {{ camera }}
+                </option>
+              </select>
+            </span>
 
-          <span class="select">
-            <select
-              class="select-input"
-              @change="(event) => onHarmonyRendererChanged(event)"
-            >
-              <option
-                v-for="option in harmony_list_renderers"
-                :key="`${option[1]}`"
-                :value="option[1]"
-                :selected="option[1] === harmony_renderer_selected"
+            <span v-if="DCCClient.renderers.length > 0" class="select">
+              <select
+                class="select-input"
+                @change="(event) => DCCClient.setRenderer(event.target.value)"
               >
-                {{ option[0] }}
-              </option>
-            </select>
-          </span>
+                <option
+                  v-for="renderer in DCCClient.renderers"
+                  :key="`${renderer[1]}`"
+                  :value="renderer[1]"
+                  :selected="renderer[1] === DCCClient.rendererSelected"
+                >
+                  {{ renderer[0] }}
+                </option>
+              </select>
+            </span>
 
-          <button class="button" @click="onHarmonyTakeScreenshotClick()">
-            {{ $t('tasks.take_screenshot') }}
-          </button>
+            <button class="button" @click="onTake(DCCClient, false)">
+              {{ $t('tasks.take_screenshot') }}
+            </button>
 
-          <button class="button" @click="onHarmonyTakeAnimationClick()">
-            {{ $t('tasks.take_animation') }}
-          </button>
-        </p>
-
-        <p v-if="isError" class="error">
-          {{ $t('tasks.add_preview_error') }}
-        </p>
-
-        <p class="has-text-right">
-          <a
-            :class="{
-              button: true,
-              'is-primary': true,
-              'is-loading': isLoading,
-              'is-disabled': forms == undefined
-            }"
-            @click="$emit('confirm')"
-          >
-            {{ $t('main.confirmation') }}
-          </a>
-          <button class="button is-link" @click="$emit('cancel')">
-            {{ $t('main.cancel') }}
-          </button>
-        </p>
+            <button class="button" @click="onTake(DCCClient, true)">
+              {{ $t('tasks.take_animation') }}
+            </button>
+          </p>
+        </div>
 
         <p v-if="forms" class="upload-previews">
           <template v-for="(form, i) in forms" :key="'preview-' + i">
@@ -159,6 +139,27 @@
             />
           </template>
         </p>
+
+        <p v-if="isError" class="error">
+          {{ $t('tasks.add_preview_error') }}
+        </p>
+
+        <p class="has-text-right">
+          <a
+            :class="{
+              button: true,
+              'is-primary': true,
+              'is-loading': isLoading,
+              'is-disabled': forms == undefined
+            }"
+            @click="$emit('confirm')"
+          >
+            {{ $t('main.confirmation') }}
+          </a>
+          <button class="button is-link" @click="$emit('cancel')">
+            {{ $t('main.cancel') }}
+          </button>
+        </p>
       </div>
     </div>
   </div>
@@ -169,13 +170,15 @@ import { mapGetters, mapActions } from 'vuex'
 import { modalMixin } from '@/components/modals/base_modal'
 import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
+import Icon from '@/components/widgets/Icon'
 import DCCClient from '@/lib/dccutils_client'
 
 export default {
   name: 'AddPreviewModal',
 
   components: {
-    FileUpload
+    FileUpload,
+    Icon
   },
   mixins: [modalMixin],
 
@@ -205,12 +208,7 @@ export default {
   data() {
     return {
       forms: null,
-      list_cameras: null,
-      camera_selected: null,
-      list_renderers: null,
-      renderer_selected: null,
-      dccutils_blender: new DCCClient('http://localhost:10101'), // TODO : change that to use a specified port
-      dccutils_harmony: new DCCClient('http://localhost:10102') // TODO : change that to use a specified port
+      DCCClients: []
     }
   },
 
@@ -231,31 +229,7 @@ export default {
   mounted() {
     this.forms = null
 
-    // BLENDER
-    this.dccutils_blender.getCameras().then((response) => {
-      this.blender_list_cameras = response.data
-      this.blender_camera_selected =
-        response.data.length > 0 ? response.data[0] : undefined
-    })
-    this.dccutils_blender.getRenderers().then((response) => {
-      this.blender_list_renderers = response.data
-    })
-    this.blender_renderer_selected = 'BLENDER_EEVEE'
-    this.blender_extension_screenshot_selected = 'JPEG'
-    this.blender_extension_animation_selected = 'MPEG4'
-
-    //HARMONY
-    this.dccutils_harmony.getCameras().then((response) => {
-      this.harmony_list_cameras = response.data
-      this.harmony_camera_selected =
-        response.data.length > 0 ? response.data[0] : undefined
-    })
-    this.dccutils_harmony.getRenderers().then((response) => {
-      this.harmony_list_renderers = response.data
-    })
-    this.harmony_renderer_selected = 'Display'
-    this.harmony_extension_screenshot_selected = '.png'
-    this.harmony_extension_animation_selected = '.mov'
+    this.refreshConnectedDCCClients()
 
     window.addEventListener('paste', this.onPaste, false)
   },
@@ -266,6 +240,29 @@ export default {
 
   methods: {
     ...mapActions([]),
+
+    refreshConnectedDCCClients() {
+      this.DCCClients = []
+      for (let port = 10000; port <= 10099; port++) {
+        let newClient = new DCCClient(`http://localhost:${port}`)
+        newClient
+          .getInformation()
+          .then(() => {
+            newClient.getCameras().then(() => {
+              newClient.getRenderers().then(() => {
+                newClient.getExtensions(true).then(() => {
+                  newClient.getExtensions(false).then(() => {
+                    this.DCCClients.push(newClient)
+                  })
+                })
+              })
+            })
+          })
+          .catch(() => {
+            // do nothing
+          })
+      }
+    },
 
     onFileSelected(forms) {
       this.forms = forms
@@ -295,89 +292,38 @@ export default {
       return form.get('file').type.startsWith('video')
     },
 
-    //BLENDER
-    onBlenderCameraChanged(event) {
-      this.blender_camera_selected = event.target.value
-      this.dccutils_blender.setCamera(this.blender_camera_selected)
-    },
-
-    onBlenderRendererChanged(event) {
-      this.blender_renderer_selected = event.target.value
-    },
-    onBlenderTake(is_animation = false) {
-      ;(is_animation
-        ? this.dccutils_blender.takeRenderAnimation(
-            this.blender_renderer_selected,
-            this.blender_extension_animation_selected
+    onTake(DCCClient, isAnimation = false) {
+      ;(isAnimation
+        ? DCCClient.takeRenderAnimation(
+            DCCClient.rendererSelected,
+            DCCClient.videoExtensionSelected
           )
-        : this.dccutils_blender.takeRenderScreenshot(
-            this.blender_renderer_selected,
-            this.blender_extension_screenshot_selected
+        : DCCClient.takeRenderScreenshot(
+            DCCClient.rendererSelected,
+            DCCClient.imageExtensionSelected
           )
-      ).then((response) => {
+      ).then((data) => {
         const formData = new FormData()
         const file = new File(
-          [window.electron.file.readFileSync(response.data.file)],
-          response.data.file,
-          { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
+          [window.electron.file.readFileSync(data.file)],
+          data.file,
+          { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
         )
         formData.append('file', file, file.name)
         this.forms = [formData]
         this.$emit('fileselected', this.forms)
       })
-    },
-
-    onBlenderTakeScreenshotClick() {
-      this.onBlenderTake(false)
-    },
-
-    onBlenderTakeAnimationClick() {
-      this.onBlenderTake(true)
-    },
-
-    onHarmonyCameraChanged(event) {
-      this.harmony_camera_selected = event.target.value
-      this.dccutils_harmony.setCamera(this.harmony_camera_selected)
-    },
-
-    onHarmonyRendererChanged(event) {
-      this.harmony_renderer_selected = event.target.value
-    },
-    onHarmonyTake(is_animation = false) {
-      ;(is_animation
-        ? this.dccutils_harmony.takeRenderAnimation(
-            this.harmony_renderer_selected,
-            this.harmony_extension_animation_selected
-          )
-        : this.dccutils_harmony.takeRenderScreenshot(
-            this.harmony_renderer_selected,
-            this.harmony_extension_screenshot_selected
-          )
-      ).then((response) => {
-        const formData = new FormData()
-        const file = new File(
-          [window.electron.file.readFileSync(response.data.file)],
-          response.data.file,
-          { type: is_animation ? 'video/mpeg' : 'image/jpeg' }
-        )
-        formData.append('file', file, file.name)
-        this.forms = [formData]
-        this.$emit('fileselected', this.forms)
-      })
-    },
-
-    onHarmonyTakeScreenshotClick() {
-      this.onHarmonyTake(false)
-    },
-
-    onHarmonyTakeAnimationClick() {
-      this.onHarmonyTake(true)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.icon-right {
+  float: right;
+  cursor: pointer;
+}
+
 .modal-content {
   max-height: calc(100vh - 150px);
 }
