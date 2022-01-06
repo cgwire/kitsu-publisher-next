@@ -78,7 +78,7 @@ case $1 in
     ;;
 
     --unpacked-directory=*)
-        UNPACKED_DIRECTORY="${i#*=}"
+        UNPACKED_DIRECTORY=${1#*=}
         BLENDER_EXECUTABLE=$UNPACKED_DIRECTORY/blender
         if [[ ! -f $BLENDER_EXECUTABLE ]]; then
             echo "Blender could not be found as a unpacked directory at $UNPACKED_DIRECTORY."
