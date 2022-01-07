@@ -26,7 +26,6 @@
                 {{ $t('tasks.done') }} ({{ displayedDoneTasks.length }})
               </router-link>
             </li>
-            <!-- TODO : reactivate timesheets
             <li
               :class="{ 'is-active': isTabActive('timesheets') }"
               @click="selectTab('timesheets')"
@@ -39,7 +38,7 @@
               >
                 {{ $t('timesheets.title') }}
               </router-link>
-            </li>-->
+            </li>
           </ul>
         </div>
 
@@ -109,7 +108,7 @@
           :is-error="isTodosLoadingError"
           :done="true"
         />
-        <!-- TODO : reactivate timesheets
+
         <timesheet-list
           v-if="isTabActive('timesheets')"
           ref="timesheet-list"
@@ -126,7 +125,7 @@
           @time-spent-change="onTimeSpentChange"
           @set-day-off="onSetDayOff"
           @unset-day-off="onUnsetDayOff"
-        />-->
+        />
       </div>
     </div>
 
@@ -146,7 +145,7 @@ import { parseDate } from '@/lib/time'
 //import SearchField from '@/components/widgets/SearchField'
 //import SearchQueryList from '@/components/widgets/SearchQueryList'
 import TaskInfo from '@/components/sides/TaskInfo'
-//import TimesheetList from '@/components/lists/TimesheetList'
+import TimesheetList from '@/components/lists/TimesheetList'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
@@ -157,7 +156,7 @@ export default {
     //SearchField,
     //SearchQueryList,
     TaskInfo,
-    //TimesheetList,
+    TimesheetList,
     TodosList
   },
 

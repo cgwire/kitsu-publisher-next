@@ -22,7 +22,7 @@
       />
     </div>
 
-    <div ref="body">
+    <div ref="body" class="datatable-wrapper">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
