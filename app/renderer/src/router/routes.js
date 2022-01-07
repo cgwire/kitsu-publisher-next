@@ -9,12 +9,12 @@ import Main from '../components/Main'
 import Todos from '../components/pages/Todos'
 import Login from '../components/pages/Login'
 
-const Person = () => import('../components/pages/Person')
-const ServerDown = () => import('../components/pages/ServerDown')
-const ResetPassword = () => import('../components/pages/ResetPassword')
 const Asset = () => import('../components/pages/Asset')
-const Task = () => import('../components/pages/Task')
+const Person = () => import('../components/pages/Person')
 const Profile = () => import('../components/pages/Profile')
+const ResetPassword = () => import('../components/pages/ResetPassword')
+const ServerDown = () => import('../components/pages/ServerDown')
+const Task = () => import('../components/pages/Task')
 
 const routes = [
   {
@@ -60,12 +60,14 @@ const routes = [
         path: '',
         name: 'home'
       },
+
       {
         path: 'todos',
         component: Todos,
         name: 'todos',
         children: [{ path: ':tab', component: Todos, name: 'todos-tab' }]
       },
+
       {
         path: 'people/:person_id',
         component: Person,
@@ -78,6 +80,7 @@ const routes = [
           }
         ]
       },
+
       {
         path: 'productions/:production_id/assets/:asset_id',
         component: Asset,
@@ -122,6 +125,7 @@ const routes = [
           }
         ]
       },
+
       {
         path: 'productions/:production_id/episodes/:episode_id/:type/tasks/:task_id',
         name: 'episode-task',
@@ -154,6 +158,7 @@ const routes = [
           }
         ]
       },
+
       {
         path: 'profile',
         component: Profile,
