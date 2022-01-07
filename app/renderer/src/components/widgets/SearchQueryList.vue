@@ -13,7 +13,7 @@
         class="edit flexrow-item"
         @click.prevent="editSearch(searchQuery)"
       >
-        <icon name="edit2" size="0.6x" class="edit-icon" />
+        <icon name="edit-2" size="0.6x" class="edit-icon" />
       </button>
       <button
         class="delete flexrow-item"
