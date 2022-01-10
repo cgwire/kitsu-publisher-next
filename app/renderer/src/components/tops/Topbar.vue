@@ -5,6 +5,7 @@
       :class="{ 'is-active': !isUserMenuHidden }"
       @click="toggleUserMenu()"
     />
+
     <nav class="nav">
       <div class="nav-left">
         <div v-if="!$route.path.startsWith('/todos')" class="nav-item">
@@ -30,11 +31,12 @@
             class="avatar"
             :no-cache="true"
             :person="user"
-            :isLink="false"
+            :is-link="false"
           />
         </div>
       </div>
     </nav>
+
     <nav
       ref="user-menu"
       class="user-menu"
@@ -43,11 +45,11 @@
       }"
     >
       <ul>
-        <li>
-          <router-link to="/profile" @click="toggleUserMenu()">
+        <router-link to="/profile" @click="toggleUserMenu()">
+          <li>
             {{ $t('main.profile') }}
-          </router-link>
-        </li>
+          </li>
+        </router-link>
         <li @click="toggleDarkTheme">
           <span v-if="!isDarkTheme">
             {{ $t('main.dark_theme') }}
@@ -57,41 +59,39 @@
           </span>
         </li>
         <hr />
-        <li>
-          <a href="https://kitsu.cg-wire.com" target="_blank">
+        <a href="https://kitsu.cg-wire.com" target="_blank">
+          <li>
             {{ $t('main.documentation') }}
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://www.youtube.com/playlist?list=PLp_1gB5ZBHXqnQgZ4TCrAt7smxesaDo29"
-            target="_blank"
-          >
+          </li>
+        </a>
+        <a
+          href="https://www.youtube.com/playlist?list=PLp_1gB5ZBHXqnQgZ4TCrAt7smxesaDo29"
+          target="_blank"
+        >
+          <li>
             {{ $t('main.tutorials') }}
-          </a>
-        </li>
+          </li>
+        </a>
         <!-- TODO : reenable shortcuts>
-        <li>
-          <a @click="display.shortcutModal = true">
+        <a @click="display.shortcutModal = true">
+          <li>
             {{ $t('keyboard.shortcuts') }}
-          </a>
-        </li>
+          </li>
+        </a>
         -->
         <hr />
-        <li>
-          <a href="https://discord.gg/VbCxtKN" target="_blank"> Discord </a>
-        </li>
-        <li>
-          <a href="https://cgwire.canny.io" target="_blank">
-            Roadmap / Feedback
-          </a>
-        </li>
+        <a href="https://discord.gg/VbCxtKN" target="_blank">
+          <li>Discord</li>
+        </a>
+        <a href="https://cgwire.canny.io" target="_blank">
+          <li>Roadmap / Feedback</li>
+        </a>
         <hr />
-        <li>
-          <a href="https://cg-wire.com/en/about.html" target="_blank">
+        <a href="https://cg-wire.com/en/about.html" target="_blank">
+          <li>
             {{ $t('main.about') }}
-          </a>
-        </li>
+          </li>
+        </a>
         <li class="version">Kitsu Publisher {{ kitsuPublisherVersion }}</li>
         <hr />
         <li class="flexrow" @click="onLogoutClicked">
@@ -112,8 +112,8 @@
 import { mapGetters, mapActions } from 'vuex'
 import Icon from '@/components/widgets/Icon'
 
-import ShortcutModal from '@/components/modals/ShortcutModal'
 import PeopleAvatar from '@/components/widgets/PeopleAvatar'
+import ShortcutModal from '@/components/modals/ShortcutModal'
 
 export default {
   name: 'Topbar',
@@ -154,7 +154,7 @@ export default {
 <style lang="scss" scoped>
 .dark {
   a,
-  .user-menu a {
+  .user-menu ul a {
     color: $white-grey;
   }
 
@@ -208,6 +208,9 @@ export default {
   cursor: pointer;
 }
 
+.user-nav.active {
+}
+
 .user-menu {
   position: fixed;
   width: 220px;
@@ -240,7 +243,7 @@ export default {
   }
 }
 
-.user-menu li a {
+.user-menu ul a {
   color: #333;
 }
 

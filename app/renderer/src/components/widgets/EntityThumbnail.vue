@@ -22,7 +22,7 @@
     :key="thumbnailKey"
     v-lazy="thumbnailPath"
     class="thumbnail-picture"
-    :style="imgStyle"
+    style="imgStyle"
   />
 
   <span

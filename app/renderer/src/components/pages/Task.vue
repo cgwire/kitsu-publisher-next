@@ -1,6 +1,6 @@
 <template>
-  <div class="page fixed-page">
-    <div style="overflow-y: auto">
+  <div class="fixed-page columns">
+    <div class="page column main-column">
       <div class="page-header">
         <div v-if="currentTask" class="flexrow header-title">
           <router-link
@@ -60,8 +60,9 @@
               <add-comment
                 v-if="isCommentingAllowed"
                 ref="add-comment"
-                :is-loading="loading.addComment"
                 :is-error="errors.addComment"
+                :is-loading="loading.addComment"
+                :is-movie="isMovie"
                 :user="user"
                 :team="currentTeam"
                 :task="currentTask"
@@ -74,6 +75,7 @@
                 @add-preview="onAddPreviewClicked"
                 @duplicate-comment="onDuplicateComment"
                 @file-drop="selectFile"
+                @annotation-snapshots-requested="extractAnnotationSnapshots"
               />
               <div
                 v-if="currentTaskComments && currentTaskComments.length > 0"
@@ -160,7 +162,7 @@
                 :key="preview.id"
                 :preview="preview"
                 :preview-path="previewPath(preview.id)"
-                :task-id="currentTask ? currentTask.id : ''"
+                :taskId="currentTask ? currentTask.id : ''"
                 :selected="preview.id === currentPreviewId"
               />
             </div>
@@ -190,6 +192,46 @@
               </div>
             </div>
           </div>
+          <div class="flexrow-item task-information">
+            <page-subtitle :text="$t('main.info')" />
+            <div class="table-body mt1">
+              <table v-if="currentTask" class="datatable">
+                <tbody class="table-body">
+                  <tr class="datatable-row">
+                    <td class="field-label">
+                      {{ $t('tasks.fields.estimation') }}
+                    </td>
+                    <td>{{ currentTask.estimation }}</td>
+                  </tr>
+                  <tr class="datatable-row">
+                    <td class="field-label">
+                      {{ $t('tasks.fields.duration') }}
+                    </td>
+                    <td>{{ formatDuration(currentTask.duration) }}</td>
+                  </tr>
+                  <tr class="datatable-row">
+                    <td class="field-label">
+                      {{ $t('tasks.fields.retake_count') }}
+                    </td>
+                    <td>{{ currentTask.retake_count }}</td>
+                  </tr>
+                  <tr class="datatable-row">
+                    <td class="field-label">
+                      {{ $t('tasks.fields.start_date') }}
+                    </td>
+                    <td>{{ formatSimpleDate(currentTask.start_date) }}</td>
+                  </tr>
+                  <tr class="datatable-row">
+                    <td class="field-label">
+                      {{ $t('tasks.fields.due_date') }}
+                    </td>
+                    <td>{{ formatSimpleDate(currentTask.due_date) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="pa2" />
         </div>
       </div>
 
@@ -251,12 +293,15 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
+import { formatListMixin } from '@/components/mixins/format'
+
 import AddComment from '../widgets/AddComment'
 import AddPreviewModal from '../modals/AddPreviewModal'
 import Comment from '../widgets/Comment'
 import DeleteModal from '../modals/DeleteModal'
 import EditCommentModal from '../modals/EditCommentModal'
 import Icon from '../widgets/Icon'
+import PageSubtitle from '../widgets/PageSubtitle'
 import PeopleAvatar from '../widgets/PeopleAvatar'
 import PreviewRow from '../widgets/PreviewRow'
 import Spinner from '../widgets/Spinner'
@@ -273,6 +318,7 @@ export default {
     Comment,
     DeleteModal,
     EditCommentModal,
+    PageSubtitle,
     Icon,
     PeopleAvatar,
     PreviewRow,
@@ -282,6 +328,7 @@ export default {
     TaskTypeName,
     ValidationTag
   },
+  mixins: [formatListMixin],
 
   data() {
     return {
@@ -329,6 +376,21 @@ export default {
     }
   },
 
+  created() {
+    this.clearSelectedTasks()
+    this.loadTaskData()
+  },
+
+  mounted() {
+    this.reset()
+    this.$nextTick(() => {
+      if (this.$refs['task-columns']) {
+        this.$refs['task-columns'].scrollTop = 100
+        window.scrollTo(0, 0)
+      }
+    })
+  },
+
   computed: {
     ...mapGetters([
       'currentEpisode',
@@ -340,6 +402,7 @@ export default {
       'getTaskComment',
       'isCurrentUserAdmin',
       'isCurrentUserArtist',
+      'isCurrentUserClient',
       'isCurrentUserManager',
       'isSingleEpisode',
       'isTVShow',
@@ -356,11 +419,16 @@ export default {
 
     isPreviewButtonVisible() {
       return (
+        this.isCurrentUserManager &&
         this.currentTask &&
         this.currentTask.entity &&
         this.currentTask.entity.preview_file_id !== this.currentPreviewId &&
         ['png', 'mp4'].includes(this.extension)
       )
+    },
+
+    isMovie() {
+      return this.extension === 'mp4'
     },
 
     extension() {
@@ -397,6 +465,7 @@ export default {
     isCommentingAllowed() {
       return (
         this.isCurrentUserManager ||
+        this.isCurrentUserClient ||
         this.currentTask.assignees.find((personId) => personId === this.user.id)
       )
     },
@@ -636,29 +705,6 @@ export default {
     }
   },
 
-  watch: {
-    $route() {
-      if (this.$route.params.task_id !== this.currentTask.id) {
-        this.loadTaskData()
-      }
-    }
-  },
-
-  created() {
-    this.clearSelectedTasks()
-    this.loadTaskData()
-  },
-
-  mounted() {
-    this.reset()
-    this.$nextTick(() => {
-      if (this.$refs['task-columns']) {
-        this.$refs['task-columns'].scrollTop = 100
-        window.scrollTo(0, 0)
-      }
-    })
-  },
-
   methods: {
     ...mapActions([
       'ackComment',
@@ -679,6 +725,7 @@ export default {
       'loadPreviewFileFormData',
       'loadTaskComments',
       'loadTaskSubscribed',
+      'refreshComment',
       'refreshPreview',
       'pinComment',
       'subscribeToTask',
@@ -1161,14 +1208,24 @@ export default {
           (p) => p.revision === parseInt(versionRevision)
         )
       )
-      const time =
-        parseInt(minutes) * 60 +
-        parseInt(seconds) +
-        parseInt(milliseconds) / 1000
       setTimeout(() => {
-        this.previewPlayer.setCurrentTime(time)
+        this.previewPlayer.setCurrentFrame(frame - 1)
         this.previewPlayer.focus()
       }, 20)
+    },
+
+    async extractAnnotationSnapshots() {
+      const files = await this.previewPlayer.extractAnnotationSnapshots()
+      this.$refs['add-comment'].setAnnotationSnapshots(files)
+      return files
+    }
+  },
+
+  watch: {
+    $route() {
+      if (this.$route.params.task_id !== this.currentTask.id) {
+        this.loadTaskData()
+      }
     }
   },
 
@@ -1184,6 +1241,74 @@ export default {
 
       'comment:unacknowledge'(eventData) {
         this.onRemoteAcknowledge(eventData, 'unack')
+      },
+
+      'preview-file:update'(eventData) {
+        const comment = this.currentTaskComments.find(
+          (c) =>
+            c.previews &&
+            c.previews.length > 0 &&
+            c.previews[0].id === eventData.preview_file_id
+        )
+        if (comment && this.currentTask) {
+          this.refreshPreview({
+            taskId: this.currentTask.id,
+            previewId: eventData.preview_file_id
+          }).then((preview) => {
+            comment.previews[0].validation_status = preview.validation_status
+          })
+        }
+      },
+
+      'comment:new'(eventData) {
+        setTimeout(() => {
+          if (
+            this.getCurrentTaskComments().length !==
+            this.currentTaskComments.length
+          ) {
+            this.currentTaskComments = this.getCurrentTaskComments()
+            this.currentTaskPreviews = this.getCurrentTaskPreviews()
+          }
+        }, 1000)
+      },
+
+      'comment:reply'(eventData) {
+        if (this.currentTask) {
+          const comment = this.currentTaskComments.find(
+            (c) => c.id === eventData.comment_id
+          )
+          if (comment) {
+            if (!comment.replies) comment.replies = []
+            const reply = comment.replies.find(
+              (r) => r.id === eventData.reply_id
+            )
+            if (!reply) {
+              this.refreshComment({
+                taskId: this.currentTask.id,
+                commentId: eventData.comment_id
+              })
+                .then((remoteComment) => {
+                  comment.replies = remoteComment.replies
+                })
+                .catch(console.error)
+            }
+          }
+        }
+      },
+
+      'comment:delete-reply'(eventData) {
+        if (this.currentTask) {
+          const comment = this.currentTaskComments.find(
+            (c) => c.id === eventData.comment_id
+          )
+          if (comment) {
+            if (!comment.replies) comment.replies = []
+            this.$store.commit('REMOVE_REPLY_FROM_COMMENT', {
+              comment,
+              reply: { id: eventData.reply_id }
+            })
+          }
+        }
       }
     }
   },
@@ -1202,12 +1327,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dark .page {
-  background: $dark-grey-light;
-  padding-bottom: 1em;
-}
-
 .dark .page-header,
+.dark .task-information,
 .dark .add-comment,
 .dark .comment,
 .dark .no-comment,
@@ -1227,6 +1348,19 @@ h2.subtitle {
   background: #f9f9f9;
   margin-top: 60px;
   padding: 0;
+}
+
+.page.column {
+  background: var(--background-page);
+  padding-bottom: 1em;
+}
+
+.task-information {
+  background: white;
+  box-shadow: 0px 0px 6px #e0e0e0;
+  margin-top: 1em;
+  margin-right: 0;
+  padding: 1em;
 }
 
 .page-header {
@@ -1300,12 +1434,17 @@ video {
 
 .task-columns {
   display: flex;
+  flex: 1;
   flex-direction: row;
 }
 
 .task-column {
   width: 50%;
   padding: 1em;
+}
+
+.preview-column {
+  overflow: auto;
 }
 
 .preview-column-content {
@@ -1324,7 +1463,7 @@ video {
 .page-header .tag {
   border-radius: 0;
   font-weight: bold;
-  color: $grey-strong;
+  margin-right: 0.5em;
 }
 
 .assignees {
@@ -1363,6 +1502,22 @@ video {
 
 .back-link {
   padding-top: 6px;
+}
+
+.main-column {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100% - 60px);
+}
+
+.task-columns {
+  display: flex;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.task-column {
+  overflow-y: auto;
 }
 
 @media screen and (max-width: 768px) {

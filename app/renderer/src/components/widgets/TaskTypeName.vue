@@ -1,5 +1,17 @@
 <template>
+  <router-link
+    v-if="isLink && productionId && !isCurrentUserClient"
+    :to="taskTypePath"
+  >
+    <span
+      class="tag task-type-name"
+      :style="{ 'border-left': '4px solid ' + color }"
+    >
+      {{ taskType.name }}
+    </span>
+  </router-link>
   <div
+    v-else
     class="tag task-type-name no-link"
     :class="{ deletable }"
     :style="{ 'border-left': '4px solid ' + color }"
@@ -30,11 +42,15 @@ export default {
     deletable: {
       type: Boolean,
       default: false
+    },
+    isLink: {
+      type: Boolean,
+      default: false
     }
   },
 
   computed: {
-    ...mapGetters([]),
+    ...mapGetters(['isCurrentUserClient']),
 
     color() {
       if (this.taskType.color.toUpperCase() === '#000000') return '$grey-strong'
@@ -68,13 +84,13 @@ export default {
 
 <style lang="scss" scoped>
 .tag {
-  margin: 0;
-  padding: 0 0.7em;
-  font-size: 0.9em;
-  line-height: 0.8em;
-  color: $grey-strong;
   border-radius: 0;
+  color: var(--text);
+  font-size: 0.9em;
   font-weight: bold;
+  line-height: 0.8em;
+  padding: 0 0.7em;
+  margin: 0;
 }
 
 .tag.deletable {
@@ -82,7 +98,6 @@ export default {
 }
 
 .dark .tag {
-  color: $white-grey;
   background: $dark-grey-lightest;
 }
 
@@ -103,5 +118,7 @@ export default {
 }
 
 .no-link {
+  color: var(--text);
+  cursor: default;
 }
 </style>

@@ -3,7 +3,7 @@
     :label="label"
     :disabled="disabled"
     :options="booleanOptions"
-    :model-value="value"
+    :modelValue="modelValue"
     @update:modelValue="emitValue"
     @enter="emitEnter"
   />

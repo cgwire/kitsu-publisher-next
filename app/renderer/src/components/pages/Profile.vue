@@ -5,14 +5,14 @@
         <div class="profile-header-content has-text-centered">
           <people-avatar
             ref="avatar"
-            :noCache="true"
-            :isLink="false"
+            :no-cache="true"
+            :is-link="false"
             :person="user"
             :size="150"
-            :fontSize="60"
+            :font-size="60"
           />
 
-          <p v-if="!isLdap">
+          <p>
             <button
               class="button is-link change-avatar-button"
               @click="showAvatarModal"

@@ -3,7 +3,8 @@
     :class="{
       'preview-row': true,
       'has-text-center': true,
-      selected: selected
+      selected: selected,
+      green: preview.validation_status === 'validated'
     }"
   >
     <button-link :text="label" :path="previewPath" />
@@ -53,6 +54,14 @@ export default {
 
 .preview-row:hover a {
   border: 3px solid #e1d4f9;
+}
+
+.preview-row.green a {
+  border: 3px solid $light-green;
+}
+
+.preview-row.red a {
+  border: 3px solid $dark-red;
 }
 
 .preview-row.selected a {

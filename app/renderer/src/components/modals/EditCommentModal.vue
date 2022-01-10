@@ -24,23 +24,6 @@
             <label class="label">
               {{ $t('comments.text') }}
             </label>
-            <!-- TODO : reactivate at-ta
-              <at-ta :members="team" name-key="full_name" limit="2">
-            -->
-            <template v-if="team && team.item" slot="item" slot-scope="team">
-              <div class="flexrow">
-                <people-avatar
-                  class="flexrow-item"
-                  :person="team.item"
-                  :size="20"
-                  :no-cache="true"
-                />
-                <span class="flexrow-item">
-                  {{ team.item.full_name }}
-                </span>
-              </div>
-            </template>
-
             <textarea
               ref="textField"
               v-model="form.text"
@@ -49,13 +32,12 @@
               @keyup.ctrl="runConfirmation"
               @keyup.meta="runConfirmation"
             />
-            <!--</at-ta>-->
-            -->
           </div>
           <label class="label">
             {{ $t('comments.checklist') }}
           </label>
           <checklist
+            class="comment-checklist"
             :checklist="form.checklist"
             @add-item="onAddChecklistItem"
             @remove-task="removeTask"
@@ -79,20 +61,17 @@ import { mapGetters } from 'vuex'
 import { modalMixin } from './base_modal'
 import { remove } from '@/lib/models'
 
-//import AtTa from 'vue-at/dist/vue-at-textarea' TODO : fix this
-import Checklist from '../widgets/Checklist'
-import ComboBoxStatus from '../widgets/ComboboxStatus.vue'
-import ModalFooter from './ModalFooter'
-import PeopleAvatar from '../widgets/PeopleAvatar'
+// import AtTa from 'vue-at/dist/vue-at-textarea'
+import Checklist from '@/components/widgets/Checklist'
+import ComboBoxStatus from '@/components/widgets/ComboboxStatus.vue'
+import ModalFooter from '@/components/modals/ModalFooter'
 
 export default {
   name: 'EditCommentModal',
   components: {
-    //AtTa,
     Checklist,
     ComboBoxStatus,
-    ModalFooter,
-    PeopleAvatar
+    ModalFooter
   },
   mixins: [modalMixin],
 
@@ -137,10 +116,14 @@ export default {
   methods: {
     runConfirmation(event) {
       if (!event || event.keyCode === 13 || !event.keyCode) {
-        this.$emit('confirm', {
+        const result = {
           id: this.commentToEdit.id,
           ...this.form
-        })
+        }
+        const isEmptyChecklist =
+          result.checklist.length === 1 && result.checklist[0].text === ''
+        if (isEmptyChecklist) result.checklist = []
+        this.$emit('confirm', result)
       }
     },
 
@@ -190,5 +173,10 @@ textarea {
 
 .modal-content {
   overflow: initial;
+}
+
+.comment-checklist {
+  overflow-y: auto;
+  max-height: 200px;
 }
 </style>

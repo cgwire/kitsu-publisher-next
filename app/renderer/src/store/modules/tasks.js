@@ -29,12 +29,15 @@ import {
   NEW_TASK_END,
   EDIT_TASK_END,
   EDIT_TASK_DATES,
+  UPDATE_TASK,
   CREATE_TASKS_END,
   DELETE_TASK_END,
   EDIT_COMMENT_END,
   DELETE_COMMENT_END,
   PIN_COMMENT,
   ACK_COMMENT,
+  ADD_REPLY_TO_COMMENT,
+  REMOVE_REPLY_FROM_COMMENT,
   PREVIEW_FILE_SELECTED,
   ADD_PREVIEW_START,
   ADD_PREVIEW_END,
@@ -56,6 +59,7 @@ import {
   SAVE_TASK_SEARCH_END,
   REMOVE_TASK_SEARCH_END,
   UPDATE_COMMENT_CHECKLIST,
+  UPDATE_COMMENT_REPLIES,
   SET_LAST_COMMENT_DRAFT,
   REMOVE_FIRST_PREVIEW_FILE_TO_UPLOAD,
   UPDATE_REVISION_PREVIEW_POSITION,
@@ -105,6 +109,7 @@ const helpers = {
 
 const getters = {
   taskMap: (state) => state.taskMap,
+  taskComments: (state) => state.taskComments,
   getTaskComments: (state, getters) => (id) => state.taskComments[id],
   getTaskPreviews: (state, getters) => (id) => state.taskPreviews[id],
 
@@ -634,9 +639,30 @@ const actions = {
     return tasksApi.ackComment(comment)
   },
 
+  replyToComment({ commit, state }, { comment, text }) {
+    return tasksApi.replyToComment(comment, text).then((reply) => {
+      commit(ADD_REPLY_TO_COMMENT, { comment, reply })
+      return Promise.resolve(reply)
+    })
+  },
+
+  deleteReply({ commit, state }, { comment, reply }) {
+    commit(REMOVE_REPLY_FROM_COMMENT, { comment, reply })
+    return tasksApi.deleteReply(comment, reply).then(() => {
+      return Promise.resolve(reply)
+    })
+  },
+
   pinComment({ commit }, comment) {
     commit(PIN_COMMENT, comment)
     return tasksApi.pinComment(comment)
+  },
+
+  refreshComment({ commit, state }, { taskId, commentId }) {
+    return tasksApi.getTaskComment({ id: commentId }).then((comment) => {
+      commit(UPDATE_COMMENT_REPLIES, comment)
+      return Promise.resolve(comment)
+    })
   },
 
   updateRevisionPreviewPosition({ commit }, payload) {
@@ -884,20 +910,22 @@ const mutations = {
     if (annotations) {
       preview.annotations = annotations
     }
-    state.taskPreviews[taskId].forEach((p) => {
-      p.previews.forEach((subPreview) => {
-        if (subPreview.id === preview.id) {
-          if (annotations) {
-            subPreview.annotations = annotations
+    if (state.taskPreviews[taskId]) {
+      state.taskPreviews[taskId].forEach((p) => {
+        p.previews.forEach((subPreview) => {
+          if (subPreview.id === preview.id) {
+            if (annotations) {
+              subPreview.annotations = annotations
+            }
+            subPreview.status = preview.status
           }
-          subPreview.status = preview.status
+        })
+        if (p.id === preview.id) {
+          p.annotations = annotations
+          p.status = preview.status
         }
       })
-      if (p.id === preview.id) {
-        p.annotations = annotations
-        p.status = preview.status
-      }
-    })
+    }
   },
 
   [CHANGE_PREVIEW_END](state, { preview, comment }) {
@@ -999,6 +1027,10 @@ const mutations = {
         retake_count: task.retake_count
       })
     }
+  },
+
+  [UPDATE_TASK](state, { task, nbAssetsReady }) {
+    task.nb_assets_ready = nbAssetsReady
   },
 
   [EDIT_TASK_DATES](state, { taskId, data }) {
@@ -1103,9 +1135,34 @@ const mutations = {
     )
   },
 
+  [ADD_REPLY_TO_COMMENT](state, { comment, reply }) {
+    if (!comment.replies) comment.replies = []
+    if (!comment.replies.find((r) => r.id === reply.id)) {
+      comment.replies.push(reply)
+    }
+  },
+
+  [REMOVE_REPLY_FROM_COMMENT](state, { comment, reply }) {
+    if (!comment.replies) comment.replies = []
+    comment.replies = comment.replies.filter((r) => r.id !== reply.id)
+  },
+
   [UPDATE_COMMENT_CHECKLIST](state, { comment, checklist }) {
-    comment.checklist = [...checklist]
-    state.taskComments[comment.object_id].checklist = [...checklist]
+    if (state.taskComments[comment.object_id]) {
+      const localComment = state.taskComments[comment.object_id].find(
+        (c) => c.id === comment.id
+      )
+      localComment.checklist = [...checklist]
+    }
+  },
+
+  [UPDATE_COMMENT_REPLIES](state, comment) {
+    if (state.taskComments[comment.object_id]) {
+      const localComment = state.taskComments[comment.object_id].find(
+        (c) => c.id === comment.id
+      )
+      localComment.replies = comment.replies
+    }
   },
 
   [CLEAR_ASSETS](state) {

@@ -6,8 +6,9 @@ import init from '../lib/init'
 import store from '../store/'
 
 import Main from '../components/Main'
-import Todos from '../components/pages/Todos'
 import Login from '../components/pages/Login'
+import TaskType from '../components/pages/TaskType'
+import Todos from '../components/pages/Todos'
 
 const Asset = () => import('../components/pages/Asset')
 const Person = () => import('../components/pages/Person')
@@ -94,6 +95,24 @@ const routes = [
       },
 
       {
+        path: 'productions/:production_id/episodes/:episode_id/:type/task-types/:task_type_id',
+        component: TaskType,
+        name: 'episode-task-type',
+        children: [
+          {
+            name: 'episode-task-type-schedule',
+            path: 'schedule',
+            component: TaskType
+          },
+          {
+            name: 'episode-task-type-estimation',
+            path: 'estimation',
+            component: TaskType
+          }
+        ]
+      },
+
+      {
         name: 'task',
         path: 'productions/:production_id/:type/tasks/:task_id',
         component: Task,
@@ -122,6 +141,24 @@ const routes = [
             name: 'task-delete-comment',
             path: 'comments/:comment_id/delete',
             component: Task
+          }
+        ]
+      },
+
+      {
+        path: 'productions/:production_id/:type/task-types/:task_type_id',
+        component: TaskType,
+        name: 'task-type',
+        children: [
+          {
+            name: 'task-type-schedule',
+            path: 'schedule',
+            component: TaskType
+          },
+          {
+            name: 'task-type-estimation',
+            path: 'estimation',
+            component: TaskType
           }
         ]
       },

@@ -60,6 +60,10 @@ export default {
     return {}
   },
 
+  mounted() {
+    this.setListeners()
+  },
+
   computed: {
     ...mapGetters(['isCurrentUserManager']),
 
@@ -74,12 +78,6 @@ export default {
     originalName() {
       return `${this.previewFile.original_name}.${this.previewFile.extension}`
     }
-  },
-
-  watch: {},
-
-  mounted() {
-    this.setListeners()
   },
 
   methods: {
@@ -111,7 +109,9 @@ export default {
         newIndex: this.index
       })
     }
-  }
+  },
+
+  watch: {}
 }
 </script>
 

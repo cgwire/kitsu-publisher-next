@@ -1,5 +1,18 @@
 <template>
-  <span class="person-name">
+  <router-link
+    v-if="withLink"
+    class="person-name"
+    :to="{
+      name: 'person',
+      params: {
+        person_id: person.id
+      }
+    }"
+    :title="person.full_name"
+  >
+    {{ person.first_name + ' ' + person.last_name }}
+  </router-link>
+  <span v-else class="person-name">
     {{ person.first_name + ' ' + person.last_name }}
   </span>
 </template>
@@ -12,6 +25,10 @@ export default {
     person: {
       type: Object,
       required: true
+    },
+    withLink: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -24,7 +41,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.dark .person-name {
-  color: $white-grey;
+.person-name {
+  color: var(--text);
 }
 </style>

@@ -17,11 +17,11 @@
           {{ label }}
           <input
             ref="uploadInput"
+            class="visuallyhidden"
             type="file"
             :accept="accept"
             :name="uploadFieldName"
             :disabled="isSaving || disabled"
-            class="visuallyhidden"
             :multiple="multiple"
             @change="filesChange($event.target.name, $event.target.files)"
           />

@@ -177,6 +177,34 @@ export default {
     }
   },
 
+  mounted() {
+    this.updateActiveTab()
+    if (this.todosSearchText.length > 0) {
+      this.$refs['todos-search-field'].setValue(this.todosSearchText)
+    }
+    this.$nextTick(() => {
+      this.loadTodos({
+        date: this.selectedDate,
+        callback: () => {
+          if (this.todoList) {
+            this.$nextTick(() => {
+              this.todoList.setScrollPosition(this.todoListScrollPosition)
+            })
+          }
+          this.resizeHeaders()
+        }
+      })
+    })
+  },
+
+  afterDestroy() {
+    this.$store.commit('USER_LOAD_TODOS_END', {
+      tasks: [],
+      userFilters: {},
+      taskTypeMap: this.taskTypeMap
+    })
+  },
+
   computed: {
     ...mapGetters([
       'displayedDoneTasks',
@@ -264,40 +292,6 @@ export default {
         )
       }
     }
-  },
-
-  watch: {
-    $route() {
-      this.updateActiveTab()
-    }
-  },
-
-  mounted() {
-    this.updateActiveTab()
-    if (this.todosSearchText.length > 0) {
-      this.$refs['todos-search-field'].setValue(this.todosSearchText)
-    }
-    this.$nextTick(() => {
-      this.loadTodos({
-        date: this.selectedDate,
-        callback: () => {
-          if (this.todoList) {
-            this.$nextTick(() => {
-              this.todoList.setScrollPosition(this.todoListScrollPosition)
-            })
-          }
-          this.resizeHeaders()
-        }
-      })
-    })
-  },
-
-  afterDestroy() {
-    this.$store.commit('USER_LOAD_TODOS_END', {
-      tasks: [],
-      userFilters: {},
-      taskTypeMap: this.taskTypeMap
-    })
   },
 
   methods: {
@@ -430,6 +424,12 @@ export default {
       'task:unassign'(eventData) {
         this.onAssignation(eventData)
       }
+    }
+  },
+
+  watch: {
+    $route() {
+      this.updateActiveTab()
     }
   },
 

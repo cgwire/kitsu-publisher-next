@@ -99,10 +99,10 @@ const actions = {
 
   addAssetToCasting(
     { commit, rootState },
-    { entityId, assetId, nbOccurences }
+    { entityId, assetId, nbOccurences, label }
   ) {
     const asset = rootState.assets.assetMap.get(assetId)
-    commit(CASTING_ADD_TO_CASTING, { entityId, asset, nbOccurences })
+    commit(CASTING_ADD_TO_CASTING, { entityId, asset, nbOccurences, label })
   },
 
   removeAssetFromCasting(
@@ -270,7 +270,7 @@ const mutations = {
     state.castingByType = { ...state.castingByType }
   },
 
-  [CASTING_ADD_TO_CASTING](state, { entityId, asset, nbOccurences }) {
+  [CASTING_ADD_TO_CASTING](state, { entityId, asset, nbOccurences, label }) {
     if (!state.casting[entityId]) state.casting[entityId] = []
     const previousAsset = state.casting[entityId].find(
       (a) => a.asset_id === asset.id
@@ -284,7 +284,8 @@ const mutations = {
         asset_name: asset.name,
         asset_type_name: asset.asset_type_name,
         nb_occurences: nbOccurences,
-        preview_file_id: asset.preview_file_id
+        preview_file_id: asset.preview_file_id,
+        label
       }
       state.casting[entityId].push(newAsset)
     }

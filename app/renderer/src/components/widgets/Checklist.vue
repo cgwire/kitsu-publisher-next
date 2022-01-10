@@ -13,21 +13,19 @@
         <icon v-if="entry.checked" name="check-square" class="icon" />
         <icon v-else name="square" class="icon" />
       </span>
-      <!-- TODO : Fix this
-      <textarea-autosize
-        :ref="`checklist-entry-${index}`"
-        v-model="entry.text"
-        type="text"
-        class="checklist-text flexrow-item"
-        rows="1"
-        :placeholder="$t('comments.task_placeholder')"
-        :disabled="disabled"
-        @keypress.enter.prevent="addChecklistEntry(index, $event)"
-        @keyup.backspace="removeChecklistEntry(index)"
-        @keyup.up="focusPrevious(index)"
-        @keyup.down="focusNext(index)"
-      />
-      -->
+      <!--textarea-autosize
+      type="text"
+      class="checklist-text flexrow-item"
+      :ref="`checklist-entry-${index}`"
+      rows="1"
+      :placeholder="$t('comments.task_placeholder')"
+      @keypress.enter.prevent.native="addChecklistEntry(index, $event)"
+      @keyup.backspace.native="removeChecklistEntry(index)"
+      @keyup.up.native="focusPrevious(index)"
+      @keyup.down.native="focusNext(index)"
+      :disabled="disabled"
+      v-model="entry.text"
+    /-->
     </div>
   </div>
 </template>

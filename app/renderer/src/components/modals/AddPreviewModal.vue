@@ -117,29 +117,6 @@
           </p>
         </div>
 
-        <p v-if="forms" class="upload-previews">
-          <template v-for="(form, i) in forms" :key="'preview-' + i">
-            <hr />
-            <img v-if="isImage(form)" alt="uploaded file" :src="getURL(form)" />
-            <video
-              v-else-if="isVideo(form)"
-              preload="auto"
-              class="is-fullwidth"
-              autoplay
-              controls
-              loop
-              muted
-              :src="getURL(form)"
-            />
-            <iframe
-              v-else
-              class="is-fullwidth"
-              frameborder="0"
-              :src="getURL(form)"
-            />
-          </template>
-        </p>
-
         <p v-if="isError" class="error">
           {{ $t('tasks.add_preview_error') }}
         </p>
@@ -159,6 +136,30 @@
           <button class="button is-link" @click="$emit('cancel')">
             {{ $t('main.cancel') }}
           </button>
+        </p>
+
+        <p v-if="forms" class="upload-previews">
+          <template v-for="(form, i) in forms" :key="'preview-' + i">
+            <hr />
+            <img v-if="isImage(form)" alt="uploaded file" :src="getURL(form)" />
+            <video
+              v-else-if="isVideo(form)"
+              preload="auto"
+              class="is-fullwidth"
+              autoplay
+              controls
+              loop
+              muted
+              :src="getURL(form)"
+            />
+            <iframe
+              v-else-if="isPdf(form)"
+              :key="i"
+              class="is-fullwidth"
+              frameborder="0"
+              :src="getURL(form)"
+            />
+          </template>
         </p>
       </div>
     </div>
@@ -218,24 +219,6 @@ export default {
     previewField() {
       return this.$refs['preview-field']
     }
-  },
-
-  watch: {
-    active() {
-      this.reset()
-    }
-  },
-
-  mounted() {
-    this.forms = null
-
-    this.refreshConnectedDCCClients()
-
-    window.addEventListener('paste', this.onPaste, false)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('paste', this.onPaste)
   },
 
   methods: {
@@ -313,7 +296,27 @@ export default {
         this.forms = [formData]
         this.$emit('fileselected', this.forms)
       })
+    },
+
+    isPdf(form) {
+      return form.get('file').type.indexOf('pdf') > 0
     }
+  },
+
+  watch: {
+    active() {
+      this.reset()
+    }
+  },
+
+  mounted() {
+    this.forms = null
+    this.refreshConnectedDCCClients()
+    window.addEventListener('paste', this.onPaste, false)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('paste', this.onPaste)
   }
 }
 </script>

@@ -23,7 +23,7 @@
               :default-height="defaultHeight"
               :full-screen="fullScreen"
               :is-hd="isHd"
-              :is-comparing="isComparing"
+              :is-comparing="isComparing && isComparisonEnabled"
               :is-muted="isMuted"
               :is-ordering="isOrdering"
               :is-repeating="isRepeating"
@@ -32,7 +32,7 @@
               @duration-changed="changeMaxDuration"
               @play-ended="pause"
               @size-changed="fixCanvasSize"
-              @time-update="updateTime"
+              @frame-update="updateFrame"
               @video-end="onVideoEnd"
             />
 
@@ -44,7 +44,7 @@
               :big="big"
               :default-height="defaultHeight"
               :full-screen="fullScreen"
-              :is-comparing="isComparing"
+              :is-comparing="isComparing && isComparisonEnabled"
               :is-muted="true"
               :is-repeating="isRepeating"
               :light="light"
@@ -71,36 +71,38 @@
       </div>
     </div>
     <div ref="button-bar" class="button-bar">
-      <div v-show="isMovie" class="video-progress pull-bottom">
-        <progress ref="progress" value="0" min="0" @click="onProgressClicked" />
-      </div>
-
-      <annotation-bar
+      <video-progress
         v-show="isMovie"
-        ref="annotation-bar"
+        ref="progress"
+        class="video-progress pull-bottom"
         :annotations="annotations"
-        :max-duration-raw="videoDuration"
+        :frame-duration="frameDuration"
+        :nb-frames="nbFrames"
         :width="width"
-        @select-annotation="onAnnotationClicked"
+        @start-scrub="$refs['button-bar'].classList.add('unselectable')"
+        @end-scrub="$refs['button-bar'].classList.remove('unselectable')"
+        @progress-changed="onProgressChanged"
       />
 
       <div ref="buttons" class="buttons flexrow pull-bottom">
-        <div v-if="isMovie" class="left flexrow">
+        <div v-if="isMovie || isSound" class="left flexrow">
           <button-simple
             v-if="!isPlaying"
             class="flexrow-item"
             :title="$t('playlists.actions.play')"
             icon="play"
-            @click="onPlayPauseClicked"
+            @mouseup="onPlayPauseClicked"
           />
           <button-simple
             v-else
             class="flexrow-item"
             :title="$t('playlists.actions.pause')"
             icon="pause"
-            @click="onPlayPauseClicked"
+            @mouseup="onPlayPauseClicked"
           />
+        </div>
 
+        <div v-if="isMovie" class="left flexrow">
           <button-simple
             v-if="!light || fullScreen"
             :active="isRepeating"
@@ -214,7 +216,7 @@
                 class="annotation-tools"
               >
                 <color-picker
-                  :is-open="isShowingPalette"
+                  :isOpen="isShowingPalette"
                   :color="textColor"
                   @TogglePalette="onPickColor"
                   @change="onChangeTextColor"
@@ -237,7 +239,7 @@
                 class="annotation-tools"
               >
                 <pencil-picker
-                  :is-open="isShowingPencilPalette"
+                  :isOpen="isShowingPencilPalette"
                   :pencil="pencil"
                   :sizes="pencilPalette"
                   @toggle-palette="onPickPencil"
@@ -245,7 +247,7 @@
                 />
 
                 <color-picker
-                  :is-open="isShowingPalette"
+                  :isOpen="isShowingPalette"
                   :color="color"
                   @TogglePalette="onPickColor"
                   @change="onChangeColor"
@@ -377,20 +379,28 @@
         />
       </div>
     </div>
+
+    <!-- used only for picture saving purpose, it is not displayed -->
+    <canvas id="annotation-snapshot" ref="annotation-snapshot" />
+    <!-- end -->
   </div>
 </template>
 
 <script>
 import { fabric } from 'fabric'
 import { mapGetters, mapActions } from 'vuex'
-import { formatFrame, formatTime, roundToFrame } from '@/lib/video'
+import {
+  formatFrame,
+  formatTime,
+  roundToFrame,
+  floorToFrame
+} from '@/lib/video'
 import localPreferences from '@/lib/preferences'
 
 import { annotationMixin } from '@/components/mixins/annotation'
 import { fullScreenMixin } from '@/components/mixins/fullscreen'
 import { domMixin } from '@/components/mixins/dom'
 
-import AnnotationBar from '@/components/pages/playlists/AnnotationBar'
 import ButtonSimple from '@/components/widgets/ButtonSimple'
 import BrowsingBar from '@/components/previews/BrowsingBar'
 import ColorPicker from '@/components/widgets/ColorPicker'
@@ -399,13 +409,13 @@ import Icon from '@/components/widgets/Icon'
 import PencilPicker from '@/components/widgets/PencilPicker'
 import PreviewViewer from '@/components/previews/PreviewViewer'
 import RevisionPreview from '@/components/previews/RevisionPreview'
+import VideoProgress from '@/components/previews/VideoProgress'
 // const TaskInfo = () => import('@/components/sides/TaskInfo')
 
 export default {
   name: 'PreviewPlayer',
 
   components: {
-    AnnotationBar,
     ButtonSimple,
     BrowsingBar,
     ColorPicker,
@@ -413,8 +423,9 @@ export default {
     Icon,
     PencilPicker,
     PreviewViewer,
-    RevisionPreview
-    // TaskInfo
+    RevisionPreview,
+    // TaskInfo,
+    VideoProgress
   },
   mixins: [annotationMixin, domMixin, fullScreenMixin],
 
@@ -493,8 +504,33 @@ export default {
     }
   },
 
+  created() {
+    this.loupe = false
+    this.scrubbing = false
+    this.scrubStartX = 0
+    this.scrubStartTime = 0
+  },
+
+  mounted() {
+    if (!this.container) return
+    this.configureEvents()
+    this.setupFabricCanvas()
+    this.reloadAnnotations()
+    if (this.isPicture) this.loadAnnotation(this.getAnnotation(0))
+    this.resetPreviewFileMap()
+    this.initPreferences()
+    if (this.isSound || this.is3DModel || this.isFile) {
+      this.fixCanvasSize({ width: 0, height: 0 })
+    }
+  },
+
+  beforeUnmount() {
+    this.endAnnotationSaving()
+    this.removeEvents()
+  },
+
   computed: {
-    ...mapGetters(['currentProduction', 'user']),
+    ...mapGetters(['currentProduction', 'organisation', 'user']),
 
     // Elements
 
@@ -502,8 +538,8 @@ export default {
       return this.$refs.container
     },
 
-    previewContainer() {
-      return this.$refs['preview-container']
+    comparisonViewer() {
+      return this.$refs['comparison-preview-viewer']
     },
 
     canvasWrapper() {
@@ -514,22 +550,26 @@ export default {
       return this.$refs['preview-viewer']
     },
 
-    comparisonViewer() {
-      return this.$refs['comparison-preview-viewer']
+    previewContainer() {
+      return this.$refs['preview-container']
     },
 
     progress() {
       return this.$refs.progress
     },
 
-    progressBar() {
-      return this.$refs['progress-bar']
-    },
-
     // Utils
 
+    frameNumber() {
+      let frameNumber = this.currentTimeRaw / this.frameDuration
+      if (frameNumber >= this.nbFrames) {
+        frameNumber = this.nbFrames
+      }
+      return Math.round(frameNumber)
+    },
+
     currentFrame() {
-      return formatFrame(this.currentTimeRaw, this.fps)
+      return formatFrame(this.frameNumber + 1)
     },
 
     currentPreview() {
@@ -561,10 +601,12 @@ export default {
     },
 
     fps() {
-      return this.currentProduction.fps || 24
+      return this.currentProduction.fps
+        ? parseInt(this.currentProduction.fps)
+        : 24
     },
 
-    frameFactor() {
+    frameDuration() {
       return Math.round((1 / this.fps) * 10000) / 10000
     },
 
@@ -581,7 +623,11 @@ export default {
     },
 
     is3DModel() {
-      return this.extension === 'obj'
+      return ['glb', 'gltf'].includes(this.extension)
+    },
+
+    isSound() {
+      return ['mp3', 'wav'].includes(this.extension)
     },
 
     isPdf() {
@@ -659,129 +705,11 @@ export default {
 
     isComparisonEnabled() {
       return this.fullScreen || this.extraWide
+    },
+
+    nbFrames() {
+      return Math.round(this.videoDuration * this.fps)
     }
-  },
-
-  watch: {
-    currentPreview() {
-      this.endAnnotationSaving()
-      this.reloadAnnotations()
-      if (this.isMovie) {
-        this.configureVideo()
-        this.pause()
-        this.maxDuration = '00:00.000'
-        this.isDrawing = false
-        if (this.isComparing) this.isComparing = false
-      } else if (this.isPicture) {
-        this.pause()
-        this.isDrawing = false
-        this.refreshCanvas()
-        setTimeout(this.previewViewer.resetPicture, 10)
-        if (this.comparisonViewer) {
-          setTimeout(this.comparisonViewer.resetPicture, 20)
-        }
-      }
-      this.$nextTick(() => {
-        if (this.previewViewer && this.previewViewer.isBroken) {
-          this.clearCanvas()
-        }
-      })
-      this.setDefaultComparisonTaskType()
-    },
-
-    'currentPreview.revision'() {
-      this.endAnnotationSaving()
-      this.currentIndex = 1
-    },
-
-    previewToCompareId() {
-      this.$nextTick(() => {
-        if (this.comparisonViewer) this.comparisonViewer.pause()
-        this.previewToCompare = this.previewFileMap[this.previewToCompareId]
-        this.setCurrentTime(0 + this.frameFactor)
-        if (this.isComparing) {
-          this.pause()
-        }
-      })
-    },
-
-    taskTypeId() {
-      this.resetPreviewFileMap()
-      this.setDefaultComparisonPreview()
-    },
-
-    isComparing() {
-      this.endAnnotationSaving()
-      if (!this.isComparing) {
-        if (this.comparisonViewer) this.comparisonViewer.pause()
-        this.taskTypeId = ''
-        this.previewToCompareId = ''
-      }
-      this.$nextTick(() => {
-        this.fixCanvasSize(this.getCurrentPreviewDimensions())
-      })
-    },
-
-    extraWide() {
-      this.endAnnotationSaving()
-      if (this.previewViewer) this.previewViewer.resize()
-      this.$nextTick(() => {
-        this.fixCanvasSize(this.getCurrentPreviewDimensions())
-      })
-    },
-
-    isDrawing() {
-      if (this.fabricCanvas) this.fabricCanvas.isDrawingMode = this.isDrawing
-      else this.endAnnotationSaving()
-    },
-
-    isOrdering() {
-      this.$nextTick(() => {
-        this.fixCanvasSize(this.getCurrentPreviewDimensions())
-        if (this.previewViewer) {
-          this.previewViewer.resetVideo()
-          this.previewViewer.resetPicture()
-        }
-      })
-    },
-
-    isTyping() {
-      const clickarea =
-        this.canvasWrapper.getElementsByClassName('upper-canvas')[0]
-      if (this.isTyping && clickarea) {
-        clickarea.addEventListener('dblclick', this.addText)
-      } else {
-        clickarea.removeEventListener('dblclick', this.addText)
-      }
-    },
-
-    isCommentsHidden() {
-      this.$nextTick(() => {
-        this.fixCanvasSize(this.getCurrentPreviewDimensions())
-      })
-    }
-  },
-
-  created() {
-    this.loupe = false
-    this.scrubbing = false
-    this.scrubStartX = 0
-    this.scrubStartTime = 0
-  },
-
-  mounted() {
-    if (!this.container) return
-    this.configureEvents()
-    this.setupFabricCanvas()
-    this.reloadAnnotations()
-    if (this.isPicture) this.loadAnnotation(this.getAnnotation(0))
-    this.resetPreviewFileMap()
-    this.initPreferences()
-  },
-
-  beforeUnmount() {
-    this.endAnnotationSaving()
-    this.removeEvents()
   },
 
   methods: {
@@ -800,12 +728,13 @@ export default {
       )
     },
 
-    updateTime(time) {
-      this.updateProgressBar(time)
-      if (this.currentTimeRaw !== time) {
-        this.$emit('time-updated', time)
+    updateFrame(frameNumber) {
+      const time = frameNumber * this.frameDuration
+      if (this.frameNumber !== frameNumber) {
+        this.progress.updateProgressBar(frameNumber)
         this.currentTimeRaw = time
         this.currentTime = this.formatTime(this.currentTimeRaw)
+        this.$emit('time-updated', time)
         if (!this.isPlaying) this.loadAnnotation()
       }
     },
@@ -813,6 +742,9 @@ export default {
     initPreferences() {
       const isRepeating = localPreferences.getBoolPreference('player:repeating')
       this.isRepeating = isRepeating
+      this.isHd = this.organisation
+        ? this.organisation.hd_by_default === 'true'
+        : false
     },
 
     focus() {
@@ -837,7 +769,8 @@ export default {
         parseInt(minutes) * 60 +
         parseInt(seconds) +
         parseInt(milliseconds) / 1000
-      setTimeout(this.setCurrentTime, 20, time)
+      const frameNumber = Math.round(time / this.frameDuration)
+      setTimeout(this.setCurrentFrame, 20, frameNumber)
     },
 
     // Video
@@ -850,13 +783,14 @@ export default {
 
     changeMaxDuration(duration) {
       if (duration) {
-        this.maxDuration = this.formatTime(duration)
-        this.videoDuration = duration - this.frameFactor
-        this.progress.setAttribute('max', this.videoDuration)
+        duration = floorToFrame(duration, this.fps)
+        this.videoDuration = duration
+        this.maxDuration = this.formatTime(
+          this.videoDuration - this.frameDuration
+        )
       } else {
         this.maxDuration = '00:00.000'
         this.videoDuration = 0
-        this.progress.setAttribute('max', 0)
       }
     },
 
@@ -879,41 +813,47 @@ export default {
     },
 
     pause() {
-      this.isPlaying = false
-      if (this.comparisonViewer) this.comparisonViewer.pause()
-      if (this.previewViewer) {
-        this.previewViewer.pause()
-        const currentTimeRaw = this.previewViewer.getCurrentTimeRaw()
-        const currentTime = roundToFrame(currentTimeRaw, this.fps) || 0
-        this.setCurrentTime(currentTime)
+      if (this.isPlaying) {
+        this.isPlaying = false
+        if (this.previewViewer) this.previewViewer.pause()
+        if (this.comparisonViewer) this.comparisonViewer.pause()
+        this.syncComparisonViewer()
       }
     },
 
     goPreviousFrame() {
-      const time = this.previewViewer.goPreviousFrame()
-      this.comparisonViewer.setCurrentTimeRaw(time)
       this.clearCanvas()
+      this.previewViewer.goPreviousFrame()
+      this.syncComparisonViewer()
     },
 
     goNextFrame() {
-      const time = this.previewViewer.goNextFrame()
-      this.comparisonViewer.setCurrentTimeRaw(time)
       this.clearCanvas()
+      this.previewViewer.goNextFrame()
+      this.syncComparisonViewer()
     },
 
     syncComparisonViewer() {
-      if (this.comparisonViewer) {
+      if (this.comparisonViewer && this.isComparing) {
+        // Dirty fix: add a missing frame to the comparaison video
         this.comparisonViewer.setCurrentTimeRaw(
-          this.previewViewer.getCurrentTimeRaw()
+          this.previewViewer.getCurrentTimeRaw() + this.frameDuration
         )
+      }
+    },
+
+    onProgressChanged(frameNumber) {
+      if (frameNumber !== this.frameNumber) {
+        this.clearCanvas()
+        this.setCurrentFrame(frameNumber)
       }
     },
 
     onVideoEnd() {
       this.isPlaying = false
       if (this.isRepeating) {
-        this.setCurrentTime(0)
-        this.comparisonViewer.setCurrentTimeRaw(0)
+        this.setCurrentFrame(1)
+        this.syncComparisonViewer()
         this.$nextTick(() => {
           this.play()
         })
@@ -1014,8 +954,7 @@ export default {
         this.fixCanvasSize(this.getCurrentPreviewDimensions())
         // Needed to avoid fullsceen button to be called with space bar.
         this.clearFocus()
-        this.reloadAnnotations()
-        this.loadAnnotation()
+        this.previewViewer.resize()
       })
     },
 
@@ -1030,8 +969,7 @@ export default {
       this.$nextTick(() => {
         // Needed to avoid fullsceen button to be called with space bar.
         this.clearFocus()
-        this.reloadAnnotations()
-        this.loadAnnotation()
+        this.previewViewer.resize()
       })
     },
 
@@ -1185,15 +1123,6 @@ export default {
       }
     },
 
-    getAnnotationStyles(annotation, index) {
-      return {
-        cursor: 'pointer',
-        position: 'relative',
-        display: 'inline-block',
-        left: this.getTimelinePosition(annotation.time, index) + 'px'
-      }
-    },
-
     onAnnotationClicked(annotation) {
       this.loadAnnotation(annotation)
     },
@@ -1228,13 +1157,9 @@ export default {
       }
 
       if (!this.fabricCanvas) this.setupFabricCanvas()
-      if (this.isMovie) {
-        currentTime = annotation.time || 0
-        if (this.previewViewer) this.previewViewer.pause()
-        currentTime = roundToFrame(currentTime, this.fps)
-        this.setCurrentTime(currentTime)
+      if (this.isMovie && this.previewViewer && this.isPlaying) {
+        this.previewViewer.pause()
       }
-
       this.clearCanvas()
       this.loadSingleAnnotation(annotation)
     },
@@ -1258,6 +1183,61 @@ export default {
       return this.annotations
     },
 
+    getFileFromCanvas(canvas, filename) {
+      return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          const file = new File([blob], filename, {
+            type: 'image/png',
+            lastModified: new Date().getTime()
+          })
+          return resolve(file)
+        })
+      })
+    },
+
+    extractVideoFrame(canvas, frameNumber) {
+      return new Promise((resolve) => {
+        this.setCurrentFrame(frameNumber)
+        setTimeout(() => {
+          this.previewViewer.extractFrame(canvas, frameNumber)
+          resolve()
+        }, 100)
+      })
+    },
+
+    copyAnnotationCanvas(canvas, annotation) {
+      return new Promise((resolve) => {
+        this.clearCanvas()
+        this.loadSingleAnnotation(annotation)
+        setTimeout(() => {
+          const context = canvas.getContext('2d')
+          const source = document.getElementById('annotation-canvas')
+          context.drawImage(source, 0, 0, canvas.width, canvas.height)
+          return resolve()
+        }, 100)
+      })
+    },
+
+    async extractAnnotationSnapshots() {
+      const currentFrame = this.currentFrame
+      const annotations = this.annotations.sort((a, b) => b.time < a.time)
+      const files = []
+      let index = 1
+      for (const annotation of annotations) {
+        const canvas = document.getElementById('annotation-snapshot')
+        const filename = `annotation ${index}.png`
+        const frameNumber =
+          roundToFrame(annotation.time, this.fps) / this.frameDuration
+        await this.extractVideoFrame(canvas, frameNumber)
+        await this.copyAnnotationCanvas(canvas, annotation)
+        const file = await this.getFileFromCanvas(canvas, filename)
+        files.push(file)
+        index++
+      }
+      this.previewViewer.setCurrentFrame(currentFrame)
+      return files
+    },
+
     // Events
 
     onKeyDown(event) {
@@ -1275,22 +1255,26 @@ export default {
           this.onPlayPauseClicked()
           this.pauseEvent(event)
           return false
+        } else if (event.ctrlKey && event.altKey && event.keyCode === 68) {
+          // ctrl + alt + d
+          this.onPencileAnnotateClicked()
         } else if (event.keyCode === 68) {
-          if (event.ctrlKey && event.altKey) {
-            // ctrl + alt + d
-            this.onPencileAnnotateClicked()
-          } else {
-            // d
-            this.container.focus()
-            this.pauseEvent(event)
-            this.onPencilAnnotateClicked()
-          }
+          // d
+          this.container.focus()
+          this.pauseEvent(event)
+          this.onPencilAnnotateClicked()
         } else if (event.ctrlKey && event.keyCode === 90) {
           // ctrl + z
           this.undoLastAction()
         } else if (event.altKey && event.keyCode === 82) {
           // alt + r
           this.redoLastAction()
+        } else if (event.altKey && event.keyCode === 74) {
+          // alt+j
+          this.onPreviousClicked()
+        } else if (event.altKey && event.keyCode === 75) {
+          // alt+k
+          this.onNextClicked()
         } else if (event.ctrlKey && event.keyCode === 67) {
           // ctrl + c
           this.copyAnnotations()
@@ -1465,19 +1449,11 @@ export default {
 
     // Video progress
 
-    getTimelinePosition(time, index) {
-      if (this.$refs.movie) {
-        let position = Math.round(
-          (time / this.$refs.movie.duration) * this.progress.offsetWidth
-        )
-        position = position - index * 10 - 5
-        if (position < 0) position = 0
-        if (position + 10 > this.progress.offsetWidth) {
-          position = position - 5
-        }
-        return position
-      } else {
-        return 0
+    setCurrentFrame(frameNumber) {
+      if (frameNumber !== this.frameNumber) {
+        this.previewViewer.setCurrentFrame(frameNumber)
+        this.syncComparisonViewer()
+        setTimeout(this.syncComparisonViewer(), this.frameDuration)
       }
     },
 
@@ -1524,6 +1500,118 @@ export default {
       }).catch(console.error)
       this.$nextTick(() => {
         this.currentIndex = newIndex + 1
+      })
+    }
+  },
+
+  watch: {
+    currentPreview() {
+      this.endAnnotationSaving()
+      this.reloadAnnotations()
+      if (this.isMovie) {
+        this.configureVideo()
+        this.pause()
+        this.maxDuration = '00:00.000'
+        this.isDrawing = false
+        if (this.isComparing) this.isComparing = false
+      } else if (this.isPicture) {
+        this.pause()
+        this.isDrawing = false
+        this.refreshCanvas()
+        setTimeout(this.previewViewer.resetPicture, 10)
+        if (this.comparisonViewer) {
+          setTimeout(this.comparisonViewer.resetPicture, 20)
+        }
+      } else if (this.isSound || this.isFile || this.is3DModel) {
+        this.fixCanvasSize({ width: 0, height: 0 })
+      }
+      this.$nextTick(() => {
+        if (this.previewViewer && this.previewViewer.isBroken) {
+          this.clearCanvas()
+        }
+      })
+      this.setDefaultComparisonTaskType()
+    },
+
+    'currentPreview.revision'() {
+      this.endAnnotationSaving()
+      this.currentIndex = 1
+    },
+
+    previewToCompareId() {
+      this.$nextTick(() => {
+        const currentFrame = this.currentFrame
+        if (this.comparisonViewer) this.comparisonViewer.pause()
+        this.previewToCompare = this.previewFileMap[this.previewToCompareId]
+        if (this.isComparing) {
+          this.setCurrentFrame(currentFrame - 1)
+          setTimeout(this.syncComparisonViewer, 200)
+          this.pause()
+        }
+      })
+    },
+
+    taskTypeId() {
+      this.resetPreviewFileMap()
+      this.setDefaultComparisonPreview()
+    },
+
+    isComparing() {
+      this.endAnnotationSaving()
+      if (!this.isComparing) {
+        if (this.comparisonViewer) this.comparisonViewer.pause()
+        this.taskTypeId = ''
+        this.previewToCompareId = ''
+      }
+      this.$nextTick(() => {
+        this.fixCanvasSize(this.getCurrentPreviewDimensions())
+      })
+    },
+
+    light() {
+      this.endAnnotationSaving()
+      this.previewViewer.resize()
+      this.$nextTick(() => {
+        this.fixCanvasSize(this.getCurrentPreviewDimensions())
+      })
+    },
+
+    extraWide() {
+      this.endAnnotationSaving()
+      if (this.previewViewer) this.previewViewer.resize()
+      this.$nextTick(() => {
+        this.fixCanvasSize(this.getCurrentPreviewDimensions())
+      })
+    },
+
+    isDrawing() {
+      if (this.fabricCanvas) this.fabricCanvas.isDrawingMode = this.isDrawing
+      else this.endAnnotationSaving()
+    },
+
+    isOrdering() {
+      this.$nextTick(() => {
+        this.fixCanvasSize(this.getCurrentPreviewDimensions())
+        if (this.previewViewer) {
+          this.previewViewer.resetVideo()
+          this.previewViewer.resetPicture()
+        }
+      })
+    },
+
+    isTyping() {
+      const clickarea =
+        this.canvasWrapper.getElementsByClassName('upper-canvas')[0]
+      if (this.isTyping && clickarea) {
+        clickarea.addEventListener('dblclick', this.addText)
+      } else {
+        clickarea.removeEventListener('dblclick', this.addText)
+      }
+    },
+
+    isCommentsHidden() {
+      this.$nextTick(() => {
+        this.fixCanvasSize(this.getCurrentPreviewDimensions())
       })
     }
   },
@@ -1722,41 +1810,6 @@ export default {
   }
 }
 
-.progress {
-  padding: 0;
-  margin: 0;
-  height: 8px;
-}
-
-.video-progress {
-  cursor: pointer;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: $grey;
-  height: 8px;
-}
-
-progress::-moz-progress-bar {
-  background-color: #43b581;
-}
-
-progress::-webkit-progress-value {
-  background-color: #43b581;
-}
-
-progress {
-  width: 100%;
-  border-radius: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: $grey;
-  height: 8px;
-  display: block;
-}
-
 .revision-previews {
   overflow-x: auto;
   height: 140px;
@@ -1796,5 +1849,9 @@ progress {
 
 .viewers {
   display: flex;
+}
+
+#annotation-snapshot {
+  display: none;
 }
 </style>

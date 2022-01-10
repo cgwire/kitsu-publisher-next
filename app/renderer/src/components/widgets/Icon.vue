@@ -22,7 +22,7 @@ export default {
 
   computed: {
     type() {
-      return this.name.length > 0 ? this.name : 'plus'
+      return this.name.length > 0 ? this.name : ''
     }
   },
 

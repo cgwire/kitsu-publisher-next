@@ -19,30 +19,6 @@
       </div>
     </figure>
     <div class="media-content">
-      <!-- TODO : reactivate at-ta
-        <at-ta
-        :members="atOptions"
-        name-key="full_name"
-        :limit="2"
-        @input="onTextChanged"
-      >-->
-      <template v-if="team && team.item" slot="item" slot-scope="team">
-        <template v-if="team.item.isTime"> ⏱️ frame </template>
-        <template v-else>
-          <div class="flexrow">
-            <people-avatar
-              class="flexrow-item"
-              :person="team.item"
-              :size="20"
-              :font-size="11"
-              :no-cache="true"
-            />
-            <span class="flexrow-item">
-              {{ team.item.full_name }}
-            </span>
-          </div>
-        </template>
-      </template>
       <textarea
         ref="comment-textarea"
         v-model="text"
@@ -57,7 +33,6 @@
           runAddComment(text, attachment, checklist, task_status_id)
         "
       />
-      <!--</at-ta>-->
       <checklist
         v-if="checklist.length > 0"
         :checklist="checklist"
@@ -126,8 +101,10 @@
       :active="modals.addCommentAttachment"
       :is-loading="loading.addCommentAttachment"
       :is-error="errors.addCommentAttachment"
+      :is-movie="isMovie"
       @cancel="onCloseCommentAttachment"
       @confirm="createCommentAttachment"
+      @add-snapshots="$emit('annotation-snapshots-requested')"
     />
   </article>
 </template>
@@ -138,25 +115,23 @@ import { remove } from '@/lib/models'
 import colors from '@/lib/colors'
 import { replaceTimeWithTimecode } from '@/lib/render'
 
-//import AtTa from 'vue-at/dist/vue-at-textarea' TODO : fix this
 import AddCommentImageModal from '@/components/modals/AddCommentImageModal'
-import ComboboxStatus from '@/components/widgets/ComboboxStatus'
-import PeopleAvatar from '@/components/widgets/PeopleAvatar'
-import GroupButton from '@/components/widgets/GroupButton'
 import ButtonSimple from '@/components/widgets/ButtonSimple'
 import Checklist from '@/components/widgets/Checklist'
+import ComboboxStatus from '@/components/widgets/ComboboxStatus'
+import GroupButton from '@/components/widgets/GroupButton'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
 
 export default {
   name: 'AddComment',
 
   components: {
-    //AtTa,
     AddCommentImageModal,
-    ComboboxStatus,
-    PeopleAvatar,
-    GroupButton,
     ButtonSimple,
-    Checklist
+    Checklist,
+    ComboboxStatus,
+    GroupButton,
+    PeopleAvatar
   },
 
   props: {
@@ -164,11 +139,15 @@ export default {
       type: Function,
       default: null
     },
-    isLoading: {
+    isError: {
       type: Boolean,
       default: null
     },
-    isError: {
+    isMovie: {
+      type: Boolean,
+      default: false
+    },
+    isLoading: {
       type: Boolean,
       default: null
     },
@@ -217,7 +196,7 @@ export default {
       text: '',
       attachment: [],
       checklist: [],
-      task_status_id: this.task.task_status_id,
+      task_status_id: null,
       errors: {
         addCommentAttachment: false
       },
@@ -230,8 +209,38 @@ export default {
     }
   },
 
+  mounted() {
+    ;[
+      'drag',
+      'dragstart',
+      'dragend',
+      'dragover',
+      'dragenter',
+      'dragleave',
+      'drop'
+    ].forEach((evt) => {
+      if (this.$refs.wrapper) {
+        this.$refs.wrapper.addEventListener(evt, (e) => {
+          e.preventDefault()
+          e.stopPropagation()
+        })
+      }
+    })
+    this.resetStatus()
+  },
+
   computed: {
-    ...mapGetters(['currentProduction', 'isDarkTheme']),
+    ...mapGetters([
+      'currentProduction',
+      'isDarkTheme',
+      'isCurrentUserArtist',
+      'taskStatusForCurrentUser',
+      'taskStatusMap'
+    ]),
+
+    attachmentModal() {
+      return this.$refs['add-comment-image-modal']
+    },
 
     isFileAttached() {
       return (
@@ -260,60 +269,24 @@ export default {
     }
   },
 
-  watch: {
-    task() {
-      this.task_status_id = this.task.task_status_id
-    },
-
-    team: {
-      deep: true,
-      immediate: true,
-      handler() {
-        this.atOptions = [...this.team]
-        this.atOptions.push({
-          isTime: true,
-          full_name: 'frame'
-        })
-      }
-    }
-  },
-
-  mounted() {
-    ;[
-      'drag',
-      'dragstart',
-      'dragend',
-      'dragover',
-      'dragenter',
-      'dragleave',
-      'drop'
-    ].forEach((evt) => {
-      if (this.$refs.wrapper) {
-        this.$refs.wrapper.addEventListener(evt, (e) => {
-          e.preventDefault()
-          e.stopPropagation()
-        })
-      }
-    })
-  },
-
   methods: {
     runAddComment(text, attachment, checklist, taskStatusId) {
-      text = replaceTimeWithTimecode(text, this.revision, this.time, this.fps)
+      const frameDuration = Math.round((1 / this.fps) * 10000) / 10000
+      text = replaceTimeWithTimecode(
+        text,
+        this.revision,
+        this.time + frameDuration,
+        this.fps
+      )
       this.$emit('add-comment', text, attachment, checklist, taskStatusId)
       this.text = ''
       this.attachment = []
       this.checklist = []
     },
 
-    updateValue(value) {
-      this.task_status_id = this.$refs.statusSelect.value
-    },
-
-    // TODO : Fix text-area before
-    /*focus() {
+    focus() {
       this.$refs['comment-textarea'].focus()
-    },*/
+    },
 
     onDragover() {
       this.isDragging = true
@@ -370,10 +343,11 @@ export default {
     onTextChanged(input) {
       if (input.indexOf('@frame') >= 0) {
         this.$nextTick(() => {
+          const frameDuration = Math.round((1 / this.fps) * 10000) / 10000
           const text = replaceTimeWithTimecode(
             this.$refs['comment-textarea'].value,
             this.revision,
-            this.time,
+            this.time + frameDuration,
             this.fps
           )
           this.$refs['comment-textarea'].value = text
@@ -385,6 +359,37 @@ export default {
       this.checklist[item.index].text = this.checklist[item.index].text.trim()
       delete item.index
       this.checklist.push(item)
+    },
+
+    resetStatus() {
+      const taskStatus = this.taskStatusMap.get(this.task.task_status_id)
+      if (!this.isCurrentUserArtist || taskStatus.is_artist_allowed) {
+        this.task_status_id = this.task.task_status_id
+      } else {
+        this.task_status_id = this.taskStatusForCurrentUser[0].id
+      }
+    },
+
+    setAnnotationSnapshots(files) {
+      this.attachmentModal.addFiles(files)
+    }
+  },
+
+  watch: {
+    task() {
+      this.resetStatus()
+    },
+
+    team: {
+      deep: true,
+      immediate: true,
+      handler() {
+        this.atOptions = [...this.team]
+        this.atOptions.push({
+          isTime: true,
+          full_name: 'frame'
+        })
+      }
     }
   }
 }

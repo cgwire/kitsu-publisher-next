@@ -579,6 +579,7 @@ const actions = {
     const production = rootGetters.currentProduction
     const episodeMap = rootGetters.episodeMap
     const organisation = rootGetters.organisation
+    const personMap = rootGetters.personMap
     let assets = cache.assets
     if (cache.result && cache.result.length > 0) {
       assets = cache.result
@@ -613,8 +614,12 @@ const actions = {
         )
         if (task) {
           assetLine.push(task.task_status_short_name)
+          assetLine.push(
+            task.assignees.map((id) => personMap.get(id).full_name).join(',')
+          )
         } else {
-          assetLine.push('')
+          assetLine.push('') // Status
+          assetLine.push('') // Assignation
         }
       })
       return assetLine
@@ -1106,7 +1111,11 @@ const mutations = {
     state,
     { descriptor, previousDescriptorFieldName }
   ) {
-    if (descriptor.entity_type === 'Asset' && previousDescriptorFieldName) {
+    if (
+      descriptor.entity_type === 'Asset' &&
+      previousDescriptorFieldName &&
+      previousDescriptorFieldName !== descriptor.field_name
+    ) {
       cache.assets.forEach((asset) => {
         asset.data[descriptor.field_name] =
           asset.data[previousDescriptorFieldName]

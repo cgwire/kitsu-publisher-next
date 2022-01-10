@@ -95,6 +95,10 @@ export default {
     }
   },
 
+  mounted() {
+    this.selectedTaskStatus = this.taskStatus
+  },
+
   computed: {
     ...mapGetters(['isDarkTheme', 'taskStatusMap']),
 
@@ -110,10 +114,6 @@ export default {
         return this.taskStatusList[0]
       }
     }
-  },
-
-  mounted() {
-    this.selectedTaskStatus = this.taskStatus
   },
 
   methods: {

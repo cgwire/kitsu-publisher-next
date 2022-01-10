@@ -3,9 +3,10 @@
     <span v-if="!minimized">
       <router-link
         v-if="!isStatic && !isCurrentUserClient"
-        :to="taskPath(task)"
         class="tag dynamic"
+        :to="taskPath(task)"
         :style="tagStyle"
+        :title="taskStatus.name"
       >
         {{ taskStatus.short_name }}
       </router-link>
@@ -14,6 +15,7 @@
         v-else
         class="tag"
         :style="tagStyle"
+        :title="taskStatus.name"
         @click="($event) => $emit('click', $event)"
       >
         {{ taskStatus.short_name }}
@@ -28,10 +30,10 @@
         :to="taskPath(task)"
         class="tag dynamic"
         :style="tagStyle"
+        :title="taskStatus.name"
       >
         &nbsp;
       </router-link>
-
       <span v-else class="tag" :style="cursor"> &nbsp; </span>
     </span>
   </span>

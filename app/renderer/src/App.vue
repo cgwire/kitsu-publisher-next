@@ -48,18 +48,6 @@ export default {
     ])
   },
 
-  watch: {
-    isDarkTheme() {
-      if (this.isDarkTheme) {
-        document.documentElement.style.background = '#36393F'
-        document.body.style.background = '#36393F'
-      } else {
-        document.documentElement.style.background = '#FFF'
-        document.body.style.background = '#FFF'
-      }
-    }
-  },
-
   mounted() {
     if (localStorage.getItem('dark-theme') === 'true' && !this.isDarkTheme) {
       this.$store.commit('TOGGLE_DARK_THEME')
@@ -123,6 +111,19 @@ export default {
       }
     }
   },
+
+  watch: {
+    isDarkTheme() {
+      if (this.isDarkTheme) {
+        document.documentElement.style.background = '#36393F'
+        document.body.style.background = '#36393F'
+      } else {
+        document.documentElement.style.background = '#FFF'
+        document.body.style.background = '#FFF'
+      }
+    }
+  },
+
   socket: {
     events: {
       'project:new'(eventData) {
