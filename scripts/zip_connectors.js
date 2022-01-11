@@ -2,6 +2,10 @@ const npm_package = require('./../package.json')
 const file_system = require('fs')
 const archiver = require('archiver')
 
+if (!file_system.existsSync('./dist')) {
+  file_system.mkdirSync('./dist')
+}
+
 var output = file_system.createWriteStream(
   `./dist/connectors-${npm_package.version}.zip`
 )

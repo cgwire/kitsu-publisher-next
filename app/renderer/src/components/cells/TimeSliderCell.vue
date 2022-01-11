@@ -36,7 +36,7 @@ export default {
   },
 
   props: {
-    taskId: {
+    'task-id': {
       type: String,
       default: ''
     },
@@ -54,6 +54,7 @@ export default {
         width: 400,
         min: 0,
         max: 10,
+        interval: 0.25,
         lazy: true,
         marks: [
           0, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5,
@@ -77,20 +78,20 @@ export default {
     ...mapGetters(['organisation'])
   },
 
+  methods: {
+    ...mapActions([]),
+
+    setValue(value) {
+      this.value = value
+    }
+  },
+
   watch: {
     value() {
       this.$emit('change', {
         taskId: this.taskId,
         duration: this.value
       })
-    }
-  },
-
-  methods: {
-    ...mapActions([]),
-
-    setValue(value) {
-      this.value = value
     }
   }
 }

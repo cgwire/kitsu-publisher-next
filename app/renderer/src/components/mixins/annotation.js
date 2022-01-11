@@ -10,6 +10,24 @@ import moment from 'moment'
 import clipboard from '@/lib/clipboard'
 import { formatFullDate } from '@/lib/time'
 
+/* Monkey patch needed to have text background including the padding. */
+if (fabric) {
+  fabric.Text.prototype.set({
+    _getNonTransformedDimensions() {
+      // Object dimensions
+      return new fabric.Point(this.width, this.height).scalarAdd(this.padding)
+    },
+    _calculateCurrentDimensions() {
+      // Controls dimensions
+      return fabric.util.transformPoint(
+        this._getTransformedDimensions(),
+        this.getViewportTransform(),
+        true
+      )
+    }
+  })
+}
+
 export const annotationMixin = {
   data() {
     return {
@@ -79,8 +97,11 @@ export const annotationMixin = {
         top: posY,
         fontFamily: 'arial',
         fill: this.textColor,
-        fontSize: fontSize
+        fontSize: fontSize,
+        backgroundColor: 'rgba(255,255,255, 0.8)',
+        padding: 10
       })
+
       this.fabricCanvas.add(fabricText)
       this.fabricCanvas.setActiveObject(fabricText)
       fabricText.enterEditing()
@@ -206,6 +227,17 @@ export const annotationMixin = {
       this.additions = []
       this.updates = []
       this.deletions = []
+    },
+
+    printModificationStats(prefix) {
+      console.log(
+        prefix,
+        this.additions.length > 0
+          ? this.additions[0].drawing.objects.length
+          : 0,
+        this.updates.length > 0 ? this.updates[0].drawing.objects.length : 0,
+        this.deletions.length > 0 ? this.deletions[0].objects.length : 0
+      )
     },
 
     isWriting(date) {
@@ -334,7 +366,9 @@ export const annotationMixin = {
             left: obj.left * scaleMultiplierX,
             top: obj.top * scaleMultiplierY,
             fontFamily: obj.fontFamily,
-            fontSize: obj.fontSize
+            fontSize: obj.fontSize,
+            backgroundColor: 'rgba(255,255,255, 0.8)',
+            padding: 10
           })
           text.setControlsVisibility({
             mt: false,

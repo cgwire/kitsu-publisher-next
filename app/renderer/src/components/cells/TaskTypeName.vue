@@ -7,7 +7,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import TaskTypeName from '../widgets/TaskTypeName'
+import TaskTypeName from '@/components/widgets/TaskTypeName'
 
 export default {
   name: 'TaskTypeCell',
@@ -44,7 +44,6 @@ export default {
   margin: 0.7em;
   padding: 1em;
   font-size: 1em;
-  color: $grey-strong;
   border-radius: 0;
   font-weight: bold;
 }

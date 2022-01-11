@@ -1,4 +1,4 @@
-import client from './client'
+import client from '@/store/api/client'
 
 export default {
   getPlaylists(production, episode, taskTypeId, sortBy, page) {
@@ -29,6 +29,18 @@ export default {
 
   getRunningPreviewFiles() {
     return client.pget('/api/data/playlists/preview-files/running')
+  },
+
+  markPreviewFileAsBroken(previewFileId) {
+    return client.pput(`/api/data/preview-files/${previewFileId}`, {
+      status: 'broken'
+    })
+  },
+
+  updatePreviewFileValidationStatus(previewFile, status) {
+    return client.pput(`/api/data/preview-files/${previewFile.id}`, {
+      validation_status: status
+    })
   },
 
   newPlaylist(playlist) {

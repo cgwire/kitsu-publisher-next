@@ -61,9 +61,9 @@ export default {
       })
     },
     size: { type: Number, default: 40 },
-    fontSize: { type: Number, default: 18 },
-    isLink: { type: Boolean, default: true },
-    noCache: { type: Boolean, default: false }
+    'font-size': { type: Number, default: 18 },
+    'is-link': { type: Boolean, default: true },
+    'no-cache': { type: Boolean, default: false }
   },
 
   data() {

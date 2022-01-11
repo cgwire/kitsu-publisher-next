@@ -98,10 +98,10 @@ import { mapGetters, mapActions } from 'vuex'
 
 import { formatListMixin } from '@/components/mixins/format'
 
-import TaskTypeCell from '../cells/TaskTypeName'
-import TableInfo from '../widgets/TableInfo'
-import ValidationTag from '../widgets/ValidationTag'
-import PeopleAvatar from '../widgets/PeopleAvatar'
+import TaskTypeCell from '@/components/cells/TaskTypeName'
+import TableInfo from '@/components/widgets/TableInfo'
+import ValidationTag from '@/components/widgets/ValidationTag'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
 
 export default {
   name: 'EntityTaskList',
@@ -150,10 +150,12 @@ export default {
       return [...this.entries].sort((taskIdA, taskIdB) => {
         const taskA = this.getTask(taskIdA)
         const taskB = this.getTask(taskIdB)
+        const taskTypeA = this.taskTypeMap.get(taskA.task_type_id)
+        const taskTypeB = this.taskTypeMap.get(taskB.task_type_id)
         const taskTypeAPriority = this.getTaskTypePriority(taskA.task_type_id)
         const taskTypeBPriority = this.getTaskTypePriority(taskB.task_type_id)
         if (taskTypeAPriority === taskTypeBPriority) {
-          return this.taskTypeA.localeCompare(this.taskTypeB.name)
+          return taskTypeA.name.localeCompare(taskTypeB.name)
         } else {
           return taskTypeAPriority - taskTypeBPriority
         }

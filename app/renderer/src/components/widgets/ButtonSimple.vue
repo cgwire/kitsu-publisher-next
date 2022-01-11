@@ -9,7 +9,6 @@
       'is-on': isOn
     }"
     :title="title"
-    @click="$emit('click')"
   >
     <icon v-if="name && name !== ''" :class="iconClass" :name="name" />
     <span

@@ -1,9 +1,12 @@
 import apisauce from 'apisauce'
+import { data } from 'browserslist'
 
 class DCCClient {
   constructor(baseURL) {
     this.baseURL = baseURL
     this.api = apisauce.create({ baseURL: this.baseURL })
+    this.isCurrentlyOnTakeScreenshot = false
+    this.isCurrentlyOnTakeAnimation = false
     this.DCCName = ''
     this.DCCVersion = ''
     this.currentProject = ''
@@ -107,19 +110,27 @@ class DCCClient {
     outputPath = '',
     useColorspace = false
   ) {
+    this.isCurrentlyOnTakeScreenshot = true
     return this.get('take-render-screenshot', {
       renderer: renderer,
       output_path: outputPath,
       extension: extension,
       use_colorspace: useColorspace
+    }).then((data) => {
+      this.isCurrentlyOnTakeScreenshot = false
+      return Promise.resolve(data)
     })
   }
 
   takeViewportScreenshot(extension, outputPath = '', useColorspace = false) {
+    this.isCurrentlyOnTakeScreenshot = true
     return this.get('take-viewport-screenshot', {
       output_path: outputPath,
       extension: extension,
       use_colorspace: useColorspace
+    }).then((data) => {
+      this.isCurrentlyOnTakeScreenshot = false
+      return Promise.resolve(data)
     })
   }
 
@@ -129,19 +140,27 @@ class DCCClient {
     outputPath = '',
     useColorspace = false
   ) {
+    this.isCurrentlyOnTakeAnimation = true
     return this.get('take-render-animation', {
       renderer: renderer,
       output_path: outputPath,
       extension: extension,
       use_colorspace: useColorspace
+    }).then((data) => {
+      this.isCurrentlyOnTakeAnimation = false
+      return Promise.resolve(data)
     })
   }
 
   takeViewportAnimation(extension, outputPath, useColorspace = false) {
+    this.isCurrentlyOnTakeAnimation = true
     return this.get('take-viewport-animation', {
       output_path: outputPath,
       extension: extension,
       use_colorspace: useColorspace
+    }).then((data) => {
+      this.isCurrentlyOnTakeAnimation = false
+      return Promise.resolve(data)
     })
   }
 }

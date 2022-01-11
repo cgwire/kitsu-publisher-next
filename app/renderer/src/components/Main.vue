@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import Topbar from './tops/Topbar'
+import Topbar from '@/components/tops/Topbar'
 
 export default {
   name: 'MainWrapper',

@@ -1,5 +1,5 @@
-import notificationsApi from '../api/notifications'
-import { sortByDate } from '../../lib/sorting'
+import notificationsApi from '@/store/api/notifications'
+import { sortByDate } from '@/lib/sorting'
 
 import {
   CLEAR_NOTIFICATIONS,
@@ -11,7 +11,7 @@ import {
   NOTIFICATION_ADD_PREVIEW,
   SET_NOTIFICATION_COUNT,
   RESET_ALL
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const initialState = {
   notificationCount: 0,

@@ -1,6 +1,6 @@
 <template>
   <div class="data-list task-list">
-    <div ref="body">
+    <div ref="body" class="datatable-wrapper">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
@@ -89,6 +89,8 @@
                   :width="60"
                   :height="40"
                   :withLink="false"
+                  :empty-width="60"
+                  :empty-height="40"
                   :entity="{ preview_file_id: entry.entity_preview_file_id }"
                 />
                 {{ entry.full_entity_name }}
@@ -120,8 +122,8 @@
               :selected="
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
               "
-              :row-x="i"
-              :column-y="0"
+              :rowX="i"
+              :columnY="0"
               :column="entry.taskStatus"
               @select="onTaskSelected"
               @unselect="onTaskUnselected"
@@ -146,7 +148,7 @@
       class="has-text-centered empty-list"
     >
       <p>
-        <img src="../../assets/illustrations/empty_todo.png" />
+        <img src="@/assets/illustrations/empty_todo.png" />
       </p>
       <p>
         {{ $t('people.no_task_assigned') }}
@@ -222,13 +224,7 @@ export default {
       colNamePosX: ''
     }
   },
-  computed: {
-    ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
 
-    displayedTasks() {
-      return this.tasks.slice(0, this.page * PAGE_SIZE)
-    }
-  },
   mounted() {
     this.page = 1
     this.resizeHeaders()
@@ -242,6 +238,14 @@ export default {
 
   beforeUnmount() {
     window.removeEventListener('keydown', this.onKeyDown)
+  },
+
+  computed: {
+    ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
+
+    displayedTasks() {
+      return this.tasks.slice(0, this.page * PAGE_SIZE)
+    }
   },
 
   methods: {
@@ -268,7 +272,7 @@ export default {
 
     onLineClicked(i, event) {
       const ref = 'validation-' + i + '-0'
-      const validationCell = this.$refs[ref]
+      const validationCell = this.$refs[ref][0]
       validationCell.select(event)
     },
 

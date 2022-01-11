@@ -24,6 +24,18 @@
             @click="modals.edit = true"
           />
         </div>
+        <div class="filler" />
+        <div
+          v-if="currentAsset && currentAsset.ready_for"
+          class="ready-for flexrow"
+        >
+          <span class="flexrow-item"> Ready for: </span>
+          <task-type-name
+            class="flexrow-item"
+            :task-type="taskTypeMap.get(currentAsset.ready_for)"
+            :current-production-id="currentProduction.id"
+          />
+        </div>
       </div>
 
       <div class="flexrow infos">
@@ -67,6 +79,24 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <div v-if="scheduleItems[0].children.length > 0" class="infos schedule">
+        <page-subtitle class="schedule-title" text="Schedule" />
+        <div class="wrapper">
+          <schedule
+            ref="schedule-widget"
+            :start-date="tasksStartDate"
+            :end-date="tasksEndDate"
+            :hierarchy="scheduleItems"
+            :zoom-level="1"
+            :height="400"
+            :is-loading="false"
+            :is-estimation-linked="true"
+            :hide-root="true"
+            :with-milestones="false"
+          />
         </div>
       </div>
 
@@ -201,6 +231,8 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { entityMixin } from '@/components/mixins/entity'
+import { formatListMixin } from '@/components/mixins/format'
 
 import ButtonSimple from '@/components/widgets/ButtonSimple'
 import DescriptionCell from '@/components/cells/DescriptionCell'
@@ -210,8 +242,10 @@ import EntityThumbnail from '@/components/widgets/EntityThumbnail'
 import Icon from '@/components/widgets/Icon'
 import PageTitle from '@/components/widgets/PageTitle'
 import PageSubtitle from '@/components/widgets/PageSubtitle'
+import Schedule from '@/components/pages/schedule/Schedule'
 import TableInfo from '@/components/widgets/TableInfo'
 import TaskInfo from '@/components/sides/TaskInfo'
+import TaskTypeName from '@/components/widgets/TaskTypeName'
 
 export default {
   name: 'Asset',
@@ -224,9 +258,12 @@ export default {
     Icon,
     PageSubtitle,
     PageTitle,
+    Schedule,
     TableInfo,
-    TaskInfo
+    TaskInfo,
+    TaskTypeName
   },
+  mixins: [entityMixin, formatListMixin],
 
   data() {
     return {
@@ -248,15 +285,39 @@ export default {
     }
   },
 
+  mounted() {
+    this.clearSelectedTasks()
+    this.currentAsset = this.getCurrentAsset()
+
+    this.castIn.isLoading = true
+    this.castIn.isError = false
+    if (this.currentAsset) {
+      this.loadAssetCastIn(this.currentAsset)
+        .then(() => this.loadAssetCasting(this.currentAsset))
+        .then(() => {
+          this.castIn.isLoading = false
+        })
+        .catch((err) => {
+          this.castIn.isError = true
+          console.error(err)
+        })
+    } else {
+      this.resetData()
+    }
+  },
+
   computed: {
     ...mapGetters([
       'assetMap',
       'assetMetadataDescriptors',
       'currentEpisode',
       'currentProduction',
+      'getTaskTypePriority',
       'isTVShow',
       'isCurrentUserManager',
       'route',
+      'taskMap',
+      'taskTypeMap',
       'shotId'
     ]),
 
@@ -299,38 +360,6 @@ export default {
         route.params.episode_id = this.currentEpisode.id
       }
       return route
-    }
-  },
-
-  watch: {
-    // Needed when reloading the page with F5
-    currentProduction() {
-      if (!this.isTVShow) this.resetData()
-    },
-
-    currentEpisode() {
-      if (this.isTVShow && this.currentEpisode.id !== 'main') this.resetData()
-    }
-  },
-
-  mounted() {
-    this.clearSelectedTasks()
-    this.currentAsset = this.getCurrentAsset()
-
-    this.castIn.isLoading = true
-    this.castIn.isError = false
-    if (this.currentAsset) {
-      this.loadAssetCastIn(this.currentAsset)
-        .then(() => this.loadAssetCasting(this.currentAsset))
-        .then(() => {
-          this.castIn.isLoading = false
-        })
-        .catch((err) => {
-          this.castIn.isError = true
-          console.error(err)
-        })
-    } else {
-      this.resetData()
     }
   },
 
@@ -413,6 +442,17 @@ export default {
     }
   },
 
+  watch: {
+    // Needed when reloading the page with F5
+    currentProduction() {
+      if (!this.isTVShow) this.resetData()
+    },
+
+    currentEpisode() {
+      if (this.isTVShow && this.currentEpisode.id !== 'main') this.resetData()
+    }
+  },
+
   metaInfo() {
     return {
       title: `${this.title} - Kitsu`
@@ -424,7 +464,6 @@ export default {
 <style lang="scss" scoped>
 .dark {
   .page {
-    background: $dark-grey-light;
     padding-bottom: 1em;
   }
 
@@ -441,6 +480,10 @@ export default {
   .table-body {
     border: 1px solid $dark-grey;
   }
+
+  .wrapper {
+    background: $dark-grey-2;
+  }
 }
 
 h2.subtitle {
@@ -450,9 +493,9 @@ h2.subtitle {
   font-size: 1.5em;
 }
 
-.page {
-  background: #f9f9f9;
-  padding: 0em;
+.column.main-column {
+  background: var(--background-page);
+  padding-bottom: 1em;
 }
 
 .page-header {
@@ -556,6 +599,21 @@ h2.subtitle {
 
 .datatable-row {
   user-select: text;
+}
+
+.schedule {
+  position: relative;
+  height: 300px;
+  padding: 10px;
+
+  .schedule-title {
+    margin-bottom: 5px;
+  }
+
+  .wrapper {
+    height: 230px;
+    border-radius: 10px;
+  }
 }
 
 @media screen and (max-width: 768px) {

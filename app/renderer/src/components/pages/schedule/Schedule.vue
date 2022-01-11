@@ -1,0 +1,1926 @@
+<template>
+  <div class="schedule-wrapper">
+    <div ref="schedule" :class="scheduleClass">
+      <div ref="entity-list" class="entities" @mousedown="startBrowsingY">
+        <div
+          class="has-text-right total-man-days mr0"
+          :class="{
+            'has-text-right': true,
+            mr0: true,
+            'total-man-days': true,
+            'without-milestones': !withMilestones
+          }"
+        >
+          <span v-show="!hideManDays" class="total-value">
+            {{ formatDuration(totalManDays) }} {{ $t('schedule.md') }}
+          </span>
+        </div>
+
+        <div
+          :class="{
+            'entity-name-list': true,
+            'without-milestones': !withMilestones
+          }"
+        >
+          <div
+            v-for="rootElement in hierarchy"
+            :key="'entity-' + rootElement.id"
+          >
+            <div
+              v-show="!hideRoot"
+              :class="{
+                'entity-line': true,
+                'entity-name': true,
+                flexrow: true,
+                root: true,
+                expanded: rootElement.expanded
+              }"
+              :style="entityLineStyle(rootElement, true, true)"
+            >
+              <span
+                class="expand flexrow-item mr1"
+                @click="expandRootElement(rootElement)"
+              >
+                <icon v-if="!rootElement.expanded" name="chevron-right" />
+                <icon v-else name="chevron-down" />
+              </span>
+              <span v-if="rootElement.avatar" class="avatar flexrow-item">
+                <production-name
+                  v-if="rootElement.type === 'Project'"
+                  :production="rootElement"
+                  :only-avatar="true"
+                  :size="30"
+                />
+                <people-avatar
+                  v-else
+                  :person="rootElement"
+                  :is-link="false"
+                  :size="30"
+                  :no-cache="true"
+                />
+              </span>
+              <span
+                v-if="!rootElement.route"
+                class="filler flexrow-item root-element-name"
+              >
+                {{ rootElement.name }}
+              </span>
+              <router-link
+                v-else
+                class="filler flexrow-item root-element-name"
+                :to="rootElement.route"
+              >
+                {{ rootElement.name }}
+              </router-link>
+              <input
+                v-if="
+                  !rootElement.avatar && rootElement.editable && !hideManDays
+                "
+                class="flexrow-item mr1 man-day-input"
+                type="number"
+                step="any"
+                placeholder="0"
+                :value="formatDuration(rootElement.man_days)"
+                @input="
+                  $emit('estimation-changed', {
+                    days: $event.target.value,
+                    item: rootElement
+                  })
+                "
+              />
+              <span
+                v-if="
+                  !rootElement.avatar && rootElement.editable && !hideManDays
+                "
+                class="man-days-unit flexrow-item"
+              >
+                {{ $t('schedule.md') }}
+              </span>
+              <span
+                v-if="
+                  (rootElement.avatar || !rootElement.editable) && !hideManDays
+                "
+                class="man-days-unit flexrow-item"
+              >
+                {{ formatDuration(rootElement.man_days) }}
+                {{ $t('schedule.md') }}
+              </span>
+            </div>
+            <div
+              v-if="rootElement.expanded"
+              class="children"
+              :style="childrenStyle(rootElement)"
+            >
+              <div v-if="rootElement.loading" class="flexrow">
+                <spinner
+                  style="width: 20px; margin: 0 0 10px 10px"
+                  class="child-spinner flexrow-item"
+                />
+              </div>
+              <div
+                v-for="(childElement, j) in rootElement.children"
+                :key="'entity-' + childElement.id"
+                class="child-name"
+              >
+                <div
+                  class="entity-line entity-name child-line flexrow"
+                  :style="childNameStyle(rootElement, j)"
+                >
+                  <router-link
+                    v-if="childElement.route"
+                    :to="childElement.route"
+                    class="filler flexrow-item child-element-name"
+                  >
+                    {{ childElement.name }}
+                  </router-link>
+                  <span v-else class="filler flexrow-item">
+                    {{ childElement.name }}
+                  </span>
+                  <span
+                    v-if="childElement.editable"
+                    v-show="!hideManDays"
+                    class="flexrow-item"
+                  >
+                    <input
+                      class="man-days-unit flexrow-item"
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      step="any"
+                      :value="formatDuration(childElement.man_days)"
+                      @input="
+                        onChildEstimationChanged(
+                          $event,
+                          childElement,
+                          rootElement
+                        )
+                      "
+                    />
+                    {{ $t('schedule.md') }}
+                  </span>
+                  <span v-else class="man-days-unit flexrow-item">
+                    {{ childElement.man_days }}
+                    {{ $t('schedule.md') }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timeline">
+        <div
+          v-if="zoomLevel > 0"
+          ref="timeline-header"
+          class="timeline-header"
+          @mousedown="startBrowsingX"
+        >
+          <div
+            v-for="(day, index) in daysAvailable"
+            :key="'header-' + day.text + '-' + index"
+            class="day"
+            :style="dayStyle(day)"
+          >
+            <div
+              v-if="currentMilestones[day.text] && withMilestones"
+              class="milestone"
+              @click="showEditMilestoneModal(day, currentMilestones[day.text])"
+            >
+              <div class="milestone-tooltip" :style="milestoneTooltipStyle">
+                <span>
+                  {{ currentMilestones[day.text].name }}
+                </span>
+              </div>
+              <div>
+                <span class="bull">&bull;</span>
+              </div>
+            </div>
+            <div v-else-if="withMilestones" class="milestone">
+              <div>
+                <span class="bull">&nbsp;</span>
+              </div>
+            </div>
+
+            <div
+              :class="{
+                'with-milestones': withMilestones,
+                'date-widget': true
+              }"
+            >
+              <div
+                class="add-milestone"
+                :title="addMilestoneTitle(day)"
+                @click="
+                  showEditMilestoneModal(day, currentMilestones[day.text])
+                "
+              >
+                <span>+</span>
+              </div>
+              <div class="date-name">
+                <span v-if="day.newMonth" class="month-name">
+                  {{ day.monthText }}
+                </span>
+                <div :class="dayClass(day, index)">
+                  <span v-if="zoomLevel > 2"> {{ day.dayText }} / </span>
+                  <span class="day-number">
+                    {{ day.dayNumber }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          v-else
+          ref="timeline-header"
+          class="timeline-header"
+          @mousedown="startBrowsingX"
+        >
+          <div
+            v-for="(week, index) in weeksAvailable"
+            :key="'header-' + week.weekText + '-' + index"
+            class="day"
+            :title="week.label"
+            :style="dayStyle(week)"
+          >
+            <div class="milestone">
+              <div>
+                <span class="bull">&nbsp;</span>
+              </div>
+            </div>
+            <div
+              :class="{
+                'with-milestones': false,
+                'date-widget': true
+              }"
+            >
+              <div class="date-name">
+                <span v-if="week.newMonth" class="month-name">
+                  {{ week.monthText }}
+                </span>
+                <div :class="dayClass(week, index)">
+                  <span class="day-number">
+                    {{ week.weekNumber }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          ref="timeline-content-wrapper"
+          v-scroll="onTimelineScroll"
+          class="timeline-content-wrapper"
+        >
+          <div
+            ref="timeline-content"
+            class="timeline-content"
+            :style="timelineStyle"
+            @mousedown="startBrowsing"
+            @mousewheel="$emit('change-zoom', $event)"
+          >
+            <div
+              ref="timeline-today-position"
+              class="timeline-position today"
+              :style="timelineTodayPositionStyle"
+            />
+            <div
+              ref="timeline-position"
+              class="timeline-position"
+              :style="timelinePositionStyle"
+            />
+            <div
+              v-for="milestone in Object.values(currentMilestones)"
+              v-if="!isWeekMode"
+              :key="'milestone-' + milestone.date"
+              class="milestone-vertical-line"
+              :style="milestoneLineStyle(milestone)"
+            />
+            <div
+              v-for="rootElement in hierarchy"
+              :key="'entity-line-' + rootElement.id"
+            >
+              <div
+                v-show="!hideRoot"
+                class="entity-line root-element"
+                :style="entityLineStyle(rootElement, true)"
+              >
+                <div
+                  class="timebar-wrapper"
+                  :title="
+                    rootElement.name +
+                    ' (' +
+                    rootElement.startDate.format('DD-MM') +
+                    ' - ' +
+                    rootElement.endDate.format('DD-MM') +
+                    ')'
+                  "
+                  :style="timebarStyle(rootElement, true)"
+                >
+                  <div v-show="isVisible(rootElement)" class="timebar">
+                    <div
+                      :class="{
+                        'timebar-left-hand':
+                          rootElement.editable && isCurrentUserManager
+                      }"
+                      @mousedown="moveTimebarLeftSide(rootElement, $event)"
+                    />
+                    <div
+                      class="filler"
+                      @mousedown="moveTimebar(rootElement, $event)"
+                    />
+                    <div
+                      :class="{
+                        'timebar-right-hand':
+                          rootElement.editable && isCurrentUserManager
+                      }"
+                      @mousedown="moveTimebarRightSide(rootElement, $event)"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                v-if="rootElement.expanded"
+                class="children"
+                :style="childrenStyle(rootElement)"
+              >
+                <div v-if="rootElement.loading" class="flexrow">
+                  <spinner
+                    style="width: 20px; margin: 0 0 10px 10px; opacity: 0"
+                    class="child-spinner flexrow-item"
+                  />
+                </div>
+
+                <div
+                  v-for="childElement in rootElement.children"
+                  :key="'entity-line-' + childElement.id"
+                  class="entity-line child-line"
+                >
+                  <div
+                    v-show="isVisible(childElement)"
+                    class="timebar"
+                    :title="
+                      childElement.name +
+                      ' (' +
+                      childElement.startDate.format('DD-MM') +
+                      ' - ' +
+                      childElement.endDate.format('DD-MM') +
+                      ')'
+                    "
+                    :style="timebarChildStyle(childElement, rootElement, true)"
+                  >
+                    <div
+                      :class="{
+                        'timebar-left-hand':
+                          childElement.editable &&
+                          !childElement.unresizable &&
+                          isCurrentUserManager
+                      }"
+                      @mousedown="moveTimebarLeftSide(childElement, $event)"
+                    />
+                    <div
+                      class="filler"
+                      @mousedown="moveTimebar(childElement, $event)"
+                    />
+                    <div
+                      :class="{
+                        'timebar-right-hand':
+                          childElement.editable &&
+                          !childElement.unresizable &&
+                          isCurrentUserManager
+                      }"
+                      @mousedown="moveTimebarRightSide(childElement, $event)"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <edit-milestone-modal
+      ref="edit-milestone-modal"
+      :active="modals.edit"
+      :is-loading="loading.edit"
+      :is-error="errors.edit"
+      :milestone-to-edit="milestoneToEdit"
+      @confirm="confirmEditMilestone"
+      @cancel="hideEditMilestoneModal"
+      @remove-milestone="removeMilestone"
+    />
+  </div>
+</template>
+
+<script>
+/*
+ * Component to facilitate the build of schedule pages.
+ */
+import { mapGetters, mapActions } from 'vuex'
+import moment from 'moment-timezone'
+
+import { formatListMixin } from '@/components/mixins/format'
+import colors from '@/lib/colors'
+import { addBusinessDays, daysToMinutes, parseDate } from '@/lib/time'
+
+import EditMilestoneModal from '@/components/modals/EditMilestoneModal'
+import Icon from '@/components/widgets/Icon'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
+import ProductionName from '@/components/widgets/ProductionName'
+import Spinner from '@/components/widgets/Spinner'
+
+export default {
+  name: 'Schedule',
+  components: {
+    EditMilestoneModal,
+    Icon,
+    PeopleAvatar,
+    ProductionName,
+    Spinner
+  },
+  mixins: [formatListMixin],
+
+  props: {
+    endDate: {
+      type: Object,
+      required: true
+    },
+    isError: {
+      type: Boolean,
+      default: false
+    },
+    isLoading: {
+      type: Boolean,
+      default: true
+    },
+    height: {
+      type: Number,
+      default: 0
+    },
+    hideManDays: {
+      type: Boolean,
+      default: false
+    },
+    hierarchy: {
+      default: () => [],
+      type: Array
+    },
+    startDate: {
+      type: Object,
+      required: true
+    },
+    isEstimationLinked: {
+      type: Boolean,
+      default: false
+    },
+    withMilestones: {
+      type: Boolean,
+      default: true
+    },
+    hideRoot: {
+      type: Boolean,
+      default: false
+    },
+    zoomLevel: {
+      type: Number,
+      default: 2
+    }
+  },
+
+  data() {
+    return {
+      isBrowsingX: false,
+      isBrowsingY: false,
+      isChangeSize: false,
+      milestoneToEdit: {
+        date: moment()
+      },
+      timelineDisplayedDaysIndex: {},
+      errors: {
+        edit: false
+      },
+      modals: {
+        edit: false
+      },
+      loading: {
+        edit: false
+      }
+    }
+  },
+
+  mounted() {
+    this.resetScheduleSize()
+    document.addEventListener('mouseup', this.stopBrowsing)
+    document.addEventListener('mousemove', this.onMouseMove)
+    window.addEventListener('resize', this.resetScheduleSize)
+  },
+
+  unmounted() {
+    document.removeEventListener('mouseup', this.stopBrowsing)
+    document.removeEventListener('mousemove', this.onMouseMove)
+    window.removeEventListener('resize', this.resetScheduleSize)
+    document.body.style.cursor = 'default'
+  },
+
+  computed: {
+    ...mapGetters(['isCurrentUserManager', 'organisation', 'milestones']),
+
+    currentMilestones() {
+      const localMilestones = {}
+      Object.keys(this.milestones).forEach((key) => {
+        if (this.displayedDaysIndex[key]) {
+          localMilestones[key] = this.milestones[key]
+        }
+      })
+      return localMilestones
+    },
+
+    cellWidth() {
+      return Math.max(this.zoomLevel, 1) * 20
+    },
+
+    daysAvailable() {
+      const days = []
+      const startDate = parseDate(this.startDate.format('YYYY-MM-DD'))
+      const day = startDate.clone().add(-1, 'days')
+      let dayDate = day.toDate()
+      const endDate = parseDate(this.endDate.format('YYYY-MM-DD'))
+      const endDayDate = endDate.toDate()
+      dayDate.isoweekday = day.isoWeekday()
+      dayDate.monthday = day.month()
+
+      while (dayDate < endDayDate) {
+        const nextDay = new Date(Number(dayDate))
+        nextDay.setDate(dayDate.getDate() + 1) // Add 1 day
+
+        nextDay.isoweekday = dayDate.isoweekday + 1
+        if (nextDay.isoweekday > 7) {
+          nextDay.isoweekday = 1
+          nextDay.newWeek = true
+        }
+        nextDay.monthday = dayDate.monthday + 1
+        if (nextDay.getMonth() !== dayDate.getMonth()) {
+          nextDay.newMonth = true
+          nextDay.monthday = 1
+        }
+        if ([6, 7].includes(nextDay.isoweekday)) nextDay.weekend = true
+
+        const momentDay = parseDate(moment(nextDay).format('YYYY-MM-DD'))
+        momentDay.newWeek = nextDay.newWeek
+        momentDay.newMonth = nextDay.newMonth
+        momentDay.weekend = nextDay.weekend
+        momentDay.text = momentDay.format('YYYY-MM-DD')
+        momentDay.monthText = momentDay.format('MMMM')
+        momentDay.dayNumber = momentDay.format('DD')
+        momentDay.dayText = momentDay.format('ddd')[0]
+        days.push(momentDay)
+        dayDate = nextDay
+      }
+
+      if (days.length > 1 && days[0].weekend === true) {
+        days[0].newMonth = false
+        days[1].newMonth = true
+        if (days.length > 2 && days[1].weekend === true) {
+          days[1].newMonth = false
+          days[2].newMonth = true
+        } else if (days.length > 2) {
+          days[1].newMonth = true
+        }
+      } else if (days.length > 0) {
+        days[0].newMonth = true
+      }
+
+      return days
+    },
+
+    weeksAvailable() {
+      const weeks = []
+      if (this.daysAvailable.length < 1) return []
+      const startDate = this.daysAvailable[0]
+      const endDate = this.daysAvailable[this.daysAvailable.length - 1]
+      const day = startDate.clone().add(-1, 'days')
+      let dayDate = day.toDate()
+      const endDayDate = endDate.clone().add(7, 'days').toDate()
+      dayDate.weekday = day.isoWeekday()
+      dayDate.monthday = day.month()
+      dayDate.week = day.week()
+
+      while (dayDate < endDayDate) {
+        const nextDay = new Date(Number(dayDate))
+        nextDay.setDate(dayDate.getDate() + 1) // Add 1 day
+        if (nextDay.isoweekday > 7) {
+          nextDay.isoweekday = 1
+          nextDay.newWeek = true
+        }
+        nextDay.monthday = dayDate.monthday + 1
+        if (nextDay.getMonth() !== dayDate.getMonth()) {
+          nextDay.newMonth = true
+          nextDay.monthday = 1
+        }
+        const momentDay = parseDate(moment(nextDay).format('YYYY-MM-DD'))
+        if (momentDay.isoWeekday() === 1) {
+          momentDay.weekText = momentDay.format('YYYY-MM-DD')
+          momentDay.label =
+            momentDay.weekText +
+            ' to ' +
+            momentDay.clone().add(6, 'days').format('YYYY-MM-DD')
+          momentDay.weekNumber = momentDay.week()
+          momentDay.newMonth =
+            weeks.length === 0 ||
+            momentDay.month() !== weeks[weeks.length - 1].month()
+          momentDay.monthText = momentDay.format('MMMM')
+          weeks.push(momentDay)
+        }
+        dayDate = nextDay
+      }
+      return weeks
+    },
+
+    displayedDays() {
+      return this.daysAvailable
+    },
+
+    nbDisplayedDays() {
+      return this.displayedDays.length
+    },
+
+    displayedDaysIndex() {
+      let index = 0
+      const dayIndex = {}
+      this.displayedDays.forEach((d) => {
+        dayIndex[d.text] = index
+        index++
+      })
+      return dayIndex
+    },
+
+    displayedWeeksIndex() {
+      let index = 0
+      const weekIndex = {}
+      this.weeksAvailable.forEach((w) => {
+        weekIndex[w.weekText] = index
+        index++
+      })
+      return weekIndex
+    },
+
+    totalManDays() {
+      return this.hierarchy.reduce((acc, timeElement) => {
+        let value = acc
+        let manDays = timeElement.man_days
+        if (timeElement.man_days) {
+          if (typeof manDays === 'string') manDays = parseInt(manDays)
+          value = acc + manDays
+        }
+        return value
+      }, 0)
+    },
+
+    // References
+
+    entityList() {
+      return this.$refs['entity-list']
+    },
+
+    schedule() {
+      return this.$refs.schedule
+    },
+
+    timelineContent() {
+      return this.$refs['timeline-content']
+    },
+
+    timelineContentWrapper() {
+      return this.$refs['timeline-content-wrapper']
+    },
+
+    timelineHeader() {
+      return this.$refs['timeline-header']
+    },
+
+    timelinePosition() {
+      return this.$refs['timeline-position']
+    },
+
+    // Styles
+
+    scheduleClass() {
+      const className = {
+        schedule: true,
+        unselectable: true
+      }
+      className[`zoom-level-${this.zoomLevel}`] = true
+      return className
+    },
+
+    timelineStyle() {
+      const firstDay = this.daysAvailable[0]
+      const multiplier = -1 * (firstDay.isoWeekday() - 1)
+      return {
+        'background-position-x': `${multiplier * this.cellWidth}px`
+      }
+    },
+
+    timelinePositionStyle() {
+      return { width: `${this.cellWidth}px` }
+    },
+
+    timelineTodayPositionStyle() {
+      const today = moment()
+      const isVisible =
+        today.isAfter(this.startDate) && today.isBefore(this.endDate)
+      return {
+        width: `${this.cellWidth}px`,
+        left: `${this.getTimebarLeft({ startDate: today }) - 3}px`,
+        display: isVisible ? 'block' : 'none'
+      }
+    },
+
+    milestoneTooltipStyle() {
+      // arbitrary calculus
+      return { left: -40 - 10 * (3 - this.zoomLevel) + 'px' }
+    },
+
+    dayBeforeStartDate() {
+      return this.startDate.clone().add(-1, 'days')
+    },
+
+    dayAfterEndDate() {
+      return this.endDate.clone().add(1, 'days')
+    },
+
+    isWeekMode() {
+      return this.zoomLevel === 0
+    }
+  },
+
+  methods: {
+    ...mapActions(['deleteMilestone', 'saveMilestone']),
+
+    isVisible(timeElement) {
+      const isStartDateOk = timeElement.startDate.isSameOrAfter(this.startDate)
+      const isEndDateOk = timeElement.endDate.isSameOrBefore(
+        this.dayAfterEndDate
+      )
+      return isStartDateOk && isEndDateOk
+    },
+
+    resetScheduleSize() {
+      if (this.height) this.schedule.style.height = `${this.height}px`
+      if (this.timelineContent) {
+        if (this.zoomLevel > 0) {
+          this.timelineContent.style.width =
+            this.nbDisplayedDays * this.cellWidth + 'px'
+        } else {
+          this.timelineContent.style.width =
+            this.weeksAvailable.length * this.cellWidth + 'px'
+        }
+        let contentHeight = this.schedule.offsetHeight - 250
+        if (!this.withMilestones) contentHeight += 40
+        this.timelineContentWrapper.style.height = contentHeight + 'px'
+        this.entityList.style.height = this.schedule.offsetHeight - 169 + 'px'
+      }
+    },
+
+    onMouseMove(event) {
+      if (this.isChangeStartDate) {
+        this.changeStartDate(event)
+      } else if (this.isChangeEndDate) {
+        this.changeEndDate(event)
+      } else if (this.isChangeDates) {
+        this.changeDates(event)
+      } else {
+        if (this.isBrowsingX) this.scrollScheduleLeft(event)
+        if (this.isBrowsingY) this.scrollScheduleTop(event)
+      }
+
+      this.updatePositionBarPosition(event)
+    },
+
+    onChildEstimationChanged(event, childElement, rootElement) {
+      const estimation = event.target.value
+      if (this.isEstimationLinked) {
+        childElement.man_days = daysToMinutes(this.organisation, estimation)
+        rootElement.man_days = rootElement.children.reduce((acc, child) => {
+          let value = acc
+          const manDays = child.man_days
+          if (child.man_days) {
+            value = acc + manDays
+          }
+          return value
+        }, 0)
+
+        if (estimation > 0) {
+          childElement.endDate = addBusinessDays(
+            childElement.startDate,
+            estimation
+          )
+        }
+      }
+      this.$emit('estimation-changed', {
+        taskId: childElement.id,
+        days: estimation,
+        item: childElement
+      })
+    },
+
+    updatePositionBarPosition(event) {
+      let position = this.timelineContentWrapper.scrollLeft + event.clientX
+      position -= 332
+      position = Math.floor(position / this.cellWidth) * this.cellWidth
+      if (event.clientX - 320 < this.timelineContentWrapper.offsetWidth) {
+        this.timelinePosition.style.left = position + 'px'
+      }
+    },
+
+    isValidItemDates(startDate, endDate) {
+      return (
+        startDate &&
+        endDate &&
+        startDate.isSameOrAfter(this.startDate.clone().add(-1, 'hour')) &&
+        endDate.isSameOrBefore(this.endDate.clone().add(1, 'day')) &&
+        startDate.isSameOrBefore(endDate) &&
+        endDate.isSameOrAfter(startDate)
+      )
+    },
+
+    getDisplayedDaysIndex(date) {
+      const dateString = date.format('YYYY-MM-DD')
+      return this.displayedDaysIndex[dateString]
+    },
+
+    getDisplayedWeeksIndex(date) {
+      const dateString = date.startOf('isoweek').format('YYYY-MM-DD')
+      return this.displayedWeeksIndex[dateString]
+    },
+
+    changeDates(event) {
+      const change = event.clientX - this.initialClientX - this.cellWidth / 2
+      const dayChange = Math.ceil(change / this.cellWidth)
+
+      if (this.lastStartDate.isBefore(this.startDate)) {
+        this.lastStartDate = this.startDate.clone()
+      }
+
+      if (this.lastEndDate.isBefore(this.startDate)) {
+        this.lastEndDate = this.startDate.clone().add(1, 'days')
+      }
+
+      const startDate = this.lastStartDate
+      const endDate = this.lastEndDate
+      if (!this.isWeekMode) {
+        const startDateIndex = this.getDisplayedDaysIndex(startDate)
+        const endDateIndex = this.getDisplayedDaysIndex(endDate)
+        const length = endDateIndex - startDateIndex
+        let currentIndex = this.getDisplayedDaysIndex(startDate)
+
+        currentIndex += dayChange
+        if (currentIndex < 0) currentIndex = 0
+
+        const newStartDate = this.displayedDays[currentIndex]
+        if (newStartDate) {
+          const newEndDate = this.displayedDays[currentIndex + length]
+          if (this.isValidItemDates(newStartDate, newEndDate)) {
+            this.currentElement.startDate = newStartDate
+            this.currentElement.endDate = newEndDate
+            this.$emit('item-changed', this.currentElement)
+          }
+        }
+      } else {
+        const startDateIndex = this.getDisplayedWeeksIndex(startDate)
+        const endDateIndex = this.getDisplayedWeeksIndex(endDate)
+        const length = endDateIndex - startDateIndex
+        let currentIndex = this.getDisplayedWeeksIndex(startDate)
+        currentIndex += dayChange
+        if (currentIndex < 0) currentIndex = 0
+        const newStartDate = this.weeksAvailable[currentIndex]
+        if (newStartDate) {
+          const newEndDate = this.weeksAvailable[currentIndex + length]
+          if (this.isValidItemDates(newStartDate, newEndDate)) {
+            this.currentElement.startDate = newStartDate
+            this.currentElement.endDate = newEndDate
+            this.$emit('item-changed', this.currentElement)
+          }
+        }
+      }
+    },
+
+    changeStartDate(event) {
+      const change = event.clientX - this.initialClientX + this.cellWidth / 2
+      const dayChange = Math.floor(change / this.cellWidth)
+
+      const startDate = this.lastStartDate
+      const endDate = this.currentElement.endDate
+      let currentIndex, endDateIndex
+      if (this.isWeekMode) {
+        currentIndex = this.getDisplayedWeeksIndex(startDate)
+        endDateIndex = this.getDisplayedWeeksIndex(endDate)
+      } else {
+        currentIndex = this.getDisplayedDaysIndex(startDate)
+        endDateIndex = this.getDisplayedDaysIndex(endDate)
+      }
+      currentIndex += dayChange
+      if (currentIndex > endDateIndex) currentIndex = endDateIndex
+      if (currentIndex < 0) currentIndex = 0
+
+      const newStartDate = this.isWeekMode
+        ? this.weeksAvailable[currentIndex]
+        : this.displayedDays[currentIndex]
+      if (this.isValidItemDates(newStartDate, this.currentElement.endDate)) {
+        this.currentElement.startDate = newStartDate
+        this.$emit('item-changed', this.currentElement)
+      }
+    },
+
+    changeEndDate(event) {
+      const change = event.clientX - this.initialClientX + this.cellWidth / 2
+      const dayChange = Math.ceil(change / this.cellWidth)
+
+      if (this.currentElement.startDate.isBefore(this.startDate)) {
+        this.currentElement.startDate = this.startDate.clone()
+      }
+
+      if (this.currentElement.endDate.isBefore(this.startDate)) {
+        this.currentElement.endDate = this.startDate.clone().add(1, 'days')
+      }
+
+      if (this.lastEndDate.isBefore(this.startDate)) {
+        this.lastEndDate = this.startDate.clone().add(1, 'days')
+      }
+
+      const startDate = this.currentElement.startDate
+      const endDate = this.lastEndDate
+      let startDateIndex, currentIndex
+      if (this.isWeekMode) {
+        startDateIndex = this.getDisplayedWeeksIndex(startDate)
+        currentIndex = this.getDisplayedWeeksIndex(endDate)
+      } else {
+        startDateIndex = this.getDisplayedDaysIndex(startDate)
+        currentIndex = this.getDisplayedDaysIndex(endDate)
+      }
+
+      currentIndex += dayChange - 1
+      if (currentIndex < startDateIndex) currentIndex = startDateIndex
+      if (this.isWeekMode) {
+        if (currentIndex > this.displayedWeeksIndex.length) {
+          currentIndex = this.displayedWeeksIndex.length - 1
+        }
+      } else {
+        if (currentIndex > this.displayedDaysIndex.length) {
+          currentIndex = this.displayedDaysIndex.length - 1
+        }
+      }
+
+      const newEndDate = this.isWeekMode
+        ? this.weeksAvailable[currentIndex]
+        : this.displayedDays[currentIndex]
+      if (this.isValidItemDates(this.currentElement.startDate, newEndDate)) {
+        this.currentElement.endDate = newEndDate
+        this.$emit('item-changed', this.currentElement)
+      }
+    },
+
+    moveTimebar(timeElement, event) {
+      if (
+        !this.isChangeStartDate &&
+        !this.isChangeEndDate &&
+        timeElement.editable &&
+        this.isCurrentUserManager
+      ) {
+        this.isChangeDates = true
+        this.isChangeStartDate = false
+        this.isChangeEnd = false
+        this.currentElement = timeElement
+        this.lastStartDate = timeElement.startDate.clone()
+        this.lastEndDate = timeElement.endDate.clone()
+        this.initialClientX = event.clientX
+        document.body.style.cursor = 'ew-resize'
+      }
+    },
+
+    moveTimebarLeftSide(timeElement, event) {
+      if (
+        !this.isChangeDates &&
+        !this.isChangeEndDate &&
+        timeElement.editable &&
+        this.isCurrentUserManager
+      ) {
+        this.isChangeDates = false
+        this.isChangeStartDate = true
+        this.isChangeEndDate = false
+        this.currentElement = timeElement
+        if (!timeElement.endDate) {
+          timeElement.endDate = timeElement.startDate.clone().add(1, 'days')
+        }
+        this.lastStartDate = timeElement.startDate.clone()
+        this.lastEndDate = timeElement.endDate.clone()
+        this.initialClientX = event.clientX
+        document.body.style.cursor = 'w-resize'
+      }
+    },
+
+    moveTimebarRightSide(timeElement, event) {
+      if (
+        !this.isChangeDates &&
+        !this.isChangeStartDate &&
+        timeElement.editable &&
+        this.isCurrentUserManager
+      ) {
+        this.isChangeDates = false
+        this.isChangeStartDate = false
+        this.isChangeEndDate = true
+        this.currentElement = timeElement
+        if (!timeElement.endDate) {
+          timeElement.endDate = timeElement.startDate.clone().add(1, 'days')
+        }
+        this.lastStartDate = timeElement.startDate.clone()
+        this.lastEndDate = timeElement.endDate.clone()
+        this.initialClientX = event.clientX
+        document.body.style.cursor = 'e-resize'
+      }
+    },
+
+    onTimelineScroll(event, position) {
+      const newTop = position.scrollTop
+      this.entityList.scrollTop = newTop
+      const newLeft = position.scrollLeft
+      this.timelineHeader.scrollLeft = newLeft
+    },
+
+    scrollScheduleLeft(event) {
+      const previousLeft = this.timelineContentWrapper.scrollLeft
+      const newLeft = previousLeft - event.movementX
+      this.timelineContentWrapper.scrollLeft = newLeft
+      this.timelineHeader.scrollLeft = newLeft
+    },
+
+    scrollScheduleTop(event) {
+      const previousTop = this.timelineContentWrapper.scrollTop
+      const newTop = previousTop - event.movementY
+      this.timelineContentWrapper.scrollTop = newTop
+      this.entityList.scrollTop = newTop
+    },
+
+    scrollToToday() {
+      setTimeout(() => {
+        const today = moment()
+        if (today.isAfter(this.startDate) && today.isBefore(this.endDate)) {
+          const todayPosition = this.getTimebarLeft({ startDate: today }) - 5
+          const newLeft = todayPosition - (this.schedule.offsetWidth / 2 - 300)
+          this.timelineContentWrapper.scrollLeft = newLeft
+          this.timelineHeader.scrollLeft = newLeft
+        }
+      }, 10)
+    },
+
+    startBrowsing(event) {
+      if (
+        !this.isChangeStartDate &&
+        !this.isChangeEndDate &&
+        !this.isChangeDates
+      ) {
+        document.body.style.cursor = 'grabbing'
+        this.isBrowsingX = true
+        this.isBrowsingY = true
+      }
+    },
+
+    startBrowsingX(event) {
+      document.body.style.cursor = 'grabbing'
+      this.isBrowsingX = true
+    },
+
+    startBrowsingY(event) {
+      document.body.style.cursor = 'grabbing'
+      this.isBrowsingY = true
+    },
+
+    stopBrowsing(event) {
+      document.body.style.cursor = 'default'
+      this.isChangeStartDate = false
+      this.isChangeEndDate = false
+      this.isChangeDates = false
+      this.isBrowsingX = false
+      this.isBrowsingY = false
+    },
+
+    // Helpers
+
+    dateDiff(startDate, endDate) {
+      if (startDate.isSame(endDate)) return 0
+      const first = startDate.clone()
+      const last = endDate.clone()
+      const diff = last.diff(first, 'days')
+      return diff
+    },
+
+    businessDiff(startDate, endDate) {
+      if (startDate.isSame(endDate)) return 0
+      const first = startDate.clone().endOf('isoweek')
+      const last = endDate.clone().startOf('isoweek')
+      const diff = last.diff(first, 'days')
+
+      if (endDate.diff(startDate, 'days') > 6) {
+        const days = (diff * 5) / 7
+
+        let wfirst = first.isoWeekday() - startDate.isoWeekday()
+        if (startDate.isoWeekday() === 0) --wfirst
+
+        let wlast = endDate.isoWeekday() - last.isoWeekday()
+        if (endDate.day() === 6) --wlast
+
+        return Math.ceil(wfirst + days + wlast - 1)
+      } else {
+        const day = moment(startDate)
+        let businessDays = 0
+        while (day.isBefore(endDate, 'day')) {
+          if (day.day() !== 0 && day.day() !== 6) businessDays++
+          day.add(1, 'days')
+        }
+        return businessDays
+      }
+    },
+
+    // Styles
+
+    dayClass(day, index = 0) {
+      return {
+        'day-name': true,
+        'new-week': day.newWeek || false,
+        'new-month': day.newMonth || index === 0 || false,
+        weekend: day.weekend || false
+      }
+    },
+
+    dayStyle(day) {
+      return {
+        'min-width': this.cellWidth + 'px',
+        'max-width': this.cellWidth + 'px'
+      }
+    },
+
+    entityLineStyle(timeElement, root = false, header = false) {
+      const style = {}
+      if (root) {
+        style['border-left'] = '1px solid ' + timeElement.color
+        style['border-top'] = '1px solid ' + timeElement.color
+        style['border-bottom'] = '1px solid ' + timeElement.color
+        if (header) {
+          style.background = timeElement.color
+        }
+      }
+      if (timeElement.expanded) {
+        style['margin-bottom'] = '0'
+      }
+      return style
+    },
+
+    timebarStyle(timeElement, root = false) {
+      const style = {
+        left: this.getTimebarLeft(timeElement) + 'px',
+        width: this.getTimebarWidth(timeElement) + 'px',
+        cursor: timeElement.editable ? 'ew-resize' : 'default'
+      }
+      if (root) {
+        style['background-color'] = timeElement.color
+      }
+      return style
+    },
+
+    timebarChildStyle(timeElement, rootElement) {
+      return {
+        left: this.getTimebarLeft(timeElement) + 'px',
+        width: this.getTimebarWidth(timeElement) + 'px',
+        cursor: timeElement.editable ? 'ew-resize' : 'default',
+        background: timeElement.color || rootElement.color
+      }
+    },
+
+    getTimebarLeft(timeElement) {
+      const startDate = timeElement.startDate || this.startDate
+      let startDiff = this.dateDiff(this.startDate, startDate) || 0
+      if (this.zoomLevel === 0) startDiff = Math.round(startDiff / 7 - 1)
+      return startDiff * this.cellWidth + 3
+    },
+
+    getTimebarWidth(timeElement) {
+      const startDate = timeElement.startDate || this.startDate
+      let endDate =
+        timeElement.endDate ||
+        (timeElement.startDate &&
+          timeElement.startDate.clone().add(1, 'days')) ||
+        this.startDate.clone().add(1, 'days')
+
+      if (
+        timeElement.man_days > 0 &&
+        !timeElement.end_date &&
+        !timeElement.endDate
+      ) {
+        const days = Math.ceil(timeElement.man_days)
+        endDate = addBusinessDays(startDate, days - 1)
+      }
+
+      let lengthDiff = this.dateDiff(startDate, endDate)
+      if (this.zoomLevel === 0) lengthDiff = Math.round(lengthDiff / 7)
+      if (lengthDiff > 0) {
+        return (lengthDiff + 1) * this.cellWidth - 6
+      } else {
+        return this.cellWidth - 4
+      }
+    },
+
+    // Children
+
+    expandRootElement(rootElement) {
+      this.$emit('root-element-expanded', rootElement)
+    },
+
+    expandChildElement(element) {},
+
+    childNameStyle(rootElement, index) {
+      const isOdd = index % 2 === 0
+      const level = isOdd ? 0.7 : 0.9
+      return {
+        background: colors.lightenColor(rootElement.color, level)
+      }
+    },
+
+    childrenStyle(rootElement) {
+      return {
+        'border-bottom': '1px solid ' + rootElement.color
+      }
+    },
+
+    // Milestones
+
+    showEditMilestoneModal(day, milestone) {
+      this.modals.edit = true
+      if (milestone) {
+        milestone.date = parseDate(milestone.date)
+        this.milestoneToEdit = milestone
+      } else {
+        this.milestoneToEdit = { date: day }
+      }
+    },
+
+    hideEditMilestoneModal() {
+      this.modals.edit = false
+    },
+
+    confirmEditMilestone(milestone) {
+      this.loading.edit = true
+      this.saveMilestone(milestone)
+        .then(() => {
+          this.modals.edit = false
+          this.loading.edit = false
+        })
+        .catch((err) => {
+          console.error(err)
+          this.loading.edit = false
+          this.errors.edit = true
+        })
+    },
+
+    removeMilestone(milestone) {
+      this.loading.edit = true
+      this.deleteMilestone(milestone)
+        .then(() => {
+          this.modals.edit = false
+          this.loading.edit = false
+        })
+        .catch((err) => {
+          console.error(err)
+          this.loading.edit = false
+          this.errors.edit = true
+        })
+    },
+
+    milestoneLineStyle(milestone) {
+      const startDate = parseDate(this.startDate.format('YYYY-MM-DD'))
+      const milestoneDate = parseDate(milestone.date)
+      if (startDate.isSameOrBefore(milestoneDate)) {
+        let lengthDiff = this.dateDiff(startDate, milestoneDate)
+        if (this.zoomLevel === 0) lengthDiff = lengthDiff / 7 - 1
+        return {
+          left: (lengthDiff + 0.5) * this.cellWidth + 'px'
+        }
+      } else {
+        return {
+          display: 'none'
+        }
+      }
+    },
+
+    addMilestoneTitle(day) {
+      return (
+        `${this.$t('schedule.milestone.add_milestone')} ` +
+        `${day.format('YYYY-MM-DD')}`
+      )
+    }
+  },
+
+  socket: {},
+
+  watch: {
+    startDate() {
+      this.resetScheduleSize()
+      this.scrollToToday()
+    },
+    endDate() {
+      this.resetScheduleSize()
+    },
+    zoomLevel() {
+      this.resetScheduleSize()
+      this.onTimelineScroll(null, { scrollTop: 0, scrollLeft: 0 })
+    },
+    isLoading() {
+      this.$nextTick(this.resetScheduleSize)
+    },
+    height() {
+      this.$nextTick(this.resetScheduleSize)
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.dark {
+  .entities {
+    background: inherit;
+  }
+
+  .schedule.zoom-level-0 {
+    .timeline-content {
+      background-image: url('@/assets/background/schedule-dark-1.png');
+    }
+  }
+
+  .schedule.zoom-level-1 {
+    .timeline-content {
+      background-image: url('@/assets/background/schedule-dark-1-weekend.png');
+    }
+  }
+
+  .schedule.zoom-level-2 {
+    .timeline-content {
+      background-image: url('@/assets/background/schedule-dark-2-weekend.png');
+    }
+  }
+
+  .schedule.zoom-level-3 {
+    .timeline-content {
+      background-image: url('@/assets/background/schedule-dark-3-weekend.png');
+    }
+  }
+
+  .child-element-name {
+    color: white;
+  }
+
+  .timeline {
+    .timeline-header {
+      background: transparent;
+      color: white;
+
+      .day {
+        .day-number {
+          color: white;
+        }
+
+        .day-name {
+          margin: 0;
+          padding-bottom: 0;
+          &.new-month,
+          &.new-week {
+            border-left: 2px solid white;
+          }
+        }
+
+        .month-name {
+          border-left: 2px solid white;
+          color: white;
+        }
+      }
+    }
+
+    .timeline-content-wrapper {
+      .timeline-content {
+        .entity-line.child-line {
+          .timebar {
+            color: $dark-grey;
+          }
+        }
+
+        .milestone-vertical-line {
+          border-left: 1px dashed white;
+        }
+      }
+    }
+  }
+
+  .expand,
+  .man-day-input {
+    color: white;
+  }
+
+  .total-man-days {
+    background: $dark-grey-2;
+    color: white;
+  }
+
+  .entity-name {
+    .man-days-unit {
+      color: $white;
+    }
+  }
+
+  .child-name .entity-name span {
+    color: $white;
+  }
+
+  .milestone {
+    .milestone-tooltip {
+      background: $dark-grey-lighter;
+      border: 1px solid $dark-grey;
+      box-shadow: 0 2px 2px 0px $dark-grey-strong;
+    }
+    .milestone-tooltip:after {
+      border-color: transparent;
+      border-top-color: $dark-grey-lighter;
+    }
+    .milestone-tooltip:before {
+      border-color: transparent;
+      border-top-color: $dark-grey-lighter;
+    }
+  }
+}
+
+.schedule-wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.schedule {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  height: 97vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+}
+
+.entities {
+  background: white;
+  min-width: 300px;
+  overflow: hidden;
+  z-index: 2;
+
+  .entity-line {
+    max-width: 300px;
+    min-width: 300px;
+  }
+}
+
+.entity-name-list {
+  padding-top: 85px;
+
+  &.without-milestones {
+    padding-top: 55px;
+  }
+}
+
+.entity-line {
+  font-size: 1.2em;
+  height: 40px;
+  margin-bottom: 20px;
+  padding: 0.5em;
+
+  .flexrow-item {
+    margin: 0;
+
+    &.mr1 {
+      margin-right: 0.5em;
+    }
+  }
+
+  .expand {
+    cursor: pointer;
+    margin-right: 0.5em;
+  }
+
+  &.child-line {
+    height: 40px;
+    margin-bottom: 0px;
+    font-size: 1em;
+
+    &:nth-child(even) {
+      background: transparent;
+    }
+
+    &:nth-child(odd) {
+      background: rgba(200, 200, 200, 0.2);
+    }
+  }
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-top: 0px;
+
+  .timeline-header {
+    white-space: nowrap;
+    position: relative;
+    margin-left: 1px;
+    padding-bottom: 0px;
+    overflow: hidden;
+    padding-top: 24px;
+
+    .day {
+      display: inline-block;
+      font-size: 0.8em;
+      padding-bottom: 0;
+      height: 30px;
+
+      .day-name {
+        border-left: 2px solid transparent;
+        color: $grey;
+        padding-bottom: 0em;
+        margin-bottom: 0em;
+        padding-left: 0px;
+        text-align: center;
+        padding-top: 0em;
+        text-transform: uppercase;
+
+        &.new-month,
+        &.new-week {
+          border-left: 2px solid black;
+        }
+      }
+
+      .day-number {
+        color: black;
+        padding-top: 0.5em;
+      }
+
+      .month-name {
+        border-left: 2px solid black;
+        font-size: 0.9em;
+        position: absolute;
+        padding-bottom: 12px;
+        padding-left: 1em;
+        top: 10px;
+        bottom: 0;
+        text-transform: uppercase;
+        color: black;
+        z-index: -300;
+      }
+    }
+  }
+
+  .timeline-content-wrapper {
+    background-repeat: repeat;
+    margin-left: 2px;
+    overflow-x: auto;
+    overflow-y: auto;
+
+    .timeline-content {
+      position: relative;
+
+      .timeline-position {
+        visibility: hidden;
+        position: absolute;
+        left: 0px;
+        top: 0;
+        bottom: 0;
+        background: rgba(200, 255, 200, 0.3);
+        z-index: 100;
+
+        &.today {
+          visibility: visible;
+          background: rgba(255, 200, 255, 0.3);
+        }
+      }
+
+      .milestone-vertical-line {
+        position: absolute;
+        left: 0px;
+        top: 0;
+        bottom: 0;
+        background: rgba(200, 255, 200, 0.3);
+        z-index: 100;
+        width: 1px;
+        border-left: 1px dashed black;
+      }
+
+      .entity-line {
+        width: 100%;
+        position: relative;
+
+        .timebar {
+          position: absolute;
+          top: 0px;
+          height: 14px;
+          border-radius: 0.2em;
+          display: flex;
+          z-index: 101;
+
+          .timebar-left-hand {
+            cursor: w-resize;
+            width: 30px;
+          }
+
+          .timebar-right-hand {
+            cursor: e-resize;
+            width: 30px;
+          }
+        }
+
+        .timebar-wrapper {
+          .timebar {
+            height: 30px;
+          }
+        }
+        &.child-line {
+          padding: 0;
+
+          .timebar {
+            background: rgba(0, 0, 50, 0.2);
+            top: 13px;
+            font-size: 0.6em;
+          }
+        }
+      }
+    }
+
+    .timeline-content:hover {
+      .timeline-position {
+        visibility: visible;
+      }
+    }
+  }
+}
+
+.zoom-level-0 {
+  .timeline-content {
+    background-image: url('@/assets/background/schedule-white-1.png');
+  }
+}
+
+.zoom-level-1 {
+  .timeline-content {
+    background-image: url('@/assets/background/schedule-white-1-weekend.png');
+  }
+
+  .timeline {
+    .timeline-header {
+      .day {
+        font-size: 0.8em;
+        padding-left: 0px;
+
+        .day-name {
+          padding-left: 2px;
+          &.new-week {
+            border-left: solid 2px transparent;
+          }
+          &.new-month {
+            padding-left: 4px;
+            border-left: solid 2px white;
+          }
+        }
+      }
+    }
+  }
+}
+
+.schedule.zoom-level-2 {
+  .timeline-content {
+    background-image: url('@/assets/background/schedule-white-2-weekend.png');
+  }
+}
+
+.schedule.zoom-level-3 {
+  .timeline-content {
+    background-image: url('@/assets/background/schedule-white-3-weekend.png');
+  }
+}
+
+.entity-name {
+  display: flex;
+  align-items: center;
+  line-height: 1.1em;
+
+  &.root {
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+  }
+
+  &.root.expanded {
+    border-bottom-left-radius: 0em;
+  }
+
+  input {
+    width: 50px;
+    text-align: right;
+    background: transparent;
+    margin-right: 0.2em;
+    font-size: 1.1em;
+  }
+
+  .man-days-unit {
+    color: $dark-grey;
+    font-size: 0.7em;
+  }
+
+  .avatar {
+    box-shadow: 0px 0px 6px 0px rgba(0, 0, 0, 0.3);
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.children {
+  margin-bottom: 1em;
+}
+
+.child-name .entity-name span {
+  color: $dark-grey;
+  padding-left: 2.5em;
+
+  .filler {
+    margin: 0;
+    margin: 0;
+  }
+}
+
+.total-man-days {
+  position: absolute;
+  background: white;
+  border-top-left-radius: 10px;
+  height: 85px;
+  margin-right: 0.5em;
+  margin-bottom: 0px;
+  min-width: 300px;
+  padding-bottom: 0px;
+  padding-right: 5px;
+  padding-top: 55px;
+  z-index: 2;
+
+  .total-value {
+    font-size: 20px;
+  }
+
+  &.without-milestones {
+    padding-top: 20px;
+    height: 54px;
+  }
+}
+
+.child-spinner {
+  font-size: 10px;
+  padding-top: 20px;
+}
+
+.milestone {
+  cursor: pointer;
+  margin-bottom: 0px;
+  position: relative;
+  text-align: center;
+  min-height: 35px;
+
+  .flexrow-item {
+    margin-left: 5px;
+    margin-right: 0px;
+  }
+
+  .bull {
+    font-size: 20px;
+    line-height: 10px;
+  }
+
+  .milestone-tooltip {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    box-shadow: 0 2px 2px 0px #eee;
+    font-size: 0.8em;
+    font-weight: bold;
+    opacity: 0;
+    padding: 2px;
+    position: relative;
+    border: 1px solid #eeeeee;
+    width: 140px;
+    text-align: center;
+    top: -5px;
+    background: white;
+    z-index: 100;
+  }
+
+  &:hover {
+    .milestone-tooltip {
+      opacity: 1;
+    }
+  }
+
+  .milestone-tooltip:after,
+  .milestone-tooltip:before {
+    top: 100%;
+    left: 50%;
+    border: solid transparent;
+    content: ' ';
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .milestone-tooltip:after {
+    border-color: rgba(255, 255, 255, 0);
+    border-top-color: #ffffff;
+    border-width: 5px;
+    margin-left: -5px;
+  }
+  .milestone-tooltip:before {
+    border-color: rgba(238, 238, 238, 0);
+    border-top-color: #eeeeee;
+    border-width: 6px;
+    margin-left: -6px;
+  }
+}
+
+.root-element-name {
+  padding-left: 10px;
+  color: $white;
+}
+
+.child-element-name {
+  padding-left: 10px;
+  color: $grey-strong;
+}
+
+.date-widget {
+  padding-top: 8px;
+
+  .add-milestone {
+    display: none;
+    cursor: pointer;
+    text-align: center;
+
+    span {
+      background: black;
+      color: white;
+      border-radius: 50%;
+      font-size: 1.4em;
+      line-height: 0.6em;
+      font-weight: bold;
+      padding: 0 6px 2px 6px;
+    }
+  }
+
+  &:hover.with-milestones {
+    background: $light-green-light;
+    height: 100%;
+    .add-milestone {
+      display: block;
+    }
+
+    .date-name {
+      display: none;
+    }
+  }
+}
+
+.timebar-wrapper {
+  position: absolute;
+  height: 30px;
+  top: 4px;
+  padding: 0;
+  border-radius: 4px;
+
+  .timebar {
+    width: calc(100% - 0.2em);
+  }
+}
+
+.weekend {
+  background: rgba(200, 200, 200, 0.3);
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+</style>

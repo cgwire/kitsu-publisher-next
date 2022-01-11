@@ -5,14 +5,14 @@
         <div class="profile-header-content has-text-centered">
           <people-avatar
             ref="avatar"
-            :noCache="true"
-            :isLink="false"
+            :no-cache="true"
+            :is-link="false"
             :person="user"
             :size="150"
-            :fontSize="60"
+            :font-size="60"
           />
 
-          <p v-if="!isLdap">
+          <p>
             <button
               class="button is-link change-avatar-button"
               @click="showAvatarModal"
@@ -203,10 +203,10 @@
 import moment from 'moment-timezone'
 import { mapGetters, mapActions } from 'vuex'
 
-import ComboboxBoolean from '../widgets/ComboboxBoolean'
-import ChangeAvatarModal from '../modals/ChangeAvatarModal'
-import PeopleAvatar from '../widgets/PeopleAvatar'
-import TextField from '../widgets/TextField'
+import ComboboxBoolean from '@/components/widgets/ComboboxBoolean'
+import ChangeAvatarModal from '@/components/modals/ChangeAvatarModal'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
+import TextField from '@/components/widgets/TextField'
 
 export default {
   name: 'Profile',

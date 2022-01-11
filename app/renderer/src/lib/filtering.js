@@ -3,8 +3,8 @@ import {
   buildTaskStatusIndex,
   buildNameIndex,
   indexSearch
-} from './indexing'
-import string from './string'
+} from '@/lib/indexing'
+import string from '@/lib/string'
 
 const UNION_REGEX = /\+\(.*\)/
 const EQUAL_REGEX =
@@ -118,9 +118,7 @@ const applyFiltersFunctions = {
  * expressions.
  */
 export const getKeyWords = (queryText) => {
-  if (!queryText) {
-    return []
-  } else {
+  if (typeof queryText === 'string' || queryText instanceof String) {
     return queryText
       .replace(UNION_REGEX, '')
       .replace(EQUAL_REGEX, '')
@@ -128,6 +126,8 @@ export const getKeyWords = (queryText) => {
       .filter((query) => {
         return query.length > 0 && query[0] !== '-' && query !== 'withthumbnail'
       })
+  } else {
+    return []
   }
 }
 

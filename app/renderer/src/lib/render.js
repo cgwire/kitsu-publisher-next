@@ -1,6 +1,6 @@
-import marked from 'marked'
+import { marked } from 'marked'
 import sanitizeHTML from 'sanitize-html'
-import { formatFrame, formatTime } from './video'
+import { formatFrame, formatTime } from '@/lib/video'
 
 export const TIME_CODE_REGEX = /v(\d+) (\d+):(\d+)\.(\d+) \((\d+)\)/g
 
@@ -63,7 +63,9 @@ export const replaceTimeWithTimecode = (
   fps
 ) => {
   if (comment) {
-    const frame = formatFrame(currentTimeRaw, fps)
+    const frameDuration = Math.round((1 / fps) * 10000) / 10000
+    const frameNumber = Math.floor(currentTimeRaw / frameDuration)
+    const frame = formatFrame(frameNumber)
     const formatedTime = formatTime(currentTimeRaw)
     return comment.replaceAll(
       '@frame',

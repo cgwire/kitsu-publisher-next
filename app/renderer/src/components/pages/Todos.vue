@@ -26,7 +26,6 @@
                 {{ $t('tasks.done') }} ({{ displayedDoneTasks.length }})
               </router-link>
             </li>
-            <!-- TODO : reactivate timesheets
             <li
               :class="{ 'is-active': isTabActive('timesheets') }"
               @click="selectTab('timesheets')"
@@ -39,11 +38,10 @@
               >
                 {{ $t('timesheets.title') }}
               </router-link>
-            </li>-->
+            </li>
           </ul>
         </div>
 
-        <!-- TODO : reenable search-field and combobox 
         <div class="flexrow">
           <search-field
             v-if="!isTabActive('done')"
@@ -58,7 +56,7 @@
             @save="saveSearchQuery"
           />
 
-          <span class="filler"></span>
+          <span class="filler" />
 
           <combobox
             v-model="currentFilter"
@@ -76,8 +74,6 @@
             locale-key-prefix="tasks.fields."
           />
         </div>
-        -->
-        <!-- TODO : reenable search-query-list
         <div
           v-if="isTabActive('todos') || isTabActive('timesheets')"
           class="query-list"
@@ -88,7 +84,6 @@
             @remove-search="removeSearchQuery"
           />
         </div>
-        -->
 
         <todos-list
           v-if="isTabActive('todos')"
@@ -109,7 +104,7 @@
           :is-error="isTodosLoadingError"
           :done="true"
         />
-        <!-- TODO : reactivate timesheets
+
         <timesheet-list
           v-if="isTabActive('timesheets')"
           ref="timesheet-list"
@@ -126,7 +121,7 @@
           @time-spent-change="onTimeSpentChange"
           @set-day-off="onSetDayOff"
           @unset-day-off="onUnsetDayOff"
-        />-->
+        />
       </div>
     </div>
 
@@ -142,22 +137,22 @@ import moment from 'moment-timezone'
 import firstBy from 'thenby'
 
 import { parseDate } from '@/lib/time'
-//import Combobox from '@/components/widgets/Combobox'
-//import SearchField from '@/components/widgets/SearchField'
-//import SearchQueryList from '@/components/widgets/SearchQueryList'
+import Combobox from '@/components/widgets/Combobox'
+import SearchField from '@/components/widgets/SearchField'
+import SearchQueryList from '@/components/widgets/SearchQueryList'
 import TaskInfo from '@/components/sides/TaskInfo'
-//import TimesheetList from '@/components/lists/TimesheetList'
+import TimesheetList from '@/components/lists/TimesheetList'
 import TodosList from '@/components/lists/TodosList'
 
 export default {
   name: 'Todos',
 
   components: {
-    //Combobox,
-    //SearchField,
-    //SearchQueryList,
+    Combobox,
+    SearchField,
+    SearchQueryList,
     TaskInfo,
-    //TimesheetList,
+    TimesheetList,
     TodosList
   },
 
@@ -180,6 +175,34 @@ export default {
         'last_comment_date'
       ].map((name) => ({ label: name, value: name }))
     }
+  },
+
+  mounted() {
+    this.updateActiveTab()
+    if (this.todosSearchText.length > 0) {
+      this.$refs['todos-search-field'].setValue(this.todosSearchText)
+    }
+    this.$nextTick(() => {
+      this.loadTodos({
+        date: this.selectedDate,
+        callback: () => {
+          if (this.todoList) {
+            this.$nextTick(() => {
+              this.todoList.setScrollPosition(this.todoListScrollPosition)
+            })
+          }
+          this.resizeHeaders()
+        }
+      })
+    })
+  },
+
+  afterDestroy() {
+    this.$store.commit('USER_LOAD_TODOS_END', {
+      tasks: [],
+      userFilters: {},
+      taskTypeMap: this.taskTypeMap
+    })
   },
 
   computed: {
@@ -269,40 +292,6 @@ export default {
         )
       }
     }
-  },
-
-  watch: {
-    $route() {
-      this.updateActiveTab()
-    }
-  },
-
-  mounted() {
-    this.updateActiveTab()
-    if (this.todosSearchText.length > 0) {
-      this.$refs['todos-search-field'].setValue(this.todosSearchText)
-    }
-    this.$nextTick(() => {
-      this.loadTodos({
-        date: this.selectedDate,
-        callback: () => {
-          if (this.todoList) {
-            this.$nextTick(() => {
-              this.todoList.setScrollPosition(this.todoListScrollPosition)
-            })
-          }
-          this.resizeHeaders()
-        }
-      })
-    })
-  },
-
-  afterDestroy() {
-    this.$store.commit('USER_LOAD_TODOS_END', {
-      tasks: [],
-      userFilters: {},
-      taskTypeMap: this.taskTypeMap
-    })
   },
 
   methods: {
@@ -435,6 +424,12 @@ export default {
       'task:unassign'(eventData) {
         this.onAssignation(eventData)
       }
+    }
+  },
+
+  watch: {
+    $route() {
+      this.updateActiveTab()
     }
   },
 

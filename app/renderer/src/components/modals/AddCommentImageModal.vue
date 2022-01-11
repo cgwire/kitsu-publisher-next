@@ -19,14 +19,19 @@
 
         <file-upload
           ref="image-field"
-          :label="$t('main.csv.upload_file')"
+          :label="$t('main.select_file')"
           :accept="extensions"
           :multiple="true"
           @fileselected="onFileSelected"
         />
+        <p v-if="isError" class="error">$t('main.add')</p>
 
-        <p v-if="isError" class="error">
-          {{ $t('tasks.add_preview_error') }}
+        <p v-if="isMovie" class="mt1">Or:</p>
+
+        <p v-if="isMovie">
+          <button class="button" @click="$emit('add-snapshots')">
+            {{ $t('main.attach_snapshots') }}
+          </button>
         </p>
 
         <p class="has-text-right">
@@ -60,7 +65,8 @@
               :src="getURL(form)"
             />
             <iframe
-              v-else
+              v-else-if="isPdf(form)"
+              :key="i"
               class="is-fullwidth"
               frameborder="0"
               :src="getURL(form)"
@@ -103,6 +109,10 @@ export default {
       type: Boolean,
       default: false
     },
+    isMovie: {
+      type: Boolean,
+      default: false
+    },
     extensions: {
       type: String,
       default: files.ALL_EXTENSIONS_STRING
@@ -123,21 +133,6 @@ export default {
     }
   },
 
-  watch: {
-    active() {
-      this.reset()
-    }
-  },
-
-  mounted() {
-    this.forms = null
-    window.addEventListener('paste', this.onPaste, false)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('paste', this.onPaste)
-  },
-
   methods: {
     ...mapActions([]),
 
@@ -156,7 +151,7 @@ export default {
 
     onPaste(event) {
       if (this.active && event.clipboardData.files) {
-        this.imageField.filesChange('', event.clipboardData.files)
+        this.addFiles(event.clipboardData.files)
       }
     },
 
@@ -170,7 +165,26 @@ export default {
 
     isVideo(form) {
       return form.get('file').type.startsWith('video')
+    },
+
+    addFiles(files) {
+      this.imageField.filesChange('', files)
     }
+  },
+
+  watch: {
+    active() {
+      this.reset()
+    }
+  },
+
+  mounted() {
+    this.forms = null
+    window.addEventListener('paste', this.onPaste, false)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('paste', this.onPaste)
   }
 }
 </script>

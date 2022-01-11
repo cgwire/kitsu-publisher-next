@@ -39,6 +39,7 @@ $blue: #7289da;
 
 :root {
   --background: #ffffff;
+  --background-page: #f6f6f6;
   --background-alt: #f6f6f6;
   --background-rgb: 255, 255, 255;
   --background-alt-rgb: 246, 246, 246;
@@ -54,10 +55,13 @@ $blue: #7289da;
   --border-alt: #dbdbdb;
   --box-shadow: #ddd;
   --text: #7a7a7a;
+  --text-strong: $black;
+  --poster-color: #000;
 }
 
 .dark {
   --background: #36393f;
+  --background-page: #36393f;
   --background-rgb: 54, 57, 63;
   --background-alt: #46494f;
   --background-alt-rgb: 70, 73, 79;
@@ -73,6 +77,7 @@ $blue: #7289da;
   --border-alt: #666666;
   --box-shadow: #2226;
   --text: #eeeeee;
+  --text-strong: #fefefe;
   --vdp-text-color: white;
   --vdp-background: $dark-grey;
 }

@@ -30,7 +30,7 @@
 <script>
 import { renderMarkdown } from '@/lib/render'
 import { mapGetters, mapActions } from 'vuex'
-import PeopleAvatar from './../widgets/PeopleAvatar'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
 
 export default {
   name: 'LastCommentCell',

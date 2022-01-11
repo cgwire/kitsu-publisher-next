@@ -3,7 +3,7 @@
     <div class="container has-text-centered">
       <div class="box has-text-left">
         <div class="has-text-centered login-header">
-          <img src="../../assets/kitsu.png" />
+          <img src="@/assets/kitsu.png" />
           <h1 class="title">Kitsu Publisher</h1>
         </div>
         <form>
@@ -19,7 +19,7 @@
                 @keyup.enter="confirmLogIn"
               />
               <span class="icon">
-                <icon name="server" :width="20" height="20" />
+                <icon name="server" :width="20" :height="20" />
               </span>
             </p>
           </div>
@@ -34,7 +34,7 @@
                 @keyup.enter="confirmLogIn"
               />
               <span class="icon">
-                <icon name="mail" :width="20" height="20" />
+                <icon name="mail" :width="20" :height="20" />
               </span>
             </p>
           </div>
@@ -49,7 +49,7 @@
                 @keyup.enter="confirmLogIn"
               />
               <span class="icon">
-                <icon name="lock" :width="20" height="20" />
+                <icon name="lock" :width="20" :height="20" />
               </span>
             </p>
           </div>

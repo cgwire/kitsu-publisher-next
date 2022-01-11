@@ -21,6 +21,9 @@ export default {
   computed: {
     ...mapGetters(['isAuthenticated', 'user'])
   },
+  methods: {
+    ...mapActions([])
+  },
   mounted() {
     auth.isServerLoggedIn((err) => {
       const target = this.$store.state.route.query.redirect
@@ -28,9 +31,6 @@ export default {
         this.$router.push(target)
       }
     })
-  },
-  methods: {
-    ...mapActions([])
   }
 }
 </script>

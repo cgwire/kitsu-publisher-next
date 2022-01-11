@@ -13,8 +13,8 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import Spinner from './components/widgets/Spinner.vue'
-//import crisp from './lib/crisp'
+import Spinner from '@/components/widgets/Spinner.vue'
+//import crisp from '@/lib/crisp'
 
 export default {
   name: 'App',
@@ -46,18 +46,6 @@ export default {
       'taskTypeMap',
       'user'
     ])
-  },
-
-  watch: {
-    isDarkTheme() {
-      if (this.isDarkTheme) {
-        document.documentElement.style.background = '#36393F'
-        document.body.style.background = '#36393F'
-      } else {
-        document.documentElement.style.background = '#FFF'
-        document.body.style.background = '#FFF'
-      }
-    }
   },
 
   mounted() {
@@ -123,6 +111,19 @@ export default {
       }
     }
   },
+
+  watch: {
+    isDarkTheme() {
+      if (this.isDarkTheme) {
+        document.documentElement.style.background = '#36393F'
+        document.body.style.background = '#36393F'
+      } else {
+        document.documentElement.style.background = '#FFF'
+        document.body.style.background = '#FFF'
+      }
+    }
+  },
+
   socket: {
     events: {
       'project:new'(eventData) {
@@ -405,7 +406,7 @@ export default {
   font-family: Lato;
   font-style: normal;
   font-weight: 400;
-  src: url(./assets/fonts/Lato.woff2) format('woff2');
+  src: url(@/assets/fonts/Lato.woff2) format('woff2');
 }
 
 html {

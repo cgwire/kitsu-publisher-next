@@ -73,6 +73,11 @@ export default {
     }
   },
 
+  mounted() {
+    //console.log(this.modelValue)
+    this.localValue = this.modelValue
+  },
+
   computed: {
     ...mapGetters(['user']),
 
@@ -83,20 +88,6 @@ export default {
     locale() {
       return this.user.locale.substring(0, 2)
     }
-  },
-
-  watch: {
-    modelValue() {
-      this.localValue = this.modelValue
-    },
-
-    localValue() {
-      this.$emit('update:modelValue', this.localValue)
-    }
-  },
-
-  mounted() {
-    this.localValue = this.modelValue
   },
 
   methods: {
@@ -110,6 +101,16 @@ export default {
 
     onDayClicked(day) {
       this.$emit('update:modelValue', moment(day.date))
+    }
+  },
+
+  watch: {
+    modelValue() {
+      this.localValue = this.modelValue
+    },
+
+    localValue() {
+      this.$emit('update:modelValue', this.localValue)
     }
   }
 }

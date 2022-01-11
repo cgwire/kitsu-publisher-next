@@ -30,6 +30,7 @@ export default {
       episode: 'Ep.',
       name: 'Name',
       production: 'Prod',
+      ready_for: 'Ready for',
       time_spent: 'Time',
       type: 'Type',
       hidden_from_client: 'Displayed to client'
@@ -285,6 +286,7 @@ export default {
     all_assets: 'All assets',
     admin: 'Admin',
     after: 'After',
+    attach_snapshots: 'Attach snapshots from your annotation',
     before: 'Before',
     cancel: 'Cancel',
     clear_selection: 'Clear current selection',
@@ -336,12 +338,14 @@ export default {
     production: 'Production',
     remove: 'Remove',
     reload: 'Reload',
+    reply: 'Reply',
     save: 'Save',
     search_query: 'Search query',
     search_query_edit: 'Edit search filter',
     search_query_edit_error:
       'An error occurred while updating this search filter.',
     select_column: 'Select column',
+    select_file: 'Select a file from your hard drive',
     show: 'Show',
     sorted_by: 'Sorted by',
     sort_by: 'Sort by',
@@ -428,6 +432,7 @@ export default {
     and_change_status: 'and changed status to',
     assigned_you: 'assigned you to',
     commented_on: 'commented on',
+    replied_on: 'replied to a comment on',
     mention_you_on: 'mentioned you on',
     no_notifications:
       'There is currently no notification for you for your current projects.',
@@ -739,7 +744,7 @@ export default {
     language: 'Language',
     notifications_enabled: 'Email notifications enabled',
     notifications_slack_enabled: 'Slack notifications enabled',
-    notifications_slack_user: 'Slack username',
+    notifications_slack_user: 'Slack member ID',
     password_title: 'Change password',
     timezone: 'Timezone',
     title: 'Your Profile',
@@ -767,6 +772,7 @@ export default {
     logo: 'Studio logo',
     no_logo: 'There is no logo set.',
     set_logo: 'Set studio logo',
+    show_hd_default: 'Show picture with HD quality by default',
     title: 'Settings',
     fields: {
       name: 'Studio name',
@@ -962,6 +968,7 @@ export default {
       "Warning: you won't see the result because you are hiding assignations",
     back_to_list: 'back to list',
     bigger: 'Widen task panel',
+    big_thumbnails: 'Show big thumbnails',
     change_status_to: 'Change task status to:',
     change_preview: 'Change preview',
     change_priority: 'Change priority to:',
@@ -1078,6 +1085,7 @@ export default {
     month: 'Month',
     time_spents: 'Time Spent (hours)',
     title: 'Timesheets',
+    unit: 'Unit',
     year: 'Year'
   },
 

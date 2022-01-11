@@ -22,7 +22,7 @@
       />
     </div>
 
-    <div ref="body">
+    <div ref="body" class="datatable-wrapper">
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
@@ -252,28 +252,6 @@ export default {
     }
   },
 
-  computed: {
-    ...mapGetters([
-      'isCurrentUserArtist',
-      'nbSelectedTasks',
-      'organisation',
-      'personIsDayOff',
-      'productionMap',
-      'taskTypeMap',
-      'user'
-    ]),
-
-    displayedTasks() {
-      return this.tasks.slice(0, this.page * (PAGE_SIZE / 2))
-    }
-  },
-
-  watch: {
-    selectedDate() {
-      this.$emit('date-changed', this.selectedDate)
-    }
-  },
-
   mounted() {
     this.colTypePosX = this.$refs['th-prod'].offsetWidth + 'px'
     this.colNamePosX =
@@ -288,6 +266,22 @@ export default {
           ? beginningOfTheWeek
           : undefined,
       from: moment().toDate() // Disable dates after today.
+    }
+  },
+
+  computed: {
+    ...mapGetters([
+      'isCurrentUserArtist',
+      'nbSelectedTasks',
+      'organisation',
+      'personIsDayOff',
+      'productionMap',
+      'taskTypeMap',
+      'user'
+    ]),
+
+    displayedTasks() {
+      return this.tasks.slice(0, this.page * (PAGE_SIZE / 2))
     }
   },
 
@@ -339,6 +333,12 @@ export default {
       } else {
         this.modals.dayOff = true
       }
+    }
+  },
+
+  watch: {
+    selectedDate() {
+      this.$emit('date-changed', this.selectedDate)
     }
   }
 }

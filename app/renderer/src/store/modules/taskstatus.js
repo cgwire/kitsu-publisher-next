@@ -1,5 +1,5 @@
-import taskStatusApi from '../api/taskstatus'
-import { sortByName } from '../../lib/sorting'
+import taskStatusApi from '@/store/api/taskstatus'
+import { sortByName } from '@/lib/sorting'
 
 import {
   LOAD_TASK_STATUSES_START,
@@ -8,7 +8,7 @@ import {
   EDIT_TASK_STATUS_END,
   DELETE_TASK_STATUS_END,
   RESET_ALL
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const initialState = {
   taskStatus: [],

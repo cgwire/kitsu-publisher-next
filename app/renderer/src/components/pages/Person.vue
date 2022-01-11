@@ -1,8 +1,8 @@
 <template>
-  <div class="columns fixed-page">
+  <div ref="page" class="columns fixed-page">
     <div class="column main-column">
       <div class="person page">
-        <div class="flexrow page-header">
+        <div ref="header" class="flexrow page-header">
           <div v-if="person" class="flexrow-item">
             <people-avatar
               :person="person"
@@ -16,7 +16,7 @@
           </div>
         </div>
 
-        <div class="task-tabs tabs">
+        <div ref="tabs" class="task-tabs tabs">
           <ul v-if="person">
             <li :class="{ 'is-active': isActiveTab('todos') }">
               <router-link
@@ -30,10 +30,7 @@
                 {{ $t('tasks.current') }}
               </router-link>
             </li>
-            <li
-              :class="{ 'is-active': isActiveTab('done') }"
-              @click="selectTab('done')"
-            >
+            <li :class="{ 'is-active': isActiveTab('done') }">
               <router-link
                 :to="{
                   name: 'person-tab',
@@ -49,7 +46,6 @@
             <li
               v-if="isCurrentUserManager"
               :class="{ 'is-active': isActiveTab('timesheets') }"
-              @click="selectTab('timesheets')"
             >
               <router-link
                 :to="{
@@ -63,10 +59,23 @@
                 {{ $t('timesheets.title') }}
               </router-link>
             </li>
+            <li :class="{ 'is-active': isActiveTab('schedule') }">
+              <router-link
+                :to="{
+                  name: 'person-tab',
+                  params: {
+                    tab: 'schedule',
+                    person_id: person.id
+                  }
+                }"
+              >
+                {{ $t('schedule.title') }}
+              </router-link>
+            </li>
           </ul>
         </div>
 
-        <div class="flexrow">
+        <div ref="search" class="flexrow">
           <search-field
             v-if="!isActiveTab('done')"
             ref="person-tasks-search-field"
@@ -88,15 +97,17 @@
           />
         </div>
 
-        <div
-          v-if="isActiveTab('todos') || isActiveTab('timesheets')"
-          class="query-list"
-        >
-          <search-query-list
-            :queries="personTaskSearchQueries"
-            @change-search="changeSearch"
-            @remove-search="removeSearchQuery"
-          />
+        <div ref="query">
+          <div
+            v-show="isActiveTab('todos') || isActiveTab('timesheets')"
+            class="query-list"
+          >
+            <search-query-list
+              :queries="personTaskSearchQueries"
+              @change-search="changeSearch"
+              @remove-search="removeSearchQuery"
+            />
+          </div>
         </div>
 
         <todos-list
@@ -116,7 +127,7 @@
           :is-loading="isTasksLoading"
           :is-error="isTasksLoadingError"
           :done="true"
-          :selection-grid="personTaskSelectionGrid"
+          :selectionGrid="personTaskSelectionGrid"
         />
 
         <timesheet-list
@@ -133,6 +144,24 @@
           @set-day-off="onSetDayOff"
           @unset-day-off="onUnsetDayOff"
         />
+
+        <div v-if="isActiveTab('schedule')">
+          <schedule
+            v-if="scheduleItems.length > 0"
+            ref="schedule-widget"
+            :start-date="tasksStartDate"
+            :end-date="tasksEndDate"
+            :hierarchy="scheduleItems"
+            :zoom-level="2"
+            :height="scheduleHeight"
+            :is-loading="isTasksLoading"
+            :is-estimation-linked="true"
+            :with-milestones="false"
+          />
+          <div v-else class="has-text-centered">
+            There is no tasks scheduled for current person.
+          </div>
+        </div>
       </div>
     </div>
     <div v-if="nbSelectedTasks === 1" class="column side-column">
@@ -146,14 +175,19 @@ import moment from 'moment-timezone'
 import firstBy from 'thenby'
 import { mapGetters, mapActions } from 'vuex'
 
-import Combobox from '../widgets/Combobox'
-import PageTitle from '../widgets/PageTitle'
-import PeopleAvatar from '../widgets/PeopleAvatar'
-import SearchField from '../widgets/SearchField'
-import SearchQueryList from '../widgets/SearchQueryList'
-import TimesheetList from '../lists/TimesheetList'
-import TodosList from '../lists/TodosList'
-import TaskInfo from '../sides/TaskInfo'
+import { formatListMixin } from '@/components/mixins/format'
+import colors from '@/lib/colors'
+import { getFirstStartDate, getLastEndDate, parseDate } from '@/lib/time'
+
+import Combobox from '@/components/widgets/Combobox'
+import PageTitle from '@/components/widgets/PageTitle'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
+import Schedule from '@/components/schedule/Schedule'
+import SearchField from '@/components/widgets/SearchField'
+import SearchQueryList from '@/components/widgets/SearchQueryList'
+import TimesheetList from '@/components/lists/TimesheetList'
+import TodosList from '@/components/lists/TodosList'
+import TaskInfo from '@/components/sides/TaskInfo'
 
 export default {
   name: 'Person',
@@ -161,21 +195,24 @@ export default {
     Combobox,
     PageTitle,
     PeopleAvatar,
+    Schedule,
     SearchField,
     SearchQueryList,
     TaskInfo,
     TodosList,
     TimesheetList
   },
+  mixins: [formatListMixin],
 
   data() {
     return {
       activeTab: 'todos',
+      currentSort: 'entity_name',
       isTasksLoading: false,
       isTasksLoadingError: false,
       person: null,
+      scheduleHeight: 0,
       selectedDate: moment().format('YYYY-MM-DD'),
-      currentSort: 'entity_name',
       sortOptions: [
         'entity_name',
         'priority',
@@ -185,6 +222,27 @@ export default {
         'last_comment_date'
       ].map((name) => ({ label: name, value: name }))
     }
+  },
+
+  mounted() {
+    this.updateActiveTab()
+    if (this.personTasksSearchText.length > 0) {
+      this.searchField.setValue(this.personTasksSearchText)
+    }
+    setTimeout(() => {
+      if (this.searchField) this.searchField.focus()
+    }, 100)
+    this.loadPerson(this.$route.params.person_id)
+    window.addEventListener('resize', this.resetScheduleHeight)
+  },
+
+  afterDestroy() {
+    window.removeEventListener('resize', this.resetScheduleHeight)
+    this.$store.commit('LOAD_PERSON_TASKS_END', {
+      tasks: [],
+      userFilters: {},
+      taskTypeMap: this.taskTypeMap
+    })
   },
 
   computed: {
@@ -200,6 +258,7 @@ export default {
       'personTaskSelectionGrid',
       'personTimeSpentMap',
       'personTimeSpentTotal',
+      'productionMap',
       'selectedTasks',
       'taskTypeMap'
     ]),
@@ -245,35 +304,66 @@ export default {
             .thenBy('entity_name')
         )
       }
+    },
+
+    tasksStartDate() {
+      if (this.scheduleItems.length > 0) {
+        return getFirstStartDate(this.scheduleTasks)
+      } else {
+        return moment()
+      }
+    },
+
+    tasksEndDate() {
+      if (this.scheduleItems.length > 0) {
+        return getLastEndDate(this.scheduleTasks)
+      } else {
+        return moment().add(15, 'days')
+      }
+    },
+
+    scheduleTasks() {
+      let children = []
+      this.scheduleItems.forEach((item) => {
+        children = children.concat(item.children)
+      })
+      return children
+    },
+
+    scheduleItems() {
+      const rootMap = new Map()
+      this.sortedTasks.forEach((task) => {
+        if (!rootMap.get(task.project_id)) {
+          const project = this.productionMap.get(task.project_id)
+          const rootElement = this.buildProjectScheduleItem(project)
+          rootMap.set(task.project_id, rootElement)
+        }
+        const rootElement = rootMap.get(task.project_id)
+        const taskItem = this.buildTaskScheduleItem(rootElement, task)
+        if (taskItem) rootElement.children.push(taskItem)
+      })
+
+      const rootElements = Array.from(rootMap.values())
+      rootElements.forEach((rootElement) => {
+        let rootStartDate = moment()
+        let rootEndDate = moment().add('days', 1)
+        let manDays = 0
+        if (rootElement.children.length > 0) {
+          rootStartDate = getFirstStartDate(rootElement.children)
+          rootEndDate = getLastEndDate(rootElement.children)
+        }
+        rootElement.children.forEach((task) => {
+          const estimation = this.formatDuration(task.estimation)
+          if (estimation) manDays += task.estimation
+        })
+        Object.assign(rootElement, {
+          startDate: rootStartDate,
+          endDate: rootEndDate,
+          man_days: manDays
+        })
+      })
+      return rootElements
     }
-  },
-
-  watch: {
-    $route() {
-      const personId = this.$route.params.person_id
-
-      this.updateActiveTab()
-      if (this.person.id !== personId) this.loadPerson()
-    }
-  },
-
-  mounted() {
-    this.updateActiveTab()
-    if (this.personTasksSearchText.length > 0) {
-      this.searchField.setValue(this.personTasksSearchText)
-    }
-    setTimeout(() => {
-      if (this.searchField) this.searchField.focus()
-    }, 100)
-    this.loadPerson(this.$route.params.person_id)
-  },
-
-  afterDestroy() {
-    this.$store.commit('LOAD_PERSON_TASKS_END', {
-      tasks: [],
-      userFilters: {},
-      taskTypeMap: this.taskTypeMap
-    })
   },
 
   methods: {
@@ -287,6 +377,84 @@ export default {
       'setTimeSpent',
       'unsetDayOff'
     ]),
+
+    resetScheduleHeight() {
+      this.$nextTick(() => {
+        if (this.isActiveTab('schedule')) {
+          const pageHeight = this.$refs.page.offsetHeight
+          const headerHeight = this.$refs.header.offsetHeight
+          const tabsHeight = this.$refs.tabs.offsetHeight
+          const searchHeight = this.$refs.search.offsetHeight
+          const queryHeight = this.$refs.query.offsetHeight
+          this.scheduleHeight =
+            pageHeight - headerHeight - tabsHeight - searchHeight - queryHeight
+          if (this.$refs['schedule-widget']) {
+            this.$refs['schedule-widget'].resetScheduleSize()
+          }
+        }
+      })
+    },
+
+    buildProjectScheduleItem(project) {
+      return {
+        ...project,
+        avatar: true,
+        color: colors.fromString(project.name, true),
+        for_shots: false,
+        priority: 1,
+        expanded: true,
+        loading: false,
+        children: [],
+        editable: false
+      }
+    },
+
+    buildTaskScheduleItem(rootElement, task) {
+      let startDate = moment()
+      let endDate
+
+      if (
+        !task.start_date &&
+        !task.real_start_date &&
+        !task.due_date &&
+        !task.end_date
+      )
+        return null
+
+      if (task.start_date) {
+        startDate = parseDate(task.start_date)
+      } else if (task.real_start_date) {
+        startDate = parseDate(task.real_start_date)
+      }
+
+      const estimation = this.formatDuration(task.estimation)
+      if (task.due_date) {
+        endDate = parseDate(task.due_date)
+      } else if (task.end_date) {
+        endDate = parseDate(task.end_date)
+      } else if (task.estimation) {
+        endDate = startDate.clone().add(estimation, 'days')
+      }
+
+      if (!endDate || endDate.isBefore(startDate)) {
+        endDate = startDate.clone().add(1, 'days')
+      }
+      const taskType = this.taskTypeMap.get(task.task_type_id)
+      return {
+        ...task,
+        name: task.full_entity_name + ' / ' + taskType.name,
+        startDate: startDate,
+        endDate: endDate,
+        expanded: false,
+        loading: false,
+        man_days: estimation,
+        editable: false,
+        unresizable: false,
+        parentElement: rootElement,
+        color: taskType.color,
+        children: []
+      }
+    },
 
     isActiveTab(tab) {
       return this.activeTab === tab
@@ -370,7 +538,8 @@ export default {
     },
 
     updateActiveTab() {
-      if (['done', 'timesheets'].includes(this.$route.params.tab)) {
+      const availableTabs = ['done', 'timesheets', 'schedule']
+      if (availableTabs.includes(this.$route.params.tab)) {
         this.activeTab = this.$route.params.tab
       } else {
         this.activeTab = 'todos'
@@ -409,6 +578,19 @@ export default {
     return {
       title: this.person ? `${this.person.name} - Kitsu` : '... - Kitsu'
     }
+  },
+
+  watch: {
+    $route() {
+      const personId = this.$route.params.person_id
+
+      this.updateActiveTab()
+      if (this.person.id !== personId) this.loadPerson()
+    },
+
+    activeTab() {
+      this.resetScheduleHeight()
+    }
   }
 }
 </script>
@@ -418,6 +600,11 @@ export default {
   width: 230px;
   min-width: 230px;
 }
+
+.page {
+  overflow: hidden;
+}
+
 .email {
   width: 210px;
   min-width: 210px;

@@ -1,7 +1,7 @@
 import { DEFAULT_NB_FRAMES_PICTURE } from '@/lib/playlist'
-import playlistsApi from '../api/playlists'
-import { sortByDate } from '../../lib/sorting'
-import { removeModelFromList, updateModelFromList } from '../../lib/models'
+import playlistsApi from '@/store/api/playlists'
+import { sortByDate } from '@/lib/sorting'
+import { removeModelFromList, updateModelFromList } from '@/lib/models'
 
 import {
   ADD_PLAYLISTS,
@@ -25,8 +25,9 @@ import {
   MARK_JOB_AS_DONE,
   REMOVE_BUILD_JOB,
   UPDATE_PREVIEW_ANNOTATION,
+  UPDATE_PREVIEW_VALIDATION_STATUS,
   RESET_ALL
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const initialState = {
   playlists: [],
@@ -215,6 +216,15 @@ const actions = {
 
   getRunningPreviewFiles() {
     return playlistsApi.getRunningPreviewFiles()
+  },
+
+  markPreviewFileAsBroken(utils, previewFileId) {
+    return playlistsApi.markPreviewFileAsBroken(previewFileId)
+  },
+
+  updatePreviewFileValidationStatus({ commit }, { previewFile, status }) {
+    commit(UPDATE_PREVIEW_VALIDATION_STATUS, { previewFile, status })
+    return playlistsApi.updatePreviewFileValidationStatus(previewFile, status)
   }
 }
 
@@ -258,6 +268,10 @@ const mutations = {
     if (entity) {
       entity.preview_file_annotations = annotations
     }
+  },
+
+  [UPDATE_PREVIEW_VALIDATION_STATUS](state, { previewFile, status }) {
+    previewFile.validation_status = status
   },
 
   [EDIT_PLAYLIST_START](state, data) {},

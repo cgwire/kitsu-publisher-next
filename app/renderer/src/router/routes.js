@@ -1,20 +1,21 @@
-import auth from '../lib/auth'
-import lang from '../lib/lang'
-import timezone from '../lib/timezone'
-import init from '../lib/init'
+import auth from '@/lib/auth'
+import lang from '@/lib/lang'
+import timezone from '@/lib/timezone'
+import init from '@/lib/init'
 
-import store from '../store/'
+import store from '@/store/'
 
-import Main from '../components/Main'
-import Todos from '../components/pages/Todos'
-import Login from '../components/pages/Login'
+import Main from '@/components/Main'
+import Login from '@/components/pages/Login'
+import TaskType from '@/components/pages/TaskType'
+import Todos from '@/components/pages/Todos'
 
-const Person = () => import('../components/pages/Person')
-const ServerDown = () => import('../components/pages/ServerDown')
-const ResetPassword = () => import('../components/pages/ResetPassword')
-const Asset = () => import('../components/pages/Asset')
-const Task = () => import('../components/pages/Task')
-const Profile = () => import('../components/pages/Profile')
+const Asset = () => import('@/components/pages/Asset')
+const Person = () => import('@/components/pages/Person')
+const Profile = () => import('@/components/pages/Profile')
+const ResetPassword = () => import('@/components/pages/ResetPassword')
+const ServerDown = () => import('@/components/pages/ServerDown')
+const Task = () => import('@/components/pages/Task')
 
 const routes = [
   {
@@ -60,12 +61,14 @@ const routes = [
         path: '',
         name: 'home'
       },
+
       {
         path: 'todos',
         component: Todos,
         name: 'todos',
         children: [{ path: ':tab', component: Todos, name: 'todos-tab' }]
       },
+
       {
         path: 'people/:person_id',
         component: Person,
@@ -78,6 +81,7 @@ const routes = [
           }
         ]
       },
+
       {
         path: 'productions/:production_id/assets/:asset_id',
         component: Asset,
@@ -88,6 +92,24 @@ const routes = [
         path: 'productions/:production_id/episodes/:episode_id/assets/:asset_id',
         component: Asset,
         name: 'episode-asset'
+      },
+
+      {
+        path: 'productions/:production_id/episodes/:episode_id/:type/task-types/:task_type_id',
+        component: TaskType,
+        name: 'episode-task-type',
+        children: [
+          {
+            name: 'episode-task-type-schedule',
+            path: 'schedule',
+            component: TaskType
+          },
+          {
+            name: 'episode-task-type-estimation',
+            path: 'estimation',
+            component: TaskType
+          }
+        ]
       },
 
       {
@@ -122,6 +144,25 @@ const routes = [
           }
         ]
       },
+
+      {
+        path: 'productions/:production_id/:type/task-types/:task_type_id',
+        component: TaskType,
+        name: 'task-type',
+        children: [
+          {
+            name: 'task-type-schedule',
+            path: 'schedule',
+            component: TaskType
+          },
+          {
+            name: 'task-type-estimation',
+            path: 'estimation',
+            component: TaskType
+          }
+        ]
+      },
+
       {
         path: 'productions/:production_id/episodes/:episode_id/:type/tasks/:task_id',
         name: 'episode-task',
@@ -154,6 +195,7 @@ const routes = [
           }
         ]
       },
+
       {
         path: 'profile',
         component: Profile,

@@ -99,10 +99,12 @@ export default {
       }
     }
   },
-  watch: {},
+
   methods: {
     ...mapActions([])
-  }
+  },
+
+  watch: {}
 }
 </script>
 

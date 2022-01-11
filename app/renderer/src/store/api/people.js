@@ -1,4 +1,4 @@
-import client from './client'
+import client from '@/store/api/client'
 
 export default {
   getOrganisation() {
@@ -28,6 +28,7 @@ export default {
       hours_by_day: organisation.hours_by_day,
       timesheets_locked: organisation.timesheets_locked === 'true',
       use_original_file_name: organisation.use_original_file_name === 'true',
+      hd_by_default: organisation.hd_by_default === 'true',
       chat_token_slack: organisation.chat_token_slack
     }
     return client.pput(`/api/data/organisations/${organisation.id}`, data)

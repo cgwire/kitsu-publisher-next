@@ -1,6 +1,6 @@
 import superagent from 'superagent'
-import errors from '../../lib/errors'
-import store from '../../store'
+import errors from '@/lib/errors'
+import store from '@/store'
 
 const client = {
   get(path, callback) {

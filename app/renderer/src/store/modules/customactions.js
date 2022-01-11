@@ -1,5 +1,5 @@
-import customActionsApi from '../api/customactions'
-import { sortByName } from '../../lib/sorting'
+import customActionsApi from '@/store/api/customactions'
+import { sortByName } from '@/lib/sorting'
 
 import {
   LOAD_CUSTOM_ACTIONS_START,
@@ -8,7 +8,7 @@ import {
   EDIT_CUSTOM_ACTION_END,
   DELETE_CUSTOM_ACTION_END,
   RESET_ALL
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const initialState = {
   customActions: [],

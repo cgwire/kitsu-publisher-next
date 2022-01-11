@@ -2,7 +2,7 @@
   <td
     ref="cell"
     :class="{
-      validation: selectable && !isCurrentUserClient,
+      validation: selectable,
       selected: selectable & selected
     }"
     :style="{
@@ -29,7 +29,22 @@
         <span v-if="!isCurrentUserClient" class="priority">
           {{ priority }}
         </span>
+        <span
+          v-if="!isCurrentUserClient && isCastingReady"
+          class="casting-status"
+          :title="castingTitle"
+        >
+          <img src="@/assets/icons/casting-ready.png" width="20" />
+        </span>
+        <span
+          v-else-if="!isCurrentUserClient"
+          class="casting-status"
+          :title="castingTitle"
+        >
+          &nbsp; &nbsp; &nbsp; &nbsp;
+        </span>
       </span>
+      <span />
       <span
         v-for="personId in assignees"
         v-if="isAssignees && !isCurrentUserClient"
@@ -91,6 +106,14 @@ export default {
       default: null,
       type: Object
     },
+    isCastingReady: {
+      default: false,
+      type: Boolean
+    },
+    castingTitle: {
+      default: '',
+      type: String
+    },
     isBorder: {
       default: true,
       type: Boolean
@@ -141,6 +164,15 @@ export default {
     return {
       task: null
     }
+  },
+
+  mounted() {
+    if (this.taskTest) {
+      this.task = this.taskTest
+    } else if (this.entity && this.column) {
+      this.task = this.taskMap.get(this.entity.validations.get(this.column.id))
+    }
+    this.changeStyleBasedOnSelected()
   },
 
   computed: {
@@ -206,31 +238,6 @@ export default {
     }
   },
 
-  watch: {
-    selected() {
-      this.changeStyleBasedOnSelected()
-    },
-
-    taskTest() {
-      if (this.taskTest) {
-        this.task = this.taskTest
-      } else if (this.entity) {
-        this.task = this.taskMap.get(
-          this.entity.validations.get(this.column.id)
-        )
-      }
-    }
-  },
-
-  mounted() {
-    if (this.taskTest) {
-      this.task = this.taskTest
-    } else if (this.entity && this.column) {
-      this.task = this.taskMap.get(this.entity.validations.get(this.column.id))
-    }
-    this.changeStyleBasedOnSelected()
-  },
-
   methods: {
     ...mapActions([]),
 
@@ -270,7 +277,7 @@ export default {
 
     select(event) {
       const isUserClick = event.isUserClick !== false
-      if (this.selectable && !this.isCurrentUserClient) {
+      if (this.selectable) {
         if (
           this.$refs.cell &&
           this.$refs.cell.className.indexOf('selected') < 0
@@ -329,6 +336,22 @@ export default {
         this.changeStyle(background)
       }
     }
+  },
+
+  watch: {
+    selected() {
+      this.changeStyleBasedOnSelected()
+    },
+
+    taskTest() {
+      if (this.taskTest) {
+        this.task = this.taskTest
+      } else if (this.entity) {
+        this.task = this.taskMap.get(
+          this.entity.validations.get(this.column.id)
+        )
+      }
+    }
   }
 }
 </script>
@@ -345,6 +368,7 @@ export default {
 }
 
 .wrapper {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
 }
@@ -388,5 +412,15 @@ span.person-avatar:nth-child(2) {
 .priority {
   color: red;
   margin-right: 3px;
+}
+
+.casting-status {
+  position: absolute;
+  right: -5px;
+  top: -8px;
+
+  img {
+    width: 12px;
+  }
 }
 </style>

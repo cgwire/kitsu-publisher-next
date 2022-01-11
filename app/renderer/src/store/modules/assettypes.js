@@ -1,4 +1,4 @@
-import assetTypesApi from '../api/assettypes'
+import assetTypesApi from '@/store/api/assettypes'
 import {
   LOAD_ASSET_TYPES_START,
   LOAD_ASSET_TYPES_ERROR,
@@ -6,8 +6,8 @@ import {
   EDIT_ASSET_TYPE_END,
   DELETE_ASSET_TYPE_END,
   RESET_ALL
-} from '../mutation-types'
-import { sortByName } from '../../lib/sorting'
+} from '@/store/mutation-types'
+import { sortByName } from '@/lib/sorting'
 
 const initialState = {
   assetTypes: [],

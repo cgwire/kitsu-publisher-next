@@ -32,8 +32,9 @@
       :preview="preview"
       :full-screen="fullScreen"
       @size-changed="(dimensions) => $emit('size-changed', dimensions)"
+      @video-loaded="$emit('video-loaded')"
       @duration-changed="(duration) => $emit('duration-changed', duration)"
-      @time-update="(time) => $emit('time-update', time)"
+      @frame-update="(frameNumber) => $emit('frame-update', frameNumber)"
       @play-ended="$emit('play-ended')"
       @video-end="$emit('video-end')"
     />
@@ -50,17 +51,26 @@
       @size-changed="(dimensions) => $emit('size-changed', dimensions)"
     />
 
-    <!--model-viewer
+    <object-viewer
+      v-show="is3DModel"
       class="model-viewer"
       :default-height="defaultHeight"
       :preview-url="originalPath"
       :light="light"
       :empty="!is3DModel"
       :full-screen="fullScreen"
-      v-show="is3DModel"
     />
 
-    <pdf
+    <sound-viewer
+      v-show="isSound"
+      ref="sound-viewer"
+      class="sound-viewer"
+      :preview-url="originalPath"
+      :file-name="fileTitle"
+      @play-ended="$emit('play-ended')"
+    />
+
+    <!--pdf
       class="pdf-viewer"
       :height="defaultHeight"
       :src="originalPath"
@@ -95,7 +105,9 @@ import { formatFrame, formatTime } from '@/lib/video'
 import { domMixin } from '@/components/mixins/dom'
 
 import Icon from '@/components/widgets/Icon'
+import ObjectViewer from '@/components/previews/ObjectViewer'
 import PictureViewer from '@/components/previews/PictureViewer'
+import SoundViewer from '@/components/previews/SoundViewer'
 import Spinner from '@/components/widgets/Spinner'
 import VideoViewer from '@/components/previews/VideoViewer'
 
@@ -103,10 +115,11 @@ export default {
   name: 'PreviewViewer',
 
   components: {
-    // ModelViewer,
+    ObjectViewer,
     // pdf,
     Icon,
     PictureViewer,
+    SoundViewer,
     Spinner,
     VideoViewer
   },
@@ -159,6 +172,10 @@ export default {
     return {}
   },
 
+  mounted() {},
+
+  beforeUnmount() {},
+
   computed: {
     ...mapGetters(['currentProduction']),
 
@@ -174,6 +191,10 @@ export default {
 
     pictureViewer() {
       return this.$refs['picture-viewer']
+    },
+
+    soundViewer() {
+      return this.$refs['sound-viewer']
     },
 
     //  Utils
@@ -219,12 +240,21 @@ export default {
     },
 
     is3DModel() {
-      return this.isReady && this.extension === 'obj'
+      return this.isReady && ['glb', 'gltf'].includes(this.extension)
+    },
+
+    isSound() {
+      return this.isReady && ['wav', 'mp3'].includes(this.extension)
     },
 
     isFile() {
-      return this.isReady && !this.isPicture && !this.isMovie
-      // && !this.is3DModel && !this.isPdf
+      return (
+        this.isReady &&
+        !this.isPicture &&
+        !this.isMovie &&
+        !this.is3DModel &&
+        !this.isSound
+      ) // && !this.isPdf
     },
 
     originalPath() {
@@ -247,22 +277,6 @@ export default {
       }
     }
   },
-
-  watch: {
-    preview() {
-      if (this.isMovie) {
-        this.pause()
-        this.maxDuration = '00:00.000'
-      } else if (this.isPicture) {
-        this.pause()
-        setTimeout(this.pictureViewer.resetPicture, 10)
-      }
-    }
-  },
-
-  mounted() {},
-
-  beforeUnmount() {},
 
   methods: {
     ...mapActions(['updateRevisionPreviewPosition']),
@@ -296,11 +310,17 @@ export default {
       if (this.videoViewer) {
         this.videoViewer.play()
       }
+      if (this.isSound) {
+        this.soundViewer.play()
+      }
     },
 
     pause() {
       this.isPlaying = false
       if (this.videoViewer) this.videoViewer.pause()
+      if (this.isSound) {
+        this.soundViewer.pause()
+      }
     },
 
     goPreviousFrame() {
@@ -336,16 +356,21 @@ export default {
 
     resize() {
       if (this.videoViewer) this.videoViewer.onWindowResize()
+      if (this.isSound) this.soundViewer.redraw()
     },
 
     getPreviewDimensions() {
-      if (this.isMovie) return this.videoViewer.getDimensions()
-      else if (this.isPicture) return this.pictureViewer.getDimensions()
-      else return { width: 0, height: 0 }
+      const dimensions = { width: 0, height: 0 }
+      if (this.isMovie) {
+        return this.videoViewer.getDimensions()
+      } else if (this.isPicture) {
+        return this.pictureViewer.getDimensions()
+      }
+      return dimensions
     },
 
-    setCurrentTime(time) {
-      this.videoViewer.setCurrentTime(time)
+    setCurrentFrame(frameNumber) {
+      this.videoViewer.setCurrentFrame(frameNumber)
     },
 
     // To use when you don't want to handle back pressure and rounding
@@ -369,6 +394,29 @@ export default {
 
     updateLoupePosition(event, canvasDimensions) {
       this.pictureViewer.updateLoupePosition(event, canvasDimensions)
+    },
+
+    extractFrame(canvas, frame) {
+      this.videoViewer.setCurrentFrame(frame)
+      const video = this.videoViewer.video
+      const context = canvas.getContext('2d')
+      const dimensions = this.videoViewer.getNaturalDimensions()
+      canvas.width = dimensions.width
+      canvas.height = dimensions.height
+      context.clearRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(video, 0, 0, canvas.width, canvas.height)
+    }
+  },
+
+  watch: {
+    preview() {
+      if (this.isMovie) {
+        this.pause()
+        this.maxDuration = '00:00.000'
+      } else if (this.isPicture) {
+        this.pause()
+        setTimeout(this.pictureViewer.resetPicture, 10)
+      }
     }
   }
 }

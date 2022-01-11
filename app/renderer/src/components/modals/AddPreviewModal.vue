@@ -23,6 +23,9 @@
 
         <file-upload
           ref="preview-field"
+          :class="{
+            'is-disabled': isCurrentlyOnTake
+          }"
           :label="$t('main.csv.upload_file')"
           :accept="extensions"
           :multiple="true"
@@ -34,7 +37,13 @@
         <h3 v-if="DCCClients.length > 0" class="title">
           {{ DCCClients.length }}
           {{ $t('tasks.dcc_connectors') }}
-          <span class="icon icon-right">
+          <span
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': isCurrentlyOnTake
+            }"
+          >
             <icon
               name="refresh-cw"
               :width="20"
@@ -46,7 +55,13 @@
 
         <h3 v-else class="title">
           {{ $t('tasks.no_dcc_connectors') }}
-          <span class="icon icon-right">
+          <span
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': isCurrentlyOnTake
+            }"
+          >
             <icon
               name="refresh-cw"
               :width="20"
@@ -77,7 +92,10 @@
           <p>
             <span v-if="DCCClient.cameras.length > 0" class="select">
               <select
-                class="select-input"
+                :class="{
+                  'select-input': true,
+                  'is-disabled': isCurrentlyOnTake
+                }"
                 @change="(event) => DCCClient.setCamera(event.target.value)"
               >
                 <option
@@ -93,7 +111,10 @@
 
             <span v-if="DCCClient.renderers.length > 0" class="select">
               <select
-                class="select-input"
+                :class="{
+                  'select-input': true,
+                  'is-disabled': isCurrentlyOnTake
+                }"
                 @change="(event) => DCCClient.setRenderer(event.target.value)"
               >
                 <option
@@ -107,15 +128,50 @@
               </select>
             </span>
 
-            <button class="button" @click="onTake(DCCClient, false)">
+            <button
+              :class="{
+                button: true,
+                'is-loading': DCCClient.isCurrentlyOnTakeScreenshot,
+                'is-disabled': isCurrentlyOnTake
+              }"
+              @click="onTake(DCCClient, false)"
+            >
               {{ $t('tasks.take_screenshot') }}
             </button>
 
-            <button class="button" @click="onTake(DCCClient, true)">
+            <button
+              :class="{
+                button: true,
+                'is-loading': DCCClient.isCurrentlyOnTakeAnimation,
+                'is-disabled': isCurrentlyOnTake
+              }"
+              @click="onTake(DCCClient, true)"
+            >
               {{ $t('tasks.take_animation') }}
             </button>
           </p>
         </div>
+
+        <p v-if="isError" class="error">
+          {{ $t('tasks.add_preview_error') }}
+        </p>
+
+        <p class="has-text-right">
+          <a
+            :class="{
+              button: true,
+              'is-primary': true,
+              'is-loading': isLoading,
+              'is-disabled': forms == undefined || isCurrentlyOnTake
+            }"
+            @click="$emit('confirm')"
+          >
+            {{ $t('main.confirmation') }}
+          </a>
+          <button class="button is-link" @click="$emit('cancel')">
+            {{ $t('main.cancel') }}
+          </button>
+        </p>
 
         <p v-if="forms" class="upload-previews">
           <template v-for="(form, i) in forms" :key="'preview-' + i">
@@ -132,33 +188,13 @@
               :src="getURL(form)"
             />
             <iframe
-              v-else
+              v-else-if="isPdf(form)"
+              :key="i"
               class="is-fullwidth"
               frameborder="0"
               :src="getURL(form)"
             />
           </template>
-        </p>
-
-        <p v-if="isError" class="error">
-          {{ $t('tasks.add_preview_error') }}
-        </p>
-
-        <p class="has-text-right">
-          <a
-            :class="{
-              button: true,
-              'is-primary': true,
-              'is-loading': isLoading,
-              'is-disabled': forms == undefined
-            }"
-            @click="$emit('confirm')"
-          >
-            {{ $t('main.confirmation') }}
-          </a>
-          <button class="button is-link" @click="$emit('cancel')">
-            {{ $t('main.cancel') }}
-          </button>
         </p>
       </div>
     </div>
@@ -171,7 +207,7 @@ import { modalMixin } from '@/components/modals/base_modal'
 import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
 import Icon from '@/components/widgets/Icon'
-import DCCClient from '@/lib/dccutils_client'
+import DCCClient from '@/lib/dccutils'
 
 export default {
   name: 'AddPreviewModal',
@@ -208,7 +244,8 @@ export default {
   data() {
     return {
       forms: null,
-      DCCClients: []
+      DCCClients: [],
+      isCurrentlyOnTake: false
     }
   },
 
@@ -218,24 +255,6 @@ export default {
     previewField() {
       return this.$refs['preview-field']
     }
-  },
-
-  watch: {
-    active() {
-      this.reset()
-    }
-  },
-
-  mounted() {
-    this.forms = null
-
-    this.refreshConnectedDCCClients()
-
-    window.addEventListener('paste', this.onPaste, false)
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('paste', this.onPaste)
   },
 
   methods: {
@@ -293,6 +312,7 @@ export default {
     },
 
     onTake(DCCClient, isAnimation = false) {
+      this.isCurrentlyOnTake = true
       ;(isAnimation
         ? DCCClient.takeRenderAnimation(
             DCCClient.rendererSelected,
@@ -312,8 +332,29 @@ export default {
         formData.append('file', file, file.name)
         this.forms = [formData]
         this.$emit('fileselected', this.forms)
+        this.isCurrentlyOnTake = false
       })
+    },
+
+    isPdf(form) {
+      return form.get('file').type.indexOf('pdf') > 0
     }
+  },
+
+  watch: {
+    active() {
+      this.reset()
+    }
+  },
+
+  mounted() {
+    this.forms = null
+    this.refreshConnectedDCCClients()
+    window.addEventListener('paste', this.onPaste, false)
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('paste', this.onPaste)
   }
 }
 </script>
@@ -322,6 +363,16 @@ export default {
 .icon-right {
   float: right;
   cursor: pointer;
+}
+
+.is-disabled {
+  opacity: 0.5;
+}
+
+.dark .select .is-disabled {
+  border-color: #25282e;
+  background: #36393f;
+  color: #eee;
 }
 
 .modal-content {

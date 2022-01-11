@@ -1,37 +1,33 @@
-import assetsApi from '../api/assets'
-import peopleApi from '../api/people'
-import tasksStore from './tasks'
-import taskTypesStore from './tasktypes'
-import productionsStore from './productions'
-import peopleStore from './people'
+import assetsApi from '@/store/api/assets'
+import peopleApi from '@/store/api/people'
+import tasksStore from '@/store/modules/tasks'
+import taskTypesStore from '@/store/modules/tasktypes'
+import productionsStore from '@/store/modules/productions'
+import peopleStore from '@/store/modules/people'
 import { getTaskTypePriorityOfProd } from '@/lib/productions'
-import { minutesToDays } from '../../lib/time'
+import { minutesToDays } from '@/lib/time'
 
-import { PAGE_SIZE } from '../../lib/pagination'
+import { PAGE_SIZE } from '@/lib/pagination'
 import {
   sortAssetResult,
   sortAssets,
   sortByName,
   sortTasks,
   sortValidationColumns
-} from '../../lib/sorting'
+} from '@/lib/sorting'
 import {
   appendSelectionGrid,
   buildSelectionGrid,
   clearSelectionGrid
-} from '../../lib/selection'
+} from '@/lib/selection'
 import {
   getFilledColumns,
   groupEntitiesByParents,
   removeModelFromList
-} from '../../lib/models'
-import { computeStats } from '../../lib/stats'
-import {
-  buildAssetIndex,
-  buildNameIndex,
-  indexSearch
-} from '../../lib/indexing'
-import { applyFilters, getKeyWords, getFilters } from '../../lib/filtering'
+} from '@/lib/models'
+import { computeStats } from '@/lib/stats'
+import { buildAssetIndex, buildNameIndex, indexSearch } from '@/lib/indexing'
+import { applyFilters, getKeyWords, getFilters } from '@/lib/filtering'
 
 import {
   CLEAR_ASSETS,
@@ -73,7 +69,7 @@ import {
   RESET_ALL,
   CLEAR_SELECTED_ASSETS,
   SET_ASSET_SELECTION
-} from '../mutation-types'
+} from '@/store/mutation-types'
 import async from 'async'
 
 const helpers = {
@@ -579,6 +575,7 @@ const actions = {
     const production = rootGetters.currentProduction
     const episodeMap = rootGetters.episodeMap
     const organisation = rootGetters.organisation
+    const personMap = rootGetters.personMap
     let assets = cache.assets
     if (cache.result && cache.result.length > 0) {
       assets = cache.result
@@ -613,8 +610,12 @@ const actions = {
         )
         if (task) {
           assetLine.push(task.task_status_short_name)
+          assetLine.push(
+            task.assignees.map((id) => personMap.get(id).full_name).join(',')
+          )
         } else {
-          assetLine.push('')
+          assetLine.push('') // Status
+          assetLine.push('') // Assignation
         }
       })
       return assetLine
@@ -1106,7 +1107,11 @@ const mutations = {
     state,
     { descriptor, previousDescriptorFieldName }
   ) {
-    if (descriptor.entity_type === 'Asset' && previousDescriptorFieldName) {
+    if (
+      descriptor.entity_type === 'Asset' &&
+      previousDescriptorFieldName &&
+      previousDescriptorFieldName !== descriptor.field_name
+    ) {
       cache.assets.forEach((asset) => {
         asset.data[descriptor.field_name] =
           asset.data[previousDescriptorFieldName]
