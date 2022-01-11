@@ -23,6 +23,9 @@
 
         <file-upload
           ref="preview-field"
+          :class="{
+            'is-disabled': isCurrentlyOnTake
+          }"
           :label="$t('main.csv.upload_file')"
           :accept="extensions"
           :multiple="true"
@@ -34,7 +37,13 @@
         <h3 v-if="DCCClients.length > 0" class="title">
           {{ DCCClients.length }}
           {{ $t('tasks.dcc_connectors') }}
-          <span class="icon icon-right">
+          <span
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': isCurrentlyOnTake
+            }"
+          >
             <icon
               name="refresh-cw"
               :width="20"
@@ -46,7 +55,13 @@
 
         <h3 v-else class="title">
           {{ $t('tasks.no_dcc_connectors') }}
-          <span class="icon icon-right">
+          <span
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': isCurrentlyOnTake
+            }"
+          >
             <icon
               name="refresh-cw"
               :width="20"
@@ -77,7 +92,10 @@
           <p>
             <span v-if="DCCClient.cameras.length > 0" class="select">
               <select
-                class="select-input"
+                :class="{
+                  'select-input': true,
+                  'is-disabled': isCurrentlyOnTake
+                }"
                 @change="(event) => DCCClient.setCamera(event.target.value)"
               >
                 <option
@@ -93,7 +111,10 @@
 
             <span v-if="DCCClient.renderers.length > 0" class="select">
               <select
-                class="select-input"
+                :class="{
+                  'select-input': true,
+                  'is-disabled': isCurrentlyOnTake
+                }"
                 @change="(event) => DCCClient.setRenderer(event.target.value)"
               >
                 <option
@@ -107,11 +128,25 @@
               </select>
             </span>
 
-            <button class="button" @click="onTake(DCCClient, false)">
+            <button
+              :class="{
+                button: true,
+                'is-loading': DCCClient.isCurrentlyOnTakeScreenshot,
+                'is-disabled': isCurrentlyOnTake
+              }"
+              @click="onTake(DCCClient, false)"
+            >
               {{ $t('tasks.take_screenshot') }}
             </button>
 
-            <button class="button" @click="onTake(DCCClient, true)">
+            <button
+              :class="{
+                button: true,
+                'is-loading': DCCClient.isCurrentlyOnTakeAnimation,
+                'is-disabled': isCurrentlyOnTake
+              }"
+              @click="onTake(DCCClient, true)"
+            >
               {{ $t('tasks.take_animation') }}
             </button>
           </p>
@@ -127,7 +162,7 @@
               button: true,
               'is-primary': true,
               'is-loading': isLoading,
-              'is-disabled': forms == undefined
+              'is-disabled': forms == undefined || isCurrentlyOnTake
             }"
             @click="$emit('confirm')"
           >
@@ -172,7 +207,7 @@ import { modalMixin } from '@/components/modals/base_modal'
 import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
 import Icon from '@/components/widgets/Icon'
-import DCCClient from '@/lib/dccutils_client'
+import DCCClient from '@/lib/dccutils'
 
 export default {
   name: 'AddPreviewModal',
@@ -209,7 +244,8 @@ export default {
   data() {
     return {
       forms: null,
-      DCCClients: []
+      DCCClients: [],
+      isCurrentlyOnTake: false
     }
   },
 
@@ -276,6 +312,7 @@ export default {
     },
 
     onTake(DCCClient, isAnimation = false) {
+      this.isCurrentlyOnTake = true
       ;(isAnimation
         ? DCCClient.takeRenderAnimation(
             DCCClient.rendererSelected,
@@ -295,6 +332,7 @@ export default {
         formData.append('file', file, file.name)
         this.forms = [formData]
         this.$emit('fileselected', this.forms)
+        this.isCurrentlyOnTake = false
       })
     },
 
@@ -325,6 +363,16 @@ export default {
 .icon-right {
   float: right;
   cursor: pointer;
+}
+
+.is-disabled {
+  opacity: 0.5;
+}
+
+.dark .select .is-disabled {
+  border-color: #25282e;
+  background: #36393f;
+  color: #eee;
 }
 
 .modal-content {

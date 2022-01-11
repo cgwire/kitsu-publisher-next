@@ -26,11 +26,7 @@ import {
   removeModelFromList
 } from '@/lib/models'
 import { computeStats } from '@/lib/stats'
-import {
-  buildAssetIndex,
-  buildNameIndex,
-  indexSearch
-} from '@/lib/indexing'
+import { buildAssetIndex, buildNameIndex, indexSearch } from '@/lib/indexing'
 import { applyFilters, getKeyWords, getFilters } from '@/lib/filtering'
 
 import {
