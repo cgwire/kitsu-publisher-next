@@ -44,7 +44,6 @@ export default {
   margin: 0.7em;
   padding: 1em;
   font-size: 1em;
-  color: $grey-strong;
   border-radius: 0;
   font-weight: bold;
 }
