@@ -1,6 +1,6 @@
 import Papa from 'papaparse'
-import { getDayRange, getMonthRange, getWeekRange } from './time'
-import { getPercentage } from './stats'
+import { getDayRange, getMonthRange, getWeekRange } from '@/lib/time'
+import { getPercentage } from '@/lib/stats'
 
 const csv = {
   generateTimesheet(

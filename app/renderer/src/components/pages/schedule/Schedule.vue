@@ -1356,25 +1356,25 @@ export default {
 
   .schedule.zoom-level-0 {
     .timeline-content {
-      background-image: url('../../../assets/background/schedule-dark-1.png');
+      background-image: url('@/assets/background/schedule-dark-1.png');
     }
   }
 
   .schedule.zoom-level-1 {
     .timeline-content {
-      background-image: url('../../../assets/background/schedule-dark-1-weekend.png');
+      background-image: url('@/assets/background/schedule-dark-1-weekend.png');
     }
   }
 
   .schedule.zoom-level-2 {
     .timeline-content {
-      background-image: url('../../../assets/background/schedule-dark-2-weekend.png');
+      background-image: url('@/assets/background/schedule-dark-2-weekend.png');
     }
   }
 
   .schedule.zoom-level-3 {
     .timeline-content {
-      background-image: url('../../../assets/background/schedule-dark-3-weekend.png');
+      background-image: url('@/assets/background/schedule-dark-3-weekend.png');
     }
   }
 
@@ -1672,13 +1672,13 @@ export default {
 
 .zoom-level-0 {
   .timeline-content {
-    background-image: url('../../../assets/background/schedule-white-1.png');
+    background-image: url('@/assets/background/schedule-white-1.png');
   }
 }
 
 .zoom-level-1 {
   .timeline-content {
-    background-image: url('../../../assets/background/schedule-white-1-weekend.png');
+    background-image: url('@/assets/background/schedule-white-1-weekend.png');
   }
 
   .timeline {
@@ -1704,13 +1704,13 @@ export default {
 
 .schedule.zoom-level-2 {
   .timeline-content {
-    background-image: url('../../../assets/background/schedule-white-2-weekend.png');
+    background-image: url('@/assets/background/schedule-white-2-weekend.png');
   }
 }
 
 .schedule.zoom-level-3 {
   .timeline-content {
-    background-image: url('../../../assets/background/schedule-white-3-weekend.png');
+    background-image: url('@/assets/background/schedule-white-3-weekend.png');
   }
 }
 

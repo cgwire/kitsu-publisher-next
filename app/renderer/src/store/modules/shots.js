@@ -1,12 +1,12 @@
 import moment from 'moment'
-import peopleApi from '../api/people'
-import shotsApi from '../api/shots'
-import tasksStore from './tasks'
-import peopleStore from './people'
-import productionsStore from './productions'
-import taskTypesStore from './tasktypes'
+import peopleApi from '@/store/api/people'
+import shotsApi from '@/store/api/shots'
+import tasksStore from '@/store/modules/tasks'
+import peopleStore from '@/store/modules/people'
+import productionsStore from '@/store/modules/productions'
+import taskTypesStore from '@/store/modules/tasktypes'
 
-import { PAGE_SIZE } from '../../lib/pagination'
+import { PAGE_SIZE } from '@/lib/pagination'
 import { getTaskTypePriorityOfProd } from '@/lib/productions'
 import {
   sortByName,
@@ -15,27 +15,27 @@ import {
   sortShots,
   sortTasks,
   sortValidationColumns
-} from '../../lib/sorting'
+} from '@/lib/sorting'
 import {
   appendSelectionGrid,
   buildSelectionGrid,
   clearSelectionGrid
-} from '../../lib/selection'
+} from '@/lib/selection'
 import {
   getFilledColumns,
   groupEntitiesByParents,
   removeModelFromList
-} from '../../lib/models'
-import { computeStats } from '../../lib/stats'
-import { frameToSeconds } from '../../lib/video'
-import { minutesToDays } from '../../lib/time'
+} from '@/lib/models'
+import { computeStats } from '@/lib/stats'
+import { frameToSeconds } from '@/lib/video'
+import { minutesToDays } from '@/lib/time'
 import {
   buildShotIndex,
   buildSequenceIndex,
   buildEpisodeIndex,
   indexSearch
-} from '../../lib/indexing'
-import { applyFilters, getFilters, getKeyWords } from '../../lib/filtering'
+} from '@/lib/indexing'
+import { applyFilters, getFilters, getKeyWords } from '@/lib/filtering'
 
 import {
   CLEAR_SHOTS,
@@ -103,7 +103,7 @@ import {
   RESET_ALL,
   CLEAR_SELECTED_SHOTS,
   SET_SHOT_SELECTION
-} from '../mutation-types'
+} from '@/store/mutation-types'
 import async from 'async'
 
 const AVERAGE = 'average'

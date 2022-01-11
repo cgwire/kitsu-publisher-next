@@ -148,7 +148,7 @@
       class="has-text-centered empty-list"
     >
       <p>
-        <img src="../../assets/illustrations/empty_todo.png" />
+        <img src="@/assets/illustrations/empty_todo.png" />
       </p>
       <p>
         {{ $t('people.no_task_assigned') }}

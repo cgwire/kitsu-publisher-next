@@ -1,7 +1,7 @@
 import { DEFAULT_NB_FRAMES_PICTURE } from '@/lib/playlist'
-import playlistsApi from '../api/playlists'
-import { sortByDate } from '../../lib/sorting'
-import { removeModelFromList, updateModelFromList } from '../../lib/models'
+import playlistsApi from '@/store/api/playlists'
+import { sortByDate } from '@/lib/sorting'
+import { removeModelFromList, updateModelFromList } from '@/lib/models'
 
 import {
   ADD_PLAYLISTS,
@@ -27,7 +27,7 @@ import {
   UPDATE_PREVIEW_ANNOTATION,
   UPDATE_PREVIEW_VALIDATION_STATUS,
   RESET_ALL
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const initialState = {
   playlists: [],

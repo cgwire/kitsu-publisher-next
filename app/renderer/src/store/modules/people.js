@@ -1,12 +1,12 @@
-import peopleApi from '../api/people'
-import colors from '../../lib/colors'
-import { clearSelectionGrid } from '../../lib/selection'
-import { populateTask } from '../../lib/models'
-import { sortTasks, sortPeople, sortByName } from '../../lib/sorting'
-import { indexSearch, buildTaskIndex, buildNameIndex } from '../../lib/indexing'
-import { applyFilters, getFilters, getKeyWords } from '../../lib/filtering'
+import peopleApi from '@/store/api/people'
+import colors from '@/lib/colors'
+import { clearSelectionGrid } from '@/lib/selection'
+import { populateTask } from '@/lib/models'
+import { sortTasks, sortPeople, sortByName } from '@/lib/sorting'
+import { indexSearch, buildTaskIndex, buildNameIndex } from '@/lib/indexing'
+import { applyFilters, getFilters, getKeyWords } from '@/lib/filtering'
 
-import taskStatusStore from './taskstatus'
+import taskStatusStore from '@/store/modules/taskstatus'
 import {
   LOAD_PEOPLE_START,
   LOAD_PEOPLE_ERROR,
@@ -41,7 +41,7 @@ import {
   RESET_ALL,
   REMOVE_PEOPLE_SEARCH_END,
   SAVE_PEOPLE_SEARCH_END
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const helpers = {
   addAdditionalInformation(person) {

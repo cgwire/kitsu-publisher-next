@@ -12,12 +12,12 @@ import VueFeather from 'vue-feather'
 import VueWebsocket from 'vue-websocket-next'
 // import 'v-autocomplete/dist/v-autocomplete.css'
 
-import App from './App'
-import i18n from './lib/i18n'
-import resizableColumn from './directives/resizable-column'
-import router from './router'
-import store from './store'
-// import VueScroll from './directives/scroll'
+import App from '@/App'
+import i18n from '@/lib/i18n'
+import resizableColumn from '@/directives/resizable-column'
+import router from '@/router'
+import store from '@/store'
+// import VueScroll from '@/directives/scroll'
 
 const app = createApp(App)
 

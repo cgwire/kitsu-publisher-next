@@ -10,7 +10,7 @@ import {
   NEWS_SET_STATS,
   NEWS_SET_TOTAL,
   RESET_ALL
-} from '../mutation-types'
+} from '@/store/mutation-types'
 
 const initialState = {
   newsList: [],

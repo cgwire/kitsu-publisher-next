@@ -239,7 +239,6 @@ import { getTaskTypeStyle } from '@/lib/render'
 
 import AddComment from '@/components/widgets/AddComment'
 import AddPreviewModal from '@/components/modals/AddPreviewModal'
-import ButtonSimple from '@/components/widgets/ButtonSimple'
 import Comment from '@/components/widgets/Comment'
 import DeleteModal from '@/components/modals/DeleteModal'
 import EditCommentModal from '@/components/modals/EditCommentModal'
@@ -253,7 +252,6 @@ export default {
   components: {
     AddComment,
     AddPreviewModal,
-    ButtonSimple,
     Comment,
     DeleteModal,
     EditCommentModal,

@@ -1,6 +1,6 @@
-import store from '../store'
+import store from '@/store'
 
-import { DATA_LOADING_START, DATA_LOADING_END } from '../store/mutation-types'
+import { DATA_LOADING_START, DATA_LOADING_END } from '@/store/mutation-types'
 
 /**
  * Load base data required to display properly all information.

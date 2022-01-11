@@ -93,7 +93,7 @@
             <p v-if="taskStatus.is_done && isLast" class="has-text-centered">
               <img
                 class="congrats-picture"
-                src="../../assets/illustrations/validated.png"
+                src="@/assets/illustrations/validated.png"
               />
             </p>
             <p v-if="comment.attachment_files.length > 0">
@@ -301,11 +301,11 @@ import colors from '@/lib/colors'
 import files from '@/lib/files'
 
 import ButtonSimple from '@/components/widgets/ButtonSimple'
-import Checklist from './Checklist'
-import CommentMenu from './CommentMenu.vue'
+import Checklist from '@/components/widgets/Checklist'
+import CommentMenu from '@/components/widgets/CommentMenu.vue'
 import Icon from '@/components/widgets/Icon'
-import PeopleAvatar from './PeopleAvatar.vue'
-import PeopleName from './PeopleName.vue'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar.vue'
+import PeopleName from '@/components/widgets/PeopleName.vue'
 import ValidationTag from '@/components/widgets/ValidationTag'
 
 export default {

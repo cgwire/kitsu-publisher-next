@@ -242,10 +242,10 @@ import EntityThumbnail from '@/components/widgets/EntityThumbnail'
 import Icon from '@/components/widgets/Icon'
 import PageTitle from '@/components/widgets/PageTitle'
 import PageSubtitle from '@/components/widgets/PageSubtitle'
-import Schedule from '../pages/schedule/Schedule'
+import Schedule from '@/components/pages/schedule/Schedule'
 import TableInfo from '@/components/widgets/TableInfo'
 import TaskInfo from '@/components/sides/TaskInfo'
-import TaskTypeName from '../widgets/TaskTypeName'
+import TaskTypeName from '@/components/widgets/TaskTypeName'
 
 export default {
   name: 'Asset',

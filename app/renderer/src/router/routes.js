@@ -1,21 +1,21 @@
-import auth from '../lib/auth'
-import lang from '../lib/lang'
-import timezone from '../lib/timezone'
-import init from '../lib/init'
+import auth from '@/lib/auth'
+import lang from '@/lib/lang'
+import timezone from '@/lib/timezone'
+import init from '@/lib/init'
 
-import store from '../store/'
+import store from '@/store/'
 
-import Main from '../components/Main'
-import Login from '../components/pages/Login'
-import TaskType from '../components/pages/TaskType'
-import Todos from '../components/pages/Todos'
+import Main from '@/components/Main'
+import Login from '@/components/pages/Login'
+import TaskType from '@/components/pages/TaskType'
+import Todos from '@/components/pages/Todos'
 
-const Asset = () => import('../components/pages/Asset')
-const Person = () => import('../components/pages/Person')
-const Profile = () => import('../components/pages/Profile')
-const ResetPassword = () => import('../components/pages/ResetPassword')
-const ServerDown = () => import('../components/pages/ServerDown')
-const Task = () => import('../components/pages/Task')
+const Asset = () => import('@/components/pages/Asset')
+const Person = () => import('@/components/pages/Person')
+const Profile = () => import('@/components/pages/Profile')
+const ResetPassword = () => import('@/components/pages/ResetPassword')
+const ServerDown = () => import('@/components/pages/ServerDown')
+const Task = () => import('@/components/pages/Task')
 
 const routes = [
   {

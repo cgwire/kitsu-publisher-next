@@ -13,8 +13,8 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import Spinner from './components/widgets/Spinner.vue'
-//import crisp from './lib/crisp'
+import Spinner from '@/components/widgets/Spinner.vue'
+//import crisp from '@/lib/crisp'
 
 export default {
   name: 'App',
@@ -406,7 +406,7 @@ export default {
   font-family: Lato;
   font-style: normal;
   font-weight: 400;
-  src: url(./assets/fonts/Lato.woff2) format('woff2');
+  src: url(@/assets/fonts/Lato.woff2) format('woff2');
 }
 
 html {
