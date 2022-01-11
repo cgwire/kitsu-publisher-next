@@ -1,4 +1,4 @@
-import marked from 'marked'
+import { marked } from 'marked'
 import sanitizeHTML from 'sanitize-html'
 import { formatFrame, formatTime } from '@/lib/video'
 
