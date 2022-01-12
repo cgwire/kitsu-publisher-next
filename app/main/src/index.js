@@ -11,7 +11,7 @@ import { URL } from 'url'
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
 
-import {store, config } from './store'
+import { store, config } from './store'
 
 config.set('appVersion', app.getVersion())
 

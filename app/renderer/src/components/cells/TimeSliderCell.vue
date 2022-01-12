@@ -6,7 +6,7 @@
       </span>
       <slider
         v-model="value"
-        v-bind="sliderConfiguration"      
+        v-bind="sliderConfiguration"
         class="flexrow-item slider slider-green"
       />
       <button class="button flexrow-item" @click="setValue(1)">1</button>
@@ -50,10 +50,10 @@ export default {
       sliderConfiguration: {
         min: 0,
         max: 10,
-        step: .25,
+        step: 0.25,
         lazy: true,
-        tooltipPosition: "bottom",
-        showTooltip: "drag",
+        tooltipPosition: 'bottom',
+        showTooltip: 'drag',
         format: (value) => `${value}`
       }
     }
