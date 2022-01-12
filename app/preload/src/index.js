@@ -2,8 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { readFileSync } from 'fs'
 const io = require('socket.io-client')
 
-import Store from 'electron-store'
-const store = new Store()
+import { store, config } from './../../main/src/store'
+
 let socketio = null
 
 const apiKey = 'electron'
@@ -20,6 +20,17 @@ const api = {
     },
     delete: (key) => {
       return store.delete(key)
+    }
+  },
+  config: {
+    get: (key) => {
+      return config.get(key)
+    },
+    set: (key, value) => {
+      return config.set(key, value)
+    },
+    delete: (key) => {
+      return config.delete(key)
     }
   },
   file: {
