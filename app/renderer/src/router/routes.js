@@ -15,6 +15,7 @@ const Person = () => import('@/components/pages/Person')
 const Profile = () => import('@/components/pages/Profile')
 const ResetPassword = () => import('@/components/pages/ResetPassword')
 const ServerDown = () => import('@/components/pages/ServerDown')
+const Shot = () => import('@/components/pages/Shot')
 const Task = () => import('@/components/pages/Task')
 
 const routes = [
@@ -110,6 +111,12 @@ const routes = [
             component: TaskType
           }
         ]
+      },
+
+      {
+        path: 'productions/:production_id/episodes/:episode_id/shots/:shot_id',
+        component: Shot,
+        name: 'episode-shot'
       },
 
       {
