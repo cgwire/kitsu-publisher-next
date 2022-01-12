@@ -125,7 +125,7 @@ export default {
 
   data() {
     return {
-      kitsuPublisherVersion: window.electron.store.get('appVersion'),
+      kitsuPublisherVersion: window.electron.config.get('appVersion'),
       display: {
         shortcutModal: false
       }

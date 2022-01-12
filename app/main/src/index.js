@@ -11,10 +11,9 @@ import { URL } from 'url'
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
 
-import Store from 'electron-store'
-const store = new Store()
+import {store, config } from './store'
 
-store.set('appVersion', app.getVersion())
+config.set('appVersion', app.getVersion())
 
 // enable darkmode for electron at startup
 try {

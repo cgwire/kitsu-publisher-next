@@ -62,7 +62,7 @@ if (store.state.login.server) {
       polling: {
         extraHeaders: {
           Authorization: `Bearer ${store.state.login.access_token}`,
-          'User-Agent': `Kitsu publisher ${window.electron.store.get(
+          'User-Agent': `Kitsu publisher ${window.electron.config.get(
             'appVersion'
           )}`
         }
