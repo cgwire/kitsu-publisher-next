@@ -16,12 +16,11 @@ import user from '@/store/modules/user'
 import playlists from '@/store/modules/playlists'
 import productions from '@/store/modules/productions'
 import schedule from '@/store/modules/schedule'
+import settings from '@/store/modules/settings'
 import shots from '@/store/modules/shots'
 import taskTypes from '@/store/modules/tasktypes'
 import taskStatus from '@/store/modules/taskstatus'
 import tasks from '@/store/modules/tasks'
-
-import createPersistedState from 'vuex-persistedstate'
 
 const modules = {
   assetTypes,
@@ -37,6 +36,7 @@ const modules = {
   news,
   notifications,
   schedule,
+  settings,
   shots,
   tasks,
   taskTypes,
@@ -47,21 +47,7 @@ const modules = {
 const store = createStore({
   getters,
   strict: process.env.NODE_ENV !== 'production',
-  plugins: [
-    createPersistedState({
-      paths: [
-        'login.access_token',
-        'login.server',
-        'login.email',
-        'main.isDarkTheme'
-      ],
-      storage: {
-        getItem: (key) => window.electron.store.get(key),
-        setItem: (key, value) => window.electron.store.set(key, value),
-        removeItem: (key) => window.electron.store.delete(key)
-      }
-    })
-  ],
+  plugins: [],
   modules: modules
 })
 

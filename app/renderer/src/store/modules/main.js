@@ -11,7 +11,7 @@ import {
 
 const initialState = {
   currentProductionScreen: 'assets',
-  isDarkTheme: true,
+  isDarkTheme: window.electron.store.get('main.isDarkTheme'),
   isSidebarHidden: true,
   isUserMenuHidden: true,
   lastProductionScreen: 'assets',
@@ -32,10 +32,7 @@ const getters = {
 const actions = {
   toggleDarkTheme({ commit, state }) {
     commit(TOGGLE_DARK_THEME)
-    window.electron.toggleDarkTheme(state.isDarkTheme).then()
-    if (localStorage) {
-      localStorage.setItem('dark-theme', state.isDarkTheme)
-    }
+    window.electron.toggleDarkTheme().then()
   },
 
   toggleSidebar({ commit, state }) {
@@ -58,6 +55,7 @@ const actions = {
 const mutations = {
   [TOGGLE_DARK_THEME](state) {
     state.isDarkTheme = !state.isDarkTheme
+    window.electron.store.set('main.isDarkTheme', state.isDarkTheme)
   },
 
   [TOGGLE_SIDEBAR](state) {
@@ -83,9 +81,7 @@ const mutations = {
   },
 
   [RESET_ALL](state) {
-    const isDarkTheme = state.isDarkTheme
     Object.assign(state, { ...initialState })
-    state.isDarkTheme = isDarkTheme
   }
 }
 

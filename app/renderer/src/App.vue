@@ -49,11 +49,7 @@ export default {
   },
 
   mounted() {
-    if (localStorage.getItem('dark-theme') === 'true' && !this.isDarkTheme) {
-      this.$store.commit('TOGGLE_DARK_THEME')
-      document.documentElement.style.background = '#36393F'
-      document.body.style.background = '#36393F'
-    } else if (this.isDarkTheme) {
+    if (this.isDarkTheme) {
       document.documentElement.style.background = '#36393F'
       document.body.style.background = '#36393F'
     } else {

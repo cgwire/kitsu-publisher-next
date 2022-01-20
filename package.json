@@ -23,13 +23,16 @@
   "dependencies": {
     "@google/model-viewer": "1.9.2",
     "@vueform/slider": "2.0.8",
+    "ansi_up": "5.1.0",
     "apisauce": "2.1.5",
     "color-hash": "2.0.1",
     "color-string": "1.9.0",
     "electron-store": "8.0.1",
     "electron-window-state": "5.0.3",
     "fabric": "4.6.0",
-    "marked": "4.0.9",
+    "format-unicorn": "1.1.1",
+    "iconv-lite": "0.6.3",
+    "marked": "4.0.10",
     "moment-timezone": "0.5.34",
     "open": "8.4.0",
     "papaparse": "5.3.1",
@@ -47,9 +50,9 @@
     "vue3-datepicker": "0.3.1",
     "vue3-lazyload": "0.2.5-beta",
     "vuex": "4.0.2",
-    "vuex-persistedstate": "4.1.0",
     "vuex-router-sync": "6.0.0-rc.1",
-    "wavesurfer.js": "5.2.0"
+    "wavesurfer.js": "5.2.0",
+    "win-codepage": "1.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "2.0.1",

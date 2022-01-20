@@ -292,6 +292,7 @@ export default {
     clear_selection: 'Clear current selection',
     close: 'Close',
     column_visibility: 'Visible columns',
+    settings: 'Settings',
     confirmation: 'Confirm',
     confirmation_and_stay: 'Confirm and stay',
     date: 'Date',
@@ -738,6 +739,16 @@ export default {
     }
   },
 
+  publishersettings: {
+    title: 'Settings',
+    dccs_exports_directory: 'Directory for exports made by the DCCs',
+    post_exports_command:
+      'Command to launch after the exports made by the DCCs',
+    save: {
+      button: 'Save changes'
+    }
+  },
+
   profile: {
     change_avatar: 'Change avatar',
     info_title: 'Information',
@@ -959,6 +970,9 @@ export default {
     take_screenshot: 'Take screenshot',
     no_opened_project: 'No currently opened project',
     currently_opened_project: 'Currently opened project:',
+    command_launched: 'Command launched before the import to Kitsu: ',
+    output: 'Output: ',
+    return_code: 'Return code: ',
     dcc_connectors: 'connected DCC',
     no_dcc_connectors: 'No connected DCC',
     add_preview_error: 'An error occurred while adding preview.',

@@ -38,11 +38,27 @@ const api = {
       return readFileSync(filepath)
     }
   },
-  toggleDarkTheme: (darkTheme) =>
-    ipcRenderer.invoke('dark-theme:toggle', darkTheme),
+  openDialog: (options) => {
+    return ipcRenderer.invoke('open-dialog:show', options)
+  },
+  launchCommandBeforeExport: (command) => {
+    return ipcRenderer.invoke('launch-command:post-exports', command)
+  },
+  toggleDarkTheme: () => {
+    return ipcRenderer.invoke('dark-theme:toggle')
+  },
   socketio: {
-    create: (address, opts) => {
-      socketio = io(address, opts)
+    create: () => {
+      socketio = io(`${store.get('login.server')}/events`, {
+        transportOptions: {
+          polling: {
+            extraHeaders: {
+              Authorization: `Bearer ${store.get('login.access_token')}`,
+              'User-Agent': `Kitsu publisher ${config.get('appVersion')}`
+            }
+          }
+        }
+      })
     },
     destroy: () => {
       if (socketio !== null) {
@@ -70,6 +86,11 @@ const api = {
         socketio.disconnect()
       }
     }
+  },
+  ipcRenderer: {
+    on: (channel, listener) => {
+      ipcRenderer.on(channel, listener)
+    } 
   }
 }
 
