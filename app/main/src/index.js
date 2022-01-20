@@ -14,9 +14,9 @@ const colors = require('colors')
 const iconv = require('iconv-lite')
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
-var codePage 
+var codePage
 if (process.platform === 'win32') {
-  var codePage = require("win-codepage")
+  codePage = require('win-codepage')
 }
 import { store, config } from './store'
 
@@ -169,8 +169,12 @@ const createWindow = async () => {
       console.log('No command to launch before importing to Kitsu.')
       return false
     } else {
-      const commandOutput = {output: '', command: command}
-      const commandSpawn = spawn(command, [], { shell: true, encoding: 'buffer', windowsHide: true})
+      const commandOutput = { output: '', command: command }
+      const commandSpawn = spawn(command, [], {
+        shell: true,
+        encoding: 'buffer',
+        windowsHide: true
+      })
       console.log(`Launch command "${command}" before importing to Kitsu.`)
       console.log('Output :')
 
@@ -179,11 +183,10 @@ const createWindow = async () => {
         if (process.platform === 'win32') {
           // get Windows code page
           output = iconv.decode(data, `cp${codePage}`)
-        }
-        else {
+        } else {
           output = iconv.decode(data, 'utf8')
         }
-        commandOutput.output += (isStdout) ? output:output.red
+        commandOutput.output += isStdout ? output : colors.red(output)
       }
 
       commandSpawn.stdout.on('data', (data) => {
