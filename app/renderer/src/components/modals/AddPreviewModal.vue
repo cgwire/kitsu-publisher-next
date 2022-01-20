@@ -37,79 +37,72 @@
         <h3 v-if="DCCClients.length > 0" class="title">
           {{ DCCClients.length }}
           {{ $t('tasks.dcc_connectors') }}
-          <span
+          <button
             :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': isCurrentlyOnTake
+              button: true,
+              'button-right': true,
+              'is-disabled': isCurrentlyOnTake,
+              'is-link': true
             }"
+            @click="refreshConnectedDCCClients()"
           >
-            <icon
-              name="refresh-cw"
-              :width="20"
-              :height="20"
-              @click="refreshConnectedDCCClients()"
-            />
-          </span>
+            <span class="icon">
+              <icon name="refresh-cw" :width="20" :height="20" />
+            </span>
+          </button>
 
-          <span
-            v-if="!showOutputCommand"
+          <button
             :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': isCurrentlyOnTake || !exportCommandOutput
+              button: true,
+              'button-right': true,
+              'is-disabled': isCurrentlyOnTake || !exportCommandOutput,
+              'is-link': true
             }"
+            @click="showHideOutputCommand()"
           >
-            <icon
-              name="file-plus"
-              :width="20"
-              :height="20"
-              @click="showHideOutputCommand()"
-            />
-          </span>
-
-          <span
-            v-else
-            :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': isCurrentlyOnTake || !exportCommandOutput
-            }"
-          >
-            <icon
-              name="file-minus"
-              :width="20"
-              :height="20"
-              @click="showHideOutputCommand()"
-            />
-          </span>
+            <span>
+              <icon
+                :name="!showOutputCommand ? 'file-plus' : 'file-minus'"
+                :width="20"
+                :height="20"
+              />
+            </span>
+          </button>
         </h3>
 
         <h3 v-else class="title">
           {{ $t('tasks.no_dcc_connectors') }}
-          <span
+          <button
             :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': isCurrentlyOnTake
+              button: true,
+              'button-right': true,
+              'is-disabled': isCurrentlyOnTake,
+              'is-link': true
             }"
+            @click="refreshConnectedDCCClients()"
           >
-            <icon
-              name="refresh-cw"
-              :width="20"
-              :height="20"
-              @click="refreshConnectedDCCClients()"
-            />
-          </span>
-          <span
+            <span class="icon">
+              <icon name="refresh-cw" :width="20" :height="20" />
+            </span>
+          </button>
+
+          <button
             :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': true
+              button: true,
+              'button-right': true,
+              'is-disabled': true,
+              'is-link': true
             }"
+            @click="showHideOutputCommand()"
           >
-            <icon name="file-plus" :width="20" :height="20" />
-          </span>
+            <span>
+              <icon
+                name="file-plus"
+                :width="20"
+                :height="20"
+              />
+            </span>
+          </button>
         </h3>
 
         <div
@@ -447,10 +440,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.icon-right {
+.button-right {
   float: right;
-  cursor: pointer;
-  margin-left: 5px;
 }
 
 .is-disabled {

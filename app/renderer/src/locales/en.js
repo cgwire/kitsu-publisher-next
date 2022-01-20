@@ -970,7 +970,7 @@ export default {
     take_screenshot: 'Take screenshot',
     no_opened_project: 'No currently opened project',
     currently_opened_project: 'Currently opened project:',
-    command_launched: 'Command launched before the import to Kitsu: ',
+    command_launched: 'Command launched before the import: ',
     output: 'Output: ',
     return_code: 'Return code: ',
     dcc_connectors: 'connected DCC',
