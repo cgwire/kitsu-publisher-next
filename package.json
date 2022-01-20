@@ -27,6 +27,7 @@
     "apisauce": "2.1.5",
     "color-hash": "2.0.1",
     "color-string": "1.9.0",
+    "colors": "1.4.0",
     "electron-store": "8.0.1",
     "electron-window-state": "5.0.3",
     "fabric": "4.6.0",
