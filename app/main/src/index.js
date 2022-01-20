@@ -166,7 +166,7 @@ const createWindow = async () => {
 
   ipcMain.handle('launch-command:post-exports', (event, command) => {
     if (command === '') {
-      console.log('No command to launch before importing to Kitsu.')
+      console.log('No command to launch before importing to Kitsu Publisher.')
       return false
     } else {
       const commandOutput = { output: '', command: command }
@@ -175,7 +175,9 @@ const createWindow = async () => {
         encoding: 'buffer',
         windowsHide: true
       })
-      console.log(`Launch command "${command}" before importing to Kitsu.`)
+      console.log(
+        `Launch command "${command}" before importing to Kitsu Publisher.`
+      )
       console.log('Output :')
 
       const manageOutputData = (data, isStdout) => {
