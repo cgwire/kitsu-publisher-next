@@ -442,6 +442,7 @@ export default {
 .icon-right {
   float: right;
   cursor: pointer;
+  margin-left: 5px;
 }
 
 .is-disabled {
