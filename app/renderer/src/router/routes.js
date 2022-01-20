@@ -15,6 +15,7 @@ const Person = () => import('@/components/pages/Person')
 const Profile = () => import('@/components/pages/Profile')
 const ResetPassword = () => import('@/components/pages/ResetPassword')
 const ServerDown = () => import('@/components/pages/ServerDown')
+const Settings = () => import('@/components/pages/Settings')
 const Shot = () => import('@/components/pages/Shot')
 const Task = () => import('@/components/pages/Task')
 
@@ -214,6 +215,12 @@ const routes = [
             name: 'change-avatar'
           }
         ]
+      },
+
+      {
+        path: 'settings',
+        component: Settings,
+        name: 'settings'
       }
     ]
   },

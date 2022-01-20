@@ -51,6 +51,36 @@
               @click="refreshConnectedDCCClients()"
             />
           </span>
+
+          <span v-if="!showOutputCommand"
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': isCurrentlyOnTake || !exportCommandOutput
+            }"
+          >
+            <icon
+              name="file-plus"
+              :width="20"
+              :height="20"
+              @click="showHideOutputCommand()"
+            />
+          </span>
+
+          <span v-else
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': isCurrentlyOnTake || !exportCommandOutput
+            }"
+          >
+            <icon
+              name="file-minus"
+              :width="20"
+              :height="20"
+              @click="showHideOutputCommand()"
+            />
+          </span>
         </h3>
 
         <h3 v-else class="title">
@@ -69,7 +99,27 @@
               @click="refreshConnectedDCCClients()"
             />
           </span>
+          <span
+            :class="{
+              icon: true,
+              'icon-right': true,
+              'is-disabled': true
+            }"
+          >
+            <icon
+              name="file-plus"
+              :width="20"
+              :height="20"
+            />
+          </span>
         </h3>
+
+        <div v-if="exportCommandOutput && showOutputCommand" class="box content">
+          {{ $t('tasks.command_launched') }}"{{ exportCommandOutput.command }}"<br>
+          {{ $t('tasks.output') }}<br><pre v-html="exportCommandOutput.output"></pre>
+          {{ $t('tasks.return_code') }}{{ exportCommandOutput.statusCode }}
+          <br>
+        </div>
 
         <div
           v-for="(DCCClient, index) in DCCClients"
@@ -208,6 +258,8 @@ import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
 import Icon from '@/components/widgets/Icon'
 import DCCClient from '@/lib/dccutils'
+import formatUnicorn from 'format-unicorn/safe'
+import AnsiUp from 'ansi_up'
 
 export default {
   name: 'AddPreviewModal',
@@ -245,12 +297,15 @@ export default {
     return {
       forms: null,
       DCCClients: [],
-      isCurrentlyOnTake: false
+      isCurrentlyOnTake: false,
+      exportCommandOutput: null,
+      showOutputCommand: false,
+      ansiup: new AnsiUp()
     }
   },
 
   computed: {
-    ...mapGetters([]),
+    ...mapGetters(['DCCsExportsDirectory', 'PostExportsCommand']),
 
     previewField() {
       return this.$refs['preview-field']
@@ -283,7 +338,12 @@ export default {
       }
     },
 
+    showHideOutputCommand() {
+      this.showOutputCommand = !this.showOutputCommand
+    },
+
     onFileSelected(forms) {
+      this.exportCommandOutput = null
       this.forms = forms
       this.$emit('fileselected', forms)
     },
@@ -323,16 +383,31 @@ export default {
             DCCClient.imageExtensionSelected
           )
       ).then((data) => {
-        const formData = new FormData()
-        const file = new File(
-          [window.electron.file.readFileSync(data.file)],
-          data.file,
-          { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
-        )
-        formData.append('file', file, file.name)
-        this.forms = [formData]
-        this.$emit('fileselected', this.forms)
-        this.isCurrentlyOnTake = false
+        const command = formatUnicorn(this.PostExportsCommand, {
+          exportsDirectory: this.DCCsExportsDirectory,
+          exportFile: data.file,
+          exportIsAnimation: isAnimation,
+          exportIsScreenshot: !isAnimation,
+          rendererSelected: DCCClient.rendererSelected,
+          extensionSelected: isAnimation
+            ? DCCClient.videoExtensionSelected
+            : DCCClient.imageExtensionSelected
+        })
+        window.electron.launchCommandBeforeExport(command).then((success, _) => {
+          if (!success) {
+            this.exportCommandOutput = null
+          }
+          const formData = new FormData()
+          const file = new File(
+            [window.electron.file.readFileSync(data.file)],
+            data.file,
+            { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+          )
+          formData.append('file', file, file.name)
+          this.forms = [formData]
+          this.$emit('fileselected', this.forms)
+          this.isCurrentlyOnTake = false
+        })
       })
     },
 
@@ -351,6 +426,9 @@ export default {
     this.forms = null
     this.refreshConnectedDCCClients()
     window.addEventListener('paste', this.onPaste, false)
+    window.electron.ipcRenderer.on('commandOutput', (_, commandOutput) => {
+      this.exportCommandOutput = commandOutput
+    })
   },
 
   beforeUnmount() {

@@ -218,6 +218,7 @@
       "cancel": "Annuler",
       "clear_selection": "Effacer la sélection",
       "close": "Fermer",
+      "settings": "Paramètres",
       "confirmation": "Confirmer",
       "confirmation_and_stay": "Confirmer et rester",
       "date": "Date",
@@ -625,6 +626,14 @@
         "shots_to_import": "Plans à importer"
       }
     },
+    "publishersettings": {
+      "title": "Paramètres",
+      "dccs_exports_directory": "Dossier temporaire pour les exports des DCCs",
+      "post_exports_command": "Commande à lancer après les exports des DCCs",
+      "save": {
+        "button": "Sauvegardez vos changements"
+      }
+    },
     "profile": {
       "change_avatar": "Changer Avatar",
       "info_title": "Informations",
@@ -818,6 +827,9 @@
       "take_animation": "Attacher une animation",
       "take_screenshot": "Attacher une capture d'écran",
       "no_opened_project": "Aucun projet actuellement ouvert",
+      "command_launched": "Commande lancée avant l'import : ",
+      "output": "Sortie : ",
+      "return_code": "Code de retour : ",
       "currently_opened_project": "Projet actuellement ouvert :",
       "dcc_connectors": "DCC connecté(s)",
       "no_dcc_connectors": "Pas de DCC connecté",

@@ -57,18 +57,7 @@ app.config.globalProperties.$locale = {
 }
 
 if (store.state.login.server) {
-  window.electron.socketio.create(`${store.state.login.server}/events`, {
-    transportOptions: {
-      polling: {
-        extraHeaders: {
-          Authorization: `Bearer ${store.state.login.access_token}`,
-          'User-Agent': `Kitsu publisher ${window.electron.config.get(
-            'appVersion'
-          )}`
-        }
-      }
-    }
-  })
+  window.electron.socketio.create()
 }
 
 app.use(VueWebsocket, null, window.electron.socketio)

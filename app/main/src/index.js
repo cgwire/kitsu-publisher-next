@@ -4,24 +4,25 @@ import {
   session,
   nativeTheme,
   ipcMain,
+  dialog,
   Menu /**shell*/
 } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
+import { spawn } from 'child_process'
+const iconv = require('iconv-lite');
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
-
+var codePage 
+if (process.platform === 'win32') {
+  var codePage = require("win-codepage")
+}
 import { store, config } from './store'
 
 config.set('appVersion', app.getVersion())
 
 // enable darkmode for electron at startup
-try {
-  const vuex_store = JSON.parse(store.get('vuex'))
-  nativeTheme.themeSource = vuex_store.main.isDarkTheme ? 'dark' : 'light'
-} catch (error) {
-  nativeTheme.themeSource = 'dark'
-}
+nativeTheme.themeSource = store.get('main.isDarkTheme') ? 'dark' : 'light'
 
 const isSingleInstance = app.requestSingleInstanceLock()
 const isDevelopment = import.meta.env.MODE === 'development'
@@ -56,12 +57,14 @@ const createWindow = async () => {
     details.requestHeaders['User-Agent'] = `Kitsu publisher ${app.getVersion()}`
     // set custom Authorization header with access_token
     try {
-      const vuex_store = JSON.parse(store.get('vuex'))
-      const url = new URL(vuex_store.login.server)
-      if (details.url.startsWith(url) && vuex_store.login.access_token) {
-        details.requestHeaders[
-          'Authorization'
-        ] = `Bearer ${vuex_store.login.access_token}`
+      const url = new URL(store.get('login.server'))
+      if (
+        details.url.startsWith(url) &&
+        store.get('login.access_token') !== ''
+      ) {
+        details.requestHeaders['Authorization'] = `Bearer ${store.get(
+          'login.access_token'
+        )}`
       }
     } catch (error) {
       // do nothing
@@ -111,9 +114,11 @@ const createWindow = async () => {
   //open the pages different from the Kitsu server in the default browser
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     try {
-      const vuex_store = JSON.parse(store.get('vuex'))
-      const url_server = new URL(vuex_store.login.server)
-      if (url.startsWith(url_server) && vuex_store.login.access_token) {
+      const url_server = new URL(store.get('login.server'))
+      if (
+        url.startsWith(url_server) &&
+        store.get('login.access_token') !== ''
+      ) {
         return { action: 'allow' }
       }
     } catch (error) {
@@ -149,9 +154,54 @@ const createWindow = async () => {
 
   await mainWindow.loadURL(pageUrl)
 
-  ipcMain.handle('dark-theme:toggle', (event, darkTheme) => {
-    nativeTheme.themeSource = darkTheme ? 'dark' : 'light'
-    return nativeTheme.shouldUseDarkColors
+  if (process.platform === 'win32') {
+    codePage = await codePage()
+  }
+
+  ipcMain.handle('dark-theme:toggle', () => {
+    nativeTheme.themeSource = store.get('main.isDarkTheme') ? 'dark' : 'light'
+    return store.get('main.isDarkTheme')
+  })
+
+  ipcMain.handle('launch-command:post-exports', (event, command) => {
+    if (command === '') {
+      console.log('No command to launch before importing to Kitsu.')
+      return false
+    } else {
+      const commandOutput = {output: '', command: command}
+      const commandSpawn = spawn(command, [], { shell: true, encoding: 'buffer', windowsHide: true})
+      console.log(`Launch command "${command}" before importing to Kitsu.`)
+      console.log('Output :')
+
+      const manageOutputData = (data) => {
+        var output
+        if (process.platform === 'win32') {
+          // get Windows code page
+          output = iconv.decode(data, `cp${codePage}`)
+        }
+        else {
+          output = iconv.decode(data, 'utf8')
+        }
+        commandOutput.output += output
+      }
+
+      commandSpawn.stdout.on('data', manageOutputData)
+
+      commandSpawn.stderr.on('data', manageOutputData)
+
+      commandSpawn.on('close', (statusCode) => {
+        console.log(commandOutput.output)
+        console.log(`Command exited with status code ${statusCode}.`)
+        commandOutput.statusCode = statusCode
+        mainWindow.webContents.send('commandOutput', commandOutput)
+      })
+
+      return true
+    }
+  })
+
+  ipcMain.handle('open-dialog:show', (event, options) => {
+    return dialog.showOpenDialogSync(mainWindow, options)
   })
 }
 

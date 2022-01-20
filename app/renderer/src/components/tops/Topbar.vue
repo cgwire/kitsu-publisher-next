@@ -41,7 +41,7 @@
       ref="user-menu"
       class="user-menu"
       :style="{
-        top: isUserMenuHidden ? '-460px' : '60px'
+        top: isUserMenuHidden ? '-500px' : '60px'
       }"
     >
       <ul>
@@ -94,8 +94,15 @@
         </a>
         <li class="version">Kitsu Publisher {{ kitsuPublisherVersion }}</li>
         <hr />
+        <router-link to="/settings" @click="toggleUserMenu()">
+          <li class="flexrow">
+            <icon name="settings" class="icon flexrow-item" />
+            <span class="flexrow-item">{{ $t('main.settings') }}</span>
+          </li>
+        </router-link>
+        <hr />
         <li class="flexrow" @click="onLogoutClicked">
-          <icon name="log-out" class="flexrow-item" />
+          <icon name="log-out" class="icon flexrow-item" />
           <span class="flexrow-item">{{ $t('main.logout') }}</span>
         </li>
       </ul>
@@ -309,6 +316,10 @@ strong {
 
 .section-path {
   padding-top: 5px;
+}
+
+.icon {
+  vertical-align: middle;
 }
 
 @media screen and (max-width: 768px) {
