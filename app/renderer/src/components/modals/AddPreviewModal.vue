@@ -52,7 +52,8 @@
             />
           </span>
 
-          <span v-if="!showOutputCommand"
+          <span
+            v-if="!showOutputCommand"
             :class="{
               icon: true,
               'icon-right': true,
@@ -67,7 +68,8 @@
             />
           </span>
 
-          <span v-else
+          <span
+            v-else
             :class="{
               icon: true,
               'icon-right': true,
@@ -106,19 +108,21 @@
               'is-disabled': true
             }"
           >
-            <icon
-              name="file-plus"
-              :width="20"
-              :height="20"
-            />
+            <icon name="file-plus" :width="20" :height="20" />
           </span>
         </h3>
 
-        <div v-if="exportCommandOutput && showOutputCommand" class="box content">
-          {{ $t('tasks.command_launched') }}"{{ exportCommandOutput.command }}"<br>
-          {{ $t('tasks.output') }}<br><pre v-html="exportCommandOutput.output"></pre>
+        <div
+          v-if="exportCommandOutput && showOutputCommand"
+          class="box content"
+        >
+          {{ $t('tasks.command_launched') }}"{{
+            exportCommandOutput.command
+          }}"<br />
+          {{ $t('tasks.output') }}<br />
+          <pre v-html="exportCommandOutput.output" />
           {{ $t('tasks.return_code') }}{{ exportCommandOutput.statusCode }}
-          <br>
+          <br />
         </div>
 
         <div
@@ -300,7 +304,7 @@ export default {
       isCurrentlyOnTake: false,
       exportCommandOutput: null,
       showOutputCommand: false,
-      AnsiUp: new AnsiUp
+      AnsiUp: new AnsiUp()
     }
   },
 
@@ -393,21 +397,23 @@ export default {
             ? DCCClient.videoExtensionSelected
             : DCCClient.imageExtensionSelected
         })
-        window.electron.launchCommandBeforeExport(command).then((success, _) => {
-          if (!success) {
-            this.exportCommandOutput = null
-          }
-          const formData = new FormData()
-          const file = new File(
-            [window.electron.file.readFileSync(data.file)],
-            data.file,
-            { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
-          )
-          formData.append('file', file, file.name)
-          this.forms = [formData]
-          this.$emit('fileselected', this.forms)
-          this.isCurrentlyOnTake = false
-        })
+        window.electron
+          .launchCommandBeforeExport(command)
+          .then((success, _) => {
+            if (!success) {
+              this.exportCommandOutput = null
+            }
+            const formData = new FormData()
+            const file = new File(
+              [window.electron.file.readFileSync(data.file)],
+              data.file,
+              { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+            )
+            formData.append('file', file, file.name)
+            this.forms = [formData]
+            this.$emit('fileselected', this.forms)
+            this.isCurrentlyOnTake = false
+          })
       })
     },
 
@@ -428,7 +434,9 @@ export default {
     window.addEventListener('paste', this.onPaste, false)
     window.electron.ipcRenderer.on('commandOutput', (_, commandOutput) => {
       this.exportCommandOutput = commandOutput
-      this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(this.exportCommandOutput.output)
+      this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
+        this.exportCommandOutput.output
+      )
     })
   },
 

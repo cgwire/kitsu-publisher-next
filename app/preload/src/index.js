@@ -90,7 +90,7 @@ const api = {
   ipcRenderer: {
     on: (channel, listener) => {
       ipcRenderer.on(channel, listener)
-    } 
+    }
   }
 }
 
