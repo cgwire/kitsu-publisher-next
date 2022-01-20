@@ -300,7 +300,7 @@ export default {
       isCurrentlyOnTake: false,
       exportCommandOutput: null,
       showOutputCommand: false,
-      ansiup: new AnsiUp()
+      AnsiUp: new AnsiUp
     }
   },
 
@@ -428,6 +428,7 @@ export default {
     window.addEventListener('paste', this.onPaste, false)
     window.electron.ipcRenderer.on('commandOutput', (_, commandOutput) => {
       this.exportCommandOutput = commandOutput
+      this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(this.exportCommandOutput.output)
     })
   },
 
