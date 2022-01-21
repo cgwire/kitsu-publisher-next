@@ -629,6 +629,7 @@
     "publishersettings": {
       "title": "Paramètres",
       "dccs_exports_directory": "Dossier temporaire pour les exports des DCCs",
+      "choose_dccs_exports_directory": "Choose a directory for exports made by the DCCs",
       "post_exports_command": {
         "description": "Commande à lancer après les exports des DCCs",
         "info": "Vous pouvez insérer des variables dans votre commande. Vous avez juste à les mettre entre des accolades. Elles sont listées ci-dessous :",

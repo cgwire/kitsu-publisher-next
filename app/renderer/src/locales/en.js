@@ -742,6 +742,8 @@ export default {
   publishersettings: {
     title: 'Settings',
     dccs_exports_directory: 'Directory for exports made by the DCCs',
+    choose_dccs_exports_directory:
+      'Choose a directory for exports made by the DCCs',
     post_exports_command: {
       description: 'Command to launch after the exports made by the DCCs',
       info: 'You can insert variables in your command. You just have to put the choosen variable under curly brackets. They are listed below:',

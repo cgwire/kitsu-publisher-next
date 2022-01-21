@@ -10,10 +10,21 @@
       </div>
 
       <div class="settings-body">
-        <text-field
-          v-model="form.DCCsExportsDirectory"
-          :label="$t('publishersettings.dccs_exports_directory')"
-        />
+        <div class="flexrow">
+          <text-field
+            v-model="form.DCCsExportsDirectory"
+            class="textfieldwithbtn"
+            :label="$t('publishersettings.dccs_exports_directory')"
+          />
+          <button
+            class="button is-link btnwithtextfield"
+            @click="openExplorerExportsDirectory()"
+          >
+            <span class="icon">
+              <icon name="folder" :width="20" />
+            </span>
+          </button>
+        </div>
         <div class="flexrow">
           <text-field
             v-model="form.PostExportsCommand"
@@ -158,7 +169,21 @@ export default {
       'changeDCCsExportsDirectory',
       'changePostExportsCommand',
       'saveSettings'
-    ])
+    ]),
+
+    openExplorerExportsDirectory() {
+      window.electron
+        .openDialog({
+          title: this.$t('publishersettings.choose_dccs_exports_directory'),
+          defaultPath: this.form.DCCsExportsDirectory,
+          properties: ['openDirectory', 'createDirectory']
+        })
+        .then((path, _) => {
+          if (path !== undefined) {
+            this.form.DCCsExportsDirectory = path[0]
+          }
+        })
+    }
   },
 
   metaInfo() {
