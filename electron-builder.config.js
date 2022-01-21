@@ -16,6 +16,8 @@ const config = {
     category: 'Graphics'
   },
   win: {
+    publisherName: 'CGWire',
+    certificateSubjectName: 'CGWire',
     target: ['nsis', 'portable', 'zip', 'msi']
   },
   mac: {

@@ -4,12 +4,10 @@
       <span class="value flexrow-item">
         {{ value }}
       </span>
-      <vue-slider
-        ref="slider"
+      <slider
         v-model="value"
-        class="flexrow-item slider"
-        :included="true"
-        v-bind="options"
+        v-bind="sliderConfiguration"
+        class="flexrow-item slider slider-green"
       />
       <button class="button flexrow-item" @click="setValue(1)">1</button>
       <button class="button flexrow-item" @click="setValue(4)">4</button>
@@ -25,14 +23,14 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import VueSlider from 'vue-slider-component'
-import 'vue-slider-component/theme/default.css'
+import Slider from '@vueform/slider'
+import '@vueform/slider/themes/default.css'
 
 export default {
   name: 'TimeSliderCell',
 
   components: {
-    VueSlider
+    Slider
   },
 
   props: {
@@ -49,27 +47,14 @@ export default {
   data() {
     return {
       value: this.duration,
-      options: {
-        show: true,
-        width: 400,
+      sliderConfiguration: {
         min: 0,
         max: 10,
-        interval: 0.25,
+        step: 0.25,
         lazy: true,
-        marks: [
-          0, 0.25, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5,
-          8, 8.5, 9, 9.5, 10
-        ],
-        hideLabel: true,
-        piecewise: true,
-        tooltip: 'focus',
-        tooltipPlacement: 'bottom',
-        processStyle: {
-          'background-color': '#8F91EB'
-        },
-        railStyle: {
-          background: '#CCC'
-        }
+        tooltipPosition: 'bottom',
+        showTooltip: 'drag',
+        format: (value) => `${value}`
       }
     }
   },
@@ -107,5 +92,13 @@ export default {
 .slider {
   cursor: pointer;
   z-index: 0;
+  width: 400px;
+  --slider-connect-bg: #00b242;
+  --slider-tooltip-bg: #00b242;
+}
+
+.dark .slider-green {
+  --slider-connect-bg: #008732;
+  --slider-tooltip-bg: #008732;
 }
 </style>

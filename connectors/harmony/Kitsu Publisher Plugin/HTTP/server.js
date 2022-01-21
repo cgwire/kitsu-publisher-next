@@ -75,6 +75,7 @@ function HTTPDaemon(parent) {
             log = log + '200 OK'
           } catch (e) {
             result = { detail: e.name + ' : ' + e.message }
+            $.log('ERROR:  "' + e.name + ' : ' + e.message)
             if (e instanceof globals.HTTPExceptions.MissingQueryError) {
               this.socket.write(
                 new QByteArray('HTTP/1.1 422 Unprocessable Entity\r\n')

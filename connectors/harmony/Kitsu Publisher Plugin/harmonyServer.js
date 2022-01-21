@@ -58,13 +58,25 @@ server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
 
   image_extensions = globals.getExtensions(false)
   for (var n = 0; n < image_extensions.length; n++) {
-    if (image_extensions[n][1] == extension) {
+    if (image_extensions[n][1] === extension) {
       extension = image_extensions[n][0]
     }
   }
 
   output_path = url.queryItemValue('output_path')
-  if (!output_path) {
+  while (output_path.search('%5C') !== -1) {
+    output_path = output_path.replace('%5C', '/')
+  }
+  for (var n = 0; n < output_path.length; n++) {
+    if (output_path[n] === '+') {
+      output_path =
+        output_path.substring(0, n) +
+        ' ' +
+        output_path.substring(n + 1, output_path.length)
+    }
+  }
+  output_path_folder = new $.oFolder(String(output_path))
+  if (!output_path || output_path_folder.exists) {
     date = new Date()
     date =
       date.getFullYear() +
@@ -78,7 +90,11 @@ server.add_route('/take-render-screenshot', ['GET'], function (method, url) {
       date.getMinutes() +
       '-' +
       date.getSeconds()
-    output_path = System.getenv('TEMP') + '/harmony-' + date + extension
+    output_path =
+      (!output_path ? System.getenv('TEMP') : output_path_folder.path) +
+      '/harmony-' +
+      date +
+      extension
   }
 
   use_colorspace =
@@ -124,13 +140,25 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
 
   video_extensions = globals.getExtensions(true)
   for (var n = 0; n < video_extensions.length; n++) {
-    if (video_extensions[n][1] == extension) {
+    if (video_extensions[n][1] === extension) {
       extension = video_extensions[n][0]
     }
   }
 
   output_path = url.queryItemValue('output_path')
-  if (!output_path) {
+  while (output_path.search('%5C') !== -1) {
+    output_path = output_path.replace('%5C', '/')
+  }
+  for (var n = 0; n < output_path.length; n++) {
+    if (output_path[n] === '+') {
+      output_path =
+        output_path.substring(0, n) +
+        ' ' +
+        output_path.substring(n + 1, output_path.length)
+    }
+  }
+  output_path_folder = new $.oFolder(output_path)
+  if (!output_path || output_path_folder.exists) {
     date = new Date()
     date =
       date.getFullYear() +
@@ -144,7 +172,11 @@ server.add_route('/take-render-animation', ['GET'], function (method, url) {
       date.getMinutes() +
       '-' +
       date.getSeconds()
-    output_path = System.getenv('TEMP') + '/harmony-' + date + extension
+    output_path =
+      (!output_path ? System.getenv('TEMP') : output_path_folder.path) +
+      '/harmony-' +
+      date +
+      extension
   }
   output_path = new $.oFile(output_path)
   use_colorspace =

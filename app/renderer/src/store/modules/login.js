@@ -17,9 +17,9 @@ import {
 import auth from '@/lib/auth'
 
 const initialState = {
-  server: '',
-  access_token: '',
-  email: '',
+  server: window.electron.store.get('login.server'),
+  access_token: window.electron.store.get('login.access_token'),
+  email: window.electron.store.get('login.email'),
   password: '',
   isLdap: false,
   isLoginLoading: false,
@@ -72,18 +72,7 @@ const actions = {
         }
         callback(err, false)
       } else {
-        window.electron.socketio.create(`${state.server}/events`, {
-          transportOptions: {
-            polling: {
-              extraHeaders: {
-                Authorization: `Bearer ${state.access_token}`,
-                'User-Agent': `Kitsu publisher ${window.electron.store.get(
-                  'appVersion'
-                )}`
-              }
-            }
-          }
-        })
+        window.electron.socketio.create()
         commit(LOGIN_SUCCESS)
         callback(null, true)
       }
@@ -125,6 +114,7 @@ const actions = {
 
 const mutations = {
   [CHANGE_EMAIL](state, email) {
+    window.electron.store.set('login.email', email)
     state.email = email
   },
 
@@ -133,10 +123,12 @@ const mutations = {
   },
 
   [CHANGE_SERVER](state, server) {
+    window.electron.store.set('login.server', server)
     state.server = server
   },
 
   [CHANGE_ACCESS_TOKEN](state, access_token) {
+    window.electron.store.set('login.access_token', access_token)
     state.access_token = access_token
   },
 

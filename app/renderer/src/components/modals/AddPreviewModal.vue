@@ -37,39 +37,81 @@
         <h3 v-if="DCCClients.length > 0" class="title">
           {{ DCCClients.length }}
           {{ $t('tasks.dcc_connectors') }}
-          <span
+          <button
             :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': isCurrentlyOnTake
+              button: true,
+              'button-right': true,
+              'is-disabled': isCurrentlyOnTake,
+              'is-link': true
             }"
+            @click="refreshConnectedDCCClients()"
           >
-            <icon
-              name="refresh-cw"
-              :width="20"
-              :height="20"
-              @click="refreshConnectedDCCClients()"
-            />
-          </span>
+            <span class="icon">
+              <icon name="refresh-cw" :width="20" />
+            </span>
+          </button>
+
+          <button
+            :class="{
+              button: true,
+              'button-right': true,
+              'is-disabled': isCurrentlyOnTake || !exportCommandOutput,
+              'is-link': true
+            }"
+            @click="showHideOutputCommand()"
+          >
+            <span>
+              <icon
+                :name="!showOutputCommand ? 'file-plus' : 'file-minus'"
+                :width="20"
+              />
+            </span>
+          </button>
         </h3>
 
         <h3 v-else class="title">
           {{ $t('tasks.no_dcc_connectors') }}
-          <span
+          <button
             :class="{
-              icon: true,
-              'icon-right': true,
-              'is-disabled': isCurrentlyOnTake
+              button: true,
+              'button-right': true,
+              'is-disabled': isCurrentlyOnTake,
+              'is-link': true
             }"
+            @click="refreshConnectedDCCClients()"
           >
-            <icon
-              name="refresh-cw"
-              :width="20"
-              :height="20"
-              @click="refreshConnectedDCCClients()"
-            />
-          </span>
+            <span class="icon">
+              <icon name="refresh-cw" :width="20" />
+            </span>
+          </button>
+
+          <button
+            :class="{
+              button: true,
+              'button-right': true,
+              'is-disabled': true,
+              'is-link': true
+            }"
+            @click="showHideOutputCommand()"
+          >
+            <span>
+              <icon name="file-plus" :width="20" />
+            </span>
+          </button>
         </h3>
+
+        <div
+          v-if="exportCommandOutput && showOutputCommand"
+          class="box content"
+        >
+          {{ $t('tasks.command_launched') }}"{{
+            exportCommandOutput.command
+          }}"<br />
+          {{ $t('tasks.output') }}<br />
+          <pre v-html="exportCommandOutput.output" />
+          {{ $t('tasks.return_code') }}{{ exportCommandOutput.statusCode }}
+          <br />
+        </div>
 
         <div
           v-for="(DCCClient, index) in DCCClients"
@@ -208,6 +250,8 @@ import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
 import Icon from '@/components/widgets/Icon'
 import DCCClient from '@/lib/dccutils'
+import formatUnicorn from 'format-unicorn/safe'
+import AnsiUp from 'ansi_up'
 
 export default {
   name: 'AddPreviewModal',
@@ -245,12 +289,15 @@ export default {
     return {
       forms: null,
       DCCClients: [],
-      isCurrentlyOnTake: false
+      isCurrentlyOnTake: false,
+      exportCommandOutput: null,
+      showOutputCommand: false,
+      AnsiUp: new AnsiUp()
     }
   },
 
   computed: {
-    ...mapGetters([]),
+    ...mapGetters(['DCCsExportsDirectory', 'PostExportsCommand']),
 
     previewField() {
       return this.$refs['preview-field']
@@ -283,7 +330,12 @@ export default {
       }
     },
 
+    showHideOutputCommand() {
+      this.showOutputCommand = !this.showOutputCommand
+    },
+
     onFileSelected(forms) {
+      this.exportCommandOutput = null
       this.forms = forms
       this.$emit('fileselected', forms)
     },
@@ -316,23 +368,42 @@ export default {
       ;(isAnimation
         ? DCCClient.takeRenderAnimation(
             DCCClient.rendererSelected,
-            DCCClient.videoExtensionSelected
+            DCCClient.videoExtensionSelected,
+            this.DCCsExportsDirectory
           )
         : DCCClient.takeRenderScreenshot(
             DCCClient.rendererSelected,
-            DCCClient.imageExtensionSelected
+            DCCClient.imageExtensionSelected,
+            this.DCCsExportsDirectory
           )
       ).then((data) => {
-        const formData = new FormData()
-        const file = new File(
-          [window.electron.file.readFileSync(data.file)],
-          data.file,
-          { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
-        )
-        formData.append('file', file, file.name)
-        this.forms = [formData]
-        this.$emit('fileselected', this.forms)
-        this.isCurrentlyOnTake = false
+        const command = formatUnicorn(this.PostExportsCommand, {
+          exportsDirectory: this.DCCsExportsDirectory,
+          exportFile: data.file,
+          exportIsAnimation: isAnimation,
+          exportIsScreenshot: !isAnimation,
+          rendererSelected: DCCClient.rendererSelected,
+          extensionSelected: isAnimation
+            ? DCCClient.videoExtensionSelected
+            : DCCClient.imageExtensionSelected
+        })
+        window.electron
+          .launchCommandBeforeExport(command)
+          .then((success, _) => {
+            if (!success) {
+              this.exportCommandOutput = null
+            }
+            const formData = new FormData()
+            const file = new File(
+              [window.electron.file.readFileSync(data.file)],
+              data.file,
+              { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+            )
+            formData.append('file', file, file.name)
+            this.forms = [formData]
+            this.$emit('fileselected', this.forms)
+            this.isCurrentlyOnTake = false
+          })
       })
     },
 
@@ -351,6 +422,12 @@ export default {
     this.forms = null
     this.refreshConnectedDCCClients()
     window.addEventListener('paste', this.onPaste, false)
+    window.electron.ipcRenderer.on('commandOutput', (_, commandOutput) => {
+      this.exportCommandOutput = commandOutput
+      this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
+        this.exportCommandOutput.output
+      )
+    })
   },
 
   beforeUnmount() {
@@ -360,9 +437,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.icon-right {
+.button-right {
   float: right;
-  cursor: pointer;
 }
 
 .is-disabled {

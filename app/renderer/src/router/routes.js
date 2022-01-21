@@ -15,6 +15,8 @@ const Person = () => import('@/components/pages/Person')
 const Profile = () => import('@/components/pages/Profile')
 const ResetPassword = () => import('@/components/pages/ResetPassword')
 const ServerDown = () => import('@/components/pages/ServerDown')
+const Settings = () => import('@/components/pages/Settings')
+const Shot = () => import('@/components/pages/Shot')
 const Task = () => import('@/components/pages/Task')
 
 const routes = [
@@ -113,6 +115,12 @@ const routes = [
       },
 
       {
+        path: 'productions/:production_id/episodes/:episode_id/shots/:shot_id',
+        component: Shot,
+        name: 'episode-shot'
+      },
+
+      {
         name: 'task',
         path: 'productions/:production_id/:type/tasks/:task_id',
         component: Task,
@@ -207,6 +215,12 @@ const routes = [
             name: 'change-avatar'
           }
         ]
+      },
+
+      {
+        path: 'settings',
+        component: Settings,
+        name: 'settings'
       }
     ]
   },

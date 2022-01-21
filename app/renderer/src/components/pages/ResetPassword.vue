@@ -19,7 +19,7 @@
               @keyup.enter="confirmResetPassword"
             />
             <span class="icon">
-              <icon name="server" :width="20" :height="20" />
+              <icon name="server" :width="20" />
             </span>
           </p>
           <p class="control has-icon">
@@ -33,7 +33,7 @@
               @keyup.enter="confirmResetPassword"
             />
             <span class="icon">
-              <icon name="mail" :width="20" :height="20" />
+              <icon name="mail" :width="20" />
             </span>
           </p>
         </div>
