@@ -368,11 +368,13 @@ export default {
       ;(isAnimation
         ? DCCClient.takeRenderAnimation(
             DCCClient.rendererSelected,
-            DCCClient.videoExtensionSelected
+            DCCClient.videoExtensionSelected,
+            this.DCCsExportsDirectory
           )
         : DCCClient.takeRenderScreenshot(
             DCCClient.rendererSelected,
-            DCCClient.imageExtensionSelected
+            DCCClient.imageExtensionSelected,
+            this.DCCsExportsDirectory
           )
       ).then((data) => {
         const command = formatUnicorn(this.PostExportsCommand, {

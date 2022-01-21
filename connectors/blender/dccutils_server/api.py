@@ -53,14 +53,14 @@ def set_current_color_space(color_space: str):
 
 @app.get("/take-viewport-screenshot")
 def take_viewport_screenshot(extension: str, output_path: str = ""):
-    if not output_path:
+    if not output_path or os.path.isdir(output_path):
         extension_str = ""
         for extension_list in context.list_extensions(False):
             if extension_list[1] == extension:
                 extension_str = extension_list[0]
                 break
         output_path = os.path.join(
-            tempfile.gettempdir(),
+            tempfile.gettempdir() if not output_path else output_path,
             "%s-%s%s"
             % (
                 context.get_dcc_name(),
@@ -82,14 +82,14 @@ def take_viewport_screenshot(extension: str, output_path: str = ""):
 def take_render_screenshot(
     renderer: str, extension: str, output_path: str = "", use_colorspace: bool = False
 ):
-    if not output_path:
+    if not output_path or os.path.isdir(output_path):
         extension_str = ""
         for extension_list in context.list_extensions(False):
             if extension_list[1] == extension:
                 extension_str = extension_list[0]
                 break
         output_path = os.path.join(
-            tempfile.gettempdir(),
+            tempfile.gettempdir() if not output_path else output_path,
             "%s-%s%s"
             % (
                 context.get_dcc_name(),
@@ -109,14 +109,14 @@ def take_render_screenshot(
 
 @app.get("/take-viewport-animation")
 def take_viewport_animation(output_path: str, extension: str):
-    if not output_path:
+    if not output_path or os.path.isdir(output_path):
         extension_str = ""
         for extension_list in context.list_extensions(False):
             if extension_list[1] == extension:
                 extension_str = extension_list[0]
                 break
         output_path = os.path.join(
-            tempfile.gettempdir(),
+            tempfile.gettempdir() if not output_path else output_path,
             "%s-%s%s"
             % (
                 context.get_dcc_name(),
@@ -138,14 +138,14 @@ def take_viewport_animation(output_path: str, extension: str):
 def take_render_animation(
     renderer: str, extension: str, output_path: str = "", use_colorspace: bool = False
 ):
-    if not output_path:
+    if not output_path or os.path.isdir(output_path):
         extension_str = ""
         for extension_list in context.list_extensions(True):
             if extension_list[1] == extension:
                 extension_str = extension_list[0]
                 break
         output_path = os.path.join(
-            tempfile.gettempdir(),
+            tempfile.gettempdir() if not output_path else output_path,
             "%s-%s%s"
             % (
                 context.get_dcc_name(),
