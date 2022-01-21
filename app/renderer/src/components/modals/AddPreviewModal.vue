@@ -47,7 +47,7 @@
             @click="refreshConnectedDCCClients()"
           >
             <span class="icon">
-              <icon name="refresh-cw" :width="20" :height="20" />
+              <icon name="refresh-cw" :width="20" />
             </span>
           </button>
 
@@ -64,7 +64,6 @@
               <icon
                 :name="!showOutputCommand ? 'file-plus' : 'file-minus'"
                 :width="20"
-                :height="20"
               />
             </span>
           </button>
@@ -82,7 +81,7 @@
             @click="refreshConnectedDCCClients()"
           >
             <span class="icon">
-              <icon name="refresh-cw" :width="20" :height="20" />
+              <icon name="refresh-cw" :width="20" />
             </span>
           </button>
 
@@ -96,11 +95,7 @@
             @click="showHideOutputCommand()"
           >
             <span>
-              <icon
-                name="file-plus"
-                :width="20"
-                :height="20"
-              />
+              <icon name="file-plus" :width="20" />
             </span>
           </button>
         </h3>
