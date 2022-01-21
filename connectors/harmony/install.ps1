@@ -115,6 +115,6 @@ try {
     Write-Host -Foreground Red -Background Black ($_)
 } finally {
     if (! $noprompt) {
-        Read-Host -Prompt "Press any key to finish"
+        Read-Host -Prompt "Press enter key to finish"
     }
 }
