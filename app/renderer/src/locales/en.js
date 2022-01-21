@@ -742,8 +742,22 @@ export default {
   publishersettings: {
     title: 'Settings',
     dccs_exports_directory: 'Directory for exports made by the DCCs',
-    post_exports_command:
-      'Command to launch after the exports made by the DCCs',
+    post_exports_command: {
+      description: 'Command to launch after the exports made by the DCCs',
+      info: 'You can insert variables in your command. You just have to put the choosen variable under curly brackets. They are listed below:',
+      exportsDirectory:
+        'exportsDirectory (String) : the directory path where the exports are made.',
+      exportFile:
+        'exportFile (String): the path of the file that will be exported.',
+      exportIsAnimation:
+        'exportIsAnimation (Boolean) : true if the export is an animation else false.',
+      exportIsScreenshot:
+        'exportIsScreenshot (Boolean) : true if the export is a screenshot else false.',
+      rendererSelected:
+        'rendererSelected (String) : the name of the renderer selected.',
+      extensionSelected:
+        'extensionSelected (String) : the name of the extension selected.'
+    },
     save: {
       button: 'Save changes'
     }

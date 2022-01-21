@@ -14,10 +14,74 @@
           v-model="form.DCCsExportsDirectory"
           :label="$t('publishersettings.dccs_exports_directory')"
         />
-        <text-field
-          v-model="form.PostExportsCommand"
-          :label="$t('publishersettings.post_exports_command')"
-        />
+        <div class="flexrow">
+          <text-field
+            v-model="form.PostExportsCommand"
+            class="textfieldwithbtn"
+            :label="$t('publishersettings.post_exports_command.description')"
+          />
+          <popper
+            hover
+            offsetDistance="auto"
+            placement="top"
+            offsetSkid="-250"
+            class="btnwithtextfield"
+          >
+            <button class="button is-link">
+              <span class="icon">
+                <icon name="info" :width="20" />
+              </span>
+            </button>
+            <template #content>
+              <span class="icon">
+                <icon name="info" :width="20" />
+              </span>
+              <p>
+                {{ $t('publishersettings.post_exports_command.info') }}
+              </p>
+              <ul>
+                <li>
+                  {{
+                    $t(
+                      'publishersettings.post_exports_command.exportsDirectory'
+                    )
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.exportFile') }}
+                </li>
+                <li>
+                  {{
+                    $t(
+                      'publishersettings.post_exports_command.exportIsAnimation'
+                    )
+                  }}
+                </li>
+                <li>
+                  {{
+                    $t(
+                      'publishersettings.post_exports_command.exportIsScreenshot'
+                    )
+                  }}
+                </li>
+                <li>
+                  {{
+                    $t(
+                      'publishersettings.post_exports_command.rendererSelected'
+                    )
+                  }}
+                </li>
+                <li>
+                  {{
+                    $t(
+                      'publishersettings.post_exports_command.extensionSelected'
+                    )
+                  }}
+                </li>
+              </ul>
+            </template>
+          </popper>
+        </div>
         <button
           :class="{
             button: true,
@@ -39,12 +103,16 @@
 import { mapGetters, mapActions } from 'vuex'
 
 import TextField from '@/components/widgets/TextField'
+import Icon from '@/components/widgets/Icon'
+import Popper from 'vue3-popper'
 
 export default {
   name: 'Settings',
 
   components: {
-    TextField
+    TextField,
+    Icon,
+    Popper
   },
 
   data() {
@@ -105,6 +173,13 @@ export default {
 .dark .settings {
   background: #36393f;
   color: $white-grey;
+  --popper-theme-background-color: #36393f;
+  --popper-theme-background-color-hover: #36393f;
+  --popper-theme-text-color: #fefefe;
+  --popper-theme-border-width: 1px;
+  --popper-theme-border-radius: 6px;
+  --popper-theme-padding: 20px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
 }
 
 .dark .settings-content {
@@ -117,11 +192,26 @@ export default {
   width: 100%;
   flex: 1 1 auto;
   height: 100%;
+  --popper-theme-background-color: #eee;
+  --popper-theme-background-color-hover: #eee;
+  --popper-theme-text-color: #202225;
+  --popper-theme-border-width: 1px;
+  --popper-theme-border-radius: 6px;
+  --popper-theme-padding: 20px;
+  --popper-theme-box-shadow: 0 6px 30px -6px rgba(0, 0, 0, 0.25);
+}
+
+.textfieldwithbtn {
+  flex: 0 0 90%;
+}
+
+.btnwithtextfield {
+  margin: auto;
 }
 
 .settings-content {
   background: white;
-  max-width: 500px;
+  max-width: 700px;
   margin: auto;
   margin-top: 6em;
   margin-bottom: 2em;
@@ -171,9 +261,6 @@ span.select {
 .settings-header,
 .settings-header a {
   color: white;
-}
-
-.settings-header .column {
 }
 
 h2 {
