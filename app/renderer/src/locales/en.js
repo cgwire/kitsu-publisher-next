@@ -746,7 +746,7 @@ export default {
       'Choose a directory for exports made by the DCCs',
     post_exports_command: {
       description: 'Command to launch after the exports made by the DCCs',
-      info: 'You can insert variables in your command. You just have to put the choosen variable under curly brackets. They are listed below:',
+      info: 'You can insert variables in your command. You just have to put the choosen variable under curly brackets (for example : {exportFile}). They are listed below:',
       exportsDirectory:
         'exportsDirectory (String) : the directory path where the exports are made.',
       exportFile:
@@ -755,6 +755,14 @@ export default {
         'exportIsAnimation (Boolean) : true if the export is an animation else false.',
       exportIsScreenshot:
         'exportIsScreenshot (Boolean) : true if the export is a screenshot else false.',
+      DCCName:
+        'DCCName (String) : the name of DCC.',
+      DCCVersion:
+        'DCCVersion (String) : the version of the DCC.',
+      currentProject:
+        'currentProject (String) : the path of the current project opened in the DCC.',
+      cameraSelected:
+        'cameraSelected (String) : the name of the camera selected.',
       rendererSelected:
         'rendererSelected (String) : the name of the renderer selected.',
       extensionSelected:
