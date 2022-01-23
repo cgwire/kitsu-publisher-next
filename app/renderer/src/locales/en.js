@@ -755,10 +755,8 @@ export default {
         'exportIsAnimation (Boolean) : true if the export is an animation else false.',
       exportIsScreenshot:
         'exportIsScreenshot (Boolean) : true if the export is a screenshot else false.',
-      DCCName:
-        'DCCName (String) : the name of DCC.',
-      DCCVersion:
-        'DCCVersion (String) : the version of the DCC.',
+      DCCName: 'DCCName (String) : the name of DCC.',
+      DCCVersion: 'DCCVersion (String) : the version of the DCC.',
       currentProject:
         'currentProject (String) : the path of the current project opened in the DCC.',
       cameraSelected:

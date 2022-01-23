@@ -49,9 +49,9 @@
               </span>
               <p>
                 {{
-                  $t(
-                    'publishersettings.post_exports_command.info', {exportFile: "{exportFile}"}
-                  )
+                  $t('publishersettings.post_exports_command.info', {
+                    exportFile: '{exportFile}'
+                  })
                 }}
               </p>
               <ul>
@@ -80,33 +80,21 @@
                   }}
                 </li>
                 <li>
+                  {{ $t('publishersettings.post_exports_command.DCCName') }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.DCCVersion') }}
+                </li>
+                <li>
                   {{
-                    $t(
-                      'publishersettings.post_exports_command.DCCName'
-                    )
+                    $t('publishersettings.post_exports_command.currentProject')
                   }}
                 </li>
                 <li>
                   {{
-                    $t(
-                      'publishersettings.post_exports_command.DCCVersion'
-                    )
+                    $t('publishersettings.post_exports_command.cameraSelected')
                   }}
                 </li>
-                <li>
-                  {{
-                    $t(
-                      'publishersettings.post_exports_command.currentProject'
-                    )
-                  }}
-                </li>
-                <li>
-                  {{
-                    $t(
-                      'publishersettings.post_exports_command.cameraSelected'
-                    )
-                  }}
-                </li>                                
                 <li>
                   {{
                     $t(

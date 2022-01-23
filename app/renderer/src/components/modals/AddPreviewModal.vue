@@ -382,10 +382,10 @@ export default {
           exportFile: data.file,
           exportIsAnimation: isAnimation,
           exportIsScreenshot: !isAnimation,
-          DCCName:DCCClient.DCCName,
-          DCCVersion:DCCClient.DCCVersion,
-          currentProject:DCCClient.currentProject,
-          cameraSelected:DCCClient.cameraSelected,
+          DCCName: DCCClient.DCCName,
+          DCCVersion: DCCClient.DCCVersion,
+          currentProject: DCCClient.currentProject,
+          cameraSelected: DCCClient.cameraSelected,
           rendererSelected: DCCClient.rendererSelected,
           extensionSelected: isAnimation
             ? DCCClient.videoExtensionSelected
