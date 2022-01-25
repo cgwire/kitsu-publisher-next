@@ -396,17 +396,41 @@ export default {
           .then((success, _) => {
             if (!success) {
               this.exportCommandOutput = null
+              const formData = new FormData()
+              const file = new File(
+                [window.electron.file.readFileSync(data.file)],
+                data.file,
+                { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+              )
+              formData.append('file', file, file.name)
+              this.forms = [formData]
+              this.$emit('fileselected', this.forms)
+              this.isCurrentlyOnTake = false
+            } else {
+              if (isAnimation) DCCClient.isCurrentlyOnTakeAnimation = true
+              else DCCClient.isCurrentlyOnTakeScreenshot = true
+              window.electron.ipcRenderer.on(
+                'commandOutput',
+                (_, commandOutput) => {
+                  this.exportCommandOutput = commandOutput
+                  this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
+                    this.exportCommandOutput.output
+                  )
+                  const formData = new FormData()
+                  const file = new File(
+                    [window.electron.file.readFileSync(data.file)],
+                    data.file,
+                    { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+                  )
+                  formData.append('file', file, file.name)
+                  this.forms = [formData]
+                  this.$emit('fileselected', this.forms)
+                  this.isCurrentlyOnTake = false
+                  if (isAnimation) DCCClient.isCurrentlyOnTakeAnimation = false
+                  else DCCClient.isCurrentlyOnTakeScreenshot = false
+                }
+              )
             }
-            const formData = new FormData()
-            const file = new File(
-              [window.electron.file.readFileSync(data.file)],
-              data.file,
-              { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
-            )
-            formData.append('file', file, file.name)
-            this.forms = [formData]
-            this.$emit('fileselected', this.forms)
-            this.isCurrentlyOnTake = false
           })
       })
     },
@@ -426,12 +450,6 @@ export default {
     this.forms = null
     this.refreshConnectedDCCClients()
     window.addEventListener('paste', this.onPaste, false)
-    window.electron.ipcRenderer.on('commandOutput', (_, commandOutput) => {
-      this.exportCommandOutput = commandOutput
-      this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
-        this.exportCommandOutput.output
-      )
-    })
   },
 
   beforeUnmount() {
