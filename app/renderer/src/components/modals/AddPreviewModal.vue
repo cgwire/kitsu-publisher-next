@@ -104,13 +104,13 @@
           v-if="exportCommandOutput && showOutputCommand"
           class="box content"
         >
-          {{ $t('tasks.command_launched') }}"{{
-            exportCommandOutput.command
-          }}"<br />
-          {{ $t('tasks.output') }}<br />
-          <pre v-html="exportCommandOutput.output" />
+          {{ $t('tasks.command_launched') }}
+          <pre><code v-html="exportCommandOutput.command" /></pre>
+          {{ $t('tasks.output') }}
+          <pre
+            style="max-height: 200px"
+          ><code v-html="exportCommandOutput.output" /></pre>
           {{ $t('tasks.return_code') }}{{ exportCommandOutput.statusCode }}
-          <br />
         </div>
 
         <div
@@ -495,5 +495,15 @@ export default {
 
 .upload-previews {
   text-align: center;
+}
+
+pre {
+  margin: 5px;
+  border: solid;
+  background-color: transparent;
+}
+
+pre code {
+  padding: 10px;
 }
 </style>
