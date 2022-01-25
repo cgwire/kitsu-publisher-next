@@ -107,9 +107,7 @@
           {{ $t('tasks.command_launched') }}
           <pre><code v-html="exportCommandOutput.command" /></pre>
           {{ $t('tasks.output') }}
-          <pre
-            style="max-height: 200px"
-          ><code v-html="exportCommandOutput.output" /></pre>
+          <pre><code v-html="exportCommandOutput.output" /></pre>
           {{ $t('tasks.return_code') }}{{ exportCommandOutput.statusCode }}
         </div>
 
@@ -505,5 +503,6 @@ pre {
 
 pre code {
   padding: 10px;
+  max-height: 200px;
 }
 </style>

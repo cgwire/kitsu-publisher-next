@@ -174,7 +174,7 @@ const createWindow = async () => {
         shell: true,
         encoding: 'buffer',
         windowsHide: true,
-        timeout: 60000, // TODO : make the timeout configurable
+        timeout: 60000 // TODO : make the timeout configurable
       })
       console.log(
         `Launch command "${command}" before importing to Kitsu Publisher.`
