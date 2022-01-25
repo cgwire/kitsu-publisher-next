@@ -629,7 +629,7 @@
     "publishersettings": {
       "title": "Paramètres",
       "dccs_exports_directory": "Dossier temporaire pour les exports des DCCs",
-      "choose_dccs_exports_directory": "Choose a directory for exports made by the DCCs",
+      "choose_dccs_exports_directory": "Choisissez un dossier pour les exports faits par les DCCs",
       "post_exports_command": {
         "description": "Commande à lancer après les exports des DCCs",
         "info": "Vous pouvez insérer des variables dans votre commande. Vous avez juste à les mettre entre des accolades (par exemple: {exportFile}). Elles sont listées ci-dessous :",
@@ -637,10 +637,10 @@
         "exportFile": "exportFile (String): le chemin vers le fichier qui sera exporté.",
         "exportIsAnimation": "exportIsAnimation (Boolean) : true si l'export est une animation sinon false.",
         "exportIsScreenshot": "exportIsScreenshot (Boolean) : true si l'export est un screenshot sinon false.",
-        "DCCName": "DCCName (String) : the name of DCC.",
-        "DCCVersion": "DCCVersion (String) : the version of the DCC.",
-        "currentProject": "currentProject (String) : the path of the current project opened in the DCC.",
-        "cameraSelected": "cameraSelected (String) : the name of the camera selected.",
+        "DCCName": "DCCName (String) : le nom du DCC.",
+        "DCCVersion": "DCCVersion (String) : la version du DCC.",
+        "currentProject": "currentProject (String) : le chemin du projet courant ouvert dans le DCC.",
+        "cameraSelected": "cameraSelected (String) : le nom de la caméra selectionnée.",
         "rendererSelected": "rendererSelected (String) : le nom du moteur de rendu selectionné.",
         "extensionSelected": "extensionSelected (String) : le nom de l'extension selectionnée."
       },
