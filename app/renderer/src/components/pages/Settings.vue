@@ -48,7 +48,11 @@
                 <icon name="info" :width="20" />
               </span>
               <p>
-                {{ $t('publishersettings.post_exports_command.info') }}
+                {{
+                  $t('publishersettings.post_exports_command.info', {
+                    exportFile: '{exportFile}'
+                  })
+                }}
               </p>
               <ul>
                 <li>
@@ -73,6 +77,22 @@
                     $t(
                       'publishersettings.post_exports_command.exportIsScreenshot'
                     )
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.DCCName') }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.DCCVersion') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.currentProject')
+                  }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.cameraSelected')
                   }}
                 </li>
                 <li>

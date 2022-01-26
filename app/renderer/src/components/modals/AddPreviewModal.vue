@@ -104,13 +104,11 @@
           v-if="exportCommandOutput && showOutputCommand"
           class="box content"
         >
-          {{ $t('tasks.command_launched') }}"{{
-            exportCommandOutput.command
-          }}"<br />
-          {{ $t('tasks.output') }}<br />
-          <pre v-html="exportCommandOutput.output" />
+          {{ $t('tasks.command_launched') }}
+          <pre><code v-html="exportCommandOutput.command" /></pre>
+          {{ $t('tasks.output') }}
+          <pre><code v-html="exportCommandOutput.output" /></pre>
           {{ $t('tasks.return_code') }}{{ exportCommandOutput.statusCode }}
-          <br />
         </div>
 
         <div
@@ -382,6 +380,10 @@ export default {
           exportFile: data.file,
           exportIsAnimation: isAnimation,
           exportIsScreenshot: !isAnimation,
+          DCCName: DCCClient.DCCName,
+          DCCVersion: DCCClient.DCCVersion,
+          currentProject: DCCClient.currentProject,
+          cameraSelected: DCCClient.cameraSelected,
           rendererSelected: DCCClient.rendererSelected,
           extensionSelected: isAnimation
             ? DCCClient.videoExtensionSelected
@@ -392,17 +394,41 @@ export default {
           .then((success, _) => {
             if (!success) {
               this.exportCommandOutput = null
+              const formData = new FormData()
+              const file = new File(
+                [window.electron.file.readFileSync(data.file)],
+                data.file,
+                { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+              )
+              formData.append('file', file, file.name)
+              this.forms = [formData]
+              this.$emit('fileselected', this.forms)
+              this.isCurrentlyOnTake = false
+            } else {
+              if (isAnimation) DCCClient.isCurrentlyOnTakeAnimation = true
+              else DCCClient.isCurrentlyOnTakeScreenshot = true
+              window.electron.ipcRenderer.on(
+                'commandOutput',
+                (_, commandOutput) => {
+                  this.exportCommandOutput = commandOutput
+                  this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
+                    this.exportCommandOutput.output
+                  )
+                  const formData = new FormData()
+                  const file = new File(
+                    [window.electron.file.readFileSync(data.file)],
+                    data.file,
+                    { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
+                  )
+                  formData.append('file', file, file.name)
+                  this.forms = [formData]
+                  this.$emit('fileselected', this.forms)
+                  this.isCurrentlyOnTake = false
+                  if (isAnimation) DCCClient.isCurrentlyOnTakeAnimation = false
+                  else DCCClient.isCurrentlyOnTakeScreenshot = false
+                }
+              )
             }
-            const formData = new FormData()
-            const file = new File(
-              [window.electron.file.readFileSync(data.file)],
-              data.file,
-              { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
-            )
-            formData.append('file', file, file.name)
-            this.forms = [formData]
-            this.$emit('fileselected', this.forms)
-            this.isCurrentlyOnTake = false
           })
       })
     },
@@ -422,12 +448,6 @@ export default {
     this.forms = null
     this.refreshConnectedDCCClients()
     window.addEventListener('paste', this.onPaste, false)
-    window.electron.ipcRenderer.on('commandOutput', (_, commandOutput) => {
-      this.exportCommandOutput = commandOutput
-      this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
-        this.exportCommandOutput.output
-      )
-    })
   },
 
   beforeUnmount() {
@@ -473,5 +493,16 @@ export default {
 
 .upload-previews {
   text-align: center;
+}
+
+pre {
+  margin: 5px;
+  border: solid;
+  background-color: transparent;
+}
+
+pre code {
+  padding: 10px;
+  max-height: 200px;
 }
 </style>

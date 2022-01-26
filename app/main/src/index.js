@@ -173,12 +173,12 @@ const createWindow = async () => {
       const commandSpawn = spawn(command, [], {
         shell: true,
         encoding: 'buffer',
-        windowsHide: true
+        windowsHide: true,
+        timeout: 60000 // TODO : make the timeout configurable
       })
       console.log(
         `Launch command "${command}" before importing to Kitsu Publisher.`
       )
-      console.log('Output :')
 
       const manageOutputData = (data, isStdout) => {
         var output
@@ -200,6 +200,7 @@ const createWindow = async () => {
       })
 
       commandSpawn.on('close', (statusCode) => {
+        console.log('Output :')
         console.log(commandOutput.output)
         console.log(`Command exited with status code ${statusCode}.`)
         commandOutput.statusCode = statusCode

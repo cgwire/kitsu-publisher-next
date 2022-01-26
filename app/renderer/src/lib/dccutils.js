@@ -1,5 +1,4 @@
 import apisauce from 'apisauce'
-import { data } from 'browserslist'
 
 class DCCClient {
   constructor(baseURL) {
