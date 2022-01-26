@@ -120,7 +120,7 @@ You need to download the connectors-{version}.zip archive in the [releases](http
 
 #### Blender (version>2.80)
 
-- You need to go inside the blender directory.
+- You need to go inside the connectors/blender directory.
 
 - On Windows (with PowerShell):
 
@@ -158,7 +158,7 @@ You need to download the connectors-{version}.zip archive in the [releases](http
 
 #### Toon Boom Harmony
 
-- You need to go inside the harmony directory.
+- You need to go inside the connectors/harmony directory.
 
 - On Windows (with PowerShell):
 

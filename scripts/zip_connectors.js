@@ -21,6 +21,6 @@ archive.on('error', function (err) {
 
 archive.pipe(output)
 
-archive.directory('./connectors', false)
+archive.directory('./connectors', 'connectors')
 
 archive.finalize()
