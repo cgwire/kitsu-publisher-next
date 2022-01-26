@@ -248,7 +248,6 @@ import files from '@/lib/files'
 import FileUpload from '@/components/widgets/FileUpload.vue'
 import Icon from '@/components/widgets/Icon'
 import DCCClient from '@/lib/dccutils'
-import formatUnicorn from 'format-unicorn/safe'
 import AnsiUp from 'ansi_up'
 
 export default {
@@ -375,22 +374,21 @@ export default {
             this.DCCsExportsDirectory
           )
       ).then((data) => {
-        const command = formatUnicorn(this.PostExportsCommand, {
-          exportsDirectory: this.DCCsExportsDirectory,
-          exportFile: data.file,
-          exportIsAnimation: isAnimation,
-          exportIsScreenshot: !isAnimation,
-          DCCName: DCCClient.DCCName,
-          DCCVersion: DCCClient.DCCVersion,
-          currentProject: DCCClient.currentProject,
-          cameraSelected: DCCClient.cameraSelected,
-          rendererSelected: DCCClient.rendererSelected,
-          extensionSelected: isAnimation
-            ? DCCClient.videoExtensionSelected
-            : DCCClient.imageExtensionSelected
-        })
         window.electron
-          .launchCommandBeforeExport(command)
+          .launchCommandBeforeExport(this.PostExportsCommand, {
+            exportsDirectory: this.DCCsExportsDirectory,
+            exportFile: data.file,
+            exportIsAnimation: isAnimation,
+            exportIsScreenshot: !isAnimation,
+            DCCName: DCCClient.DCCName,
+            DCCVersion: DCCClient.DCCVersion,
+            currentProject: DCCClient.currentProject,
+            cameraSelected: DCCClient.cameraSelected,
+            rendererSelected: DCCClient.rendererSelected,
+            extensionSelected: isAnimation
+              ? DCCClient.videoExtensionSelected
+              : DCCClient.imageExtensionSelected
+          })
           .then((success, _) => {
             if (!success) {
               this.exportCommandOutput = null

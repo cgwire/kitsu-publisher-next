@@ -632,7 +632,7 @@
       "choose_dccs_exports_directory": "Choisissez un dossier pour les exports faits par les DCCs",
       "post_exports_command": {
         "description": "Commande à lancer après les exports des DCCs",
-        "info": "Vous pouvez insérer des variables dans votre commande. Vous avez juste à les mettre entre des accolades (par exemple: {exportFile}). Elles sont listées ci-dessous :",
+        "info": "Vous pouvez insérer des variables dans votre commande. Vous avez juste à les mettre entre des accolades (par exemple: {exportFile}). Ces variables sont aussi dans les variables d'environnement lors de l'exécution. Elles sont listées ci-dessous :",
         "exportsDirectory": "exportsDirectory (String) : le chemin vers le dossier où les exports sont stockés.",
         "exportFile": "exportFile (String): le chemin vers le fichier qui sera exporté.",
         "exportIsAnimation": "exportIsAnimation (Boolean) : true si l'export est une animation sinon false.",

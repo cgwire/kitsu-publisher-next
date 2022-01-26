@@ -14,6 +14,7 @@ const colors = require('colors')
 const iconv = require('iconv-lite')
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
+const formatUnicorn = require('format-unicorn/safe')
 var codePage
 if (process.platform === 'win32') {
   codePage = require('win-codepage')
@@ -164,16 +165,18 @@ const createWindow = async () => {
     return store.get('main.isDarkTheme')
   })
 
-  ipcMain.handle('launch-command:post-exports', (event, command) => {
+  ipcMain.handle('launch-command:post-exports', (event, command, variables) => {
     if (command === '') {
       console.log('No command to launch before importing to Kitsu Publisher.')
       return false
     } else {
+      command = formatUnicorn(command, variables)
       const commandOutput = { output: '', command: command }
       const commandSpawn = spawn(command, [], {
         shell: true,
         encoding: 'buffer',
         windowsHide: true,
+        env: { ...process.env, ...variables },
         timeout: 60000 // TODO : make the timeout configurable
       })
       console.log(
