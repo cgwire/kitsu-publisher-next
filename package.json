@@ -1,6 +1,6 @@
 {
   "name": "kitsu-publisher",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Desktop publisher for Kitsu",
   "author": "CGWire <contact@cg-wire.com>",
   "repository": "https://github.com/cgwire/kitsu-publisher-next",
@@ -53,8 +53,7 @@
     "vue3-popper": "1.4.1",
     "vuex": "4.0.2",
     "vuex-router-sync": "6.0.0-rc.1",
-    "wavesurfer.js": "5.2.0",
-    "win-codepage": "1.0.0"
+    "wavesurfer.js": "5.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "2.1.0",

@@ -41,8 +41,8 @@ const api = {
   openDialog: (options) => {
     return ipcRenderer.invoke('open-dialog:show', options)
   },
-  launchCommandBeforeExport: (command) => {
-    return ipcRenderer.invoke('launch-command:post-exports', command)
+  launchCommandBeforeExport: (command, variables) => {
+    return ipcRenderer.invoke('launch-command:post-exports', command, variables)
   },
   toggleDarkTheme: () => {
     return ipcRenderer.invoke('dark-theme:toggle')

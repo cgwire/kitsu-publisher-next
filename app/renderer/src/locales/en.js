@@ -746,7 +746,7 @@ export default {
       'Choose a directory for exports made by the DCCs',
     post_exports_command: {
       description: 'Command to launch after the exports made by the DCCs',
-      info: 'You can insert variables in your command. You just have to put the choosen variable under curly brackets (for example : {exportFile}). They are listed below:',
+      info: 'You can insert variables in your command. You just have to put the choosen variable under curly brackets (for example : {exportFile}). These variables are also in the environment variables at runtime. They are listed below:',
       exportsDirectory:
         'exportsDirectory (String) : the directory path where the exports are made.',
       exportFile:

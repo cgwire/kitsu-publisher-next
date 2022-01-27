@@ -9,15 +9,12 @@ import {
 } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
-import { spawn } from 'child_process'
+import { spawn, exec } from 'child_process'
 const colors = require('colors')
 const iconv = require('iconv-lite')
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
-var codePage
-if (process.platform === 'win32') {
-  codePage = require('win-codepage')
-}
+const formatUnicorn = require('format-unicorn/safe')
 import { store, config } from './store'
 
 config.set('appVersion', app.getVersion())
@@ -155,8 +152,17 @@ const createWindow = async () => {
 
   await mainWindow.loadURL(pageUrl)
 
+  var codePage = undefined
   if (process.platform === 'win32') {
-    codePage = await codePage()
+    exec('chcp', (err, stdout, stderr) => {
+      if (stdout) {
+        try {
+          codePage = Number(stdout.split(':')[1])
+        } catch {
+          codePage = undefined
+        }        
+      }
+    })
   }
 
   ipcMain.handle('dark-theme:toggle', () => {
@@ -164,16 +170,18 @@ const createWindow = async () => {
     return store.get('main.isDarkTheme')
   })
 
-  ipcMain.handle('launch-command:post-exports', (event, command) => {
+  ipcMain.handle('launch-command:post-exports', (event, command, variables) => {
     if (command === '') {
       console.log('No command to launch before importing to Kitsu Publisher.')
       return false
     } else {
+      command = formatUnicorn(command, variables)
       const commandOutput = { output: '', command: command }
       const commandSpawn = spawn(command, [], {
         shell: true,
         encoding: 'buffer',
         windowsHide: true,
+        env: { ...process.env, ...variables },
         timeout: 60000 // TODO : make the timeout configurable
       })
       console.log(
@@ -182,7 +190,7 @@ const createWindow = async () => {
 
       const manageOutputData = (data, isStdout) => {
         var output
-        if (process.platform === 'win32') {
+        if (process.platform === 'win32' && codePage !== undefined) {
           // get Windows code page
           output = iconv.decode(data, `cp${codePage}`)
         } else {
