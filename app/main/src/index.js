@@ -9,16 +9,12 @@ import {
 } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
-import { spawn } from 'child_process'
+import { spawn, exec } from 'child_process'
 const colors = require('colors')
 const iconv = require('iconv-lite')
 const open = require('open')
 const windowStateKeeper = require('electron-window-state')
 const formatUnicorn = require('format-unicorn/safe')
-var codePage
-if (process.platform === 'win32') {
-  codePage = require('win-codepage')
-}
 import { store, config } from './store'
 
 config.set('appVersion', app.getVersion())
@@ -156,8 +152,17 @@ const createWindow = async () => {
 
   await mainWindow.loadURL(pageUrl)
 
+  var codePage = undefined
   if (process.platform === 'win32') {
-    codePage = await codePage()
+    exec('chcp', (err, stdout, stderr) => {
+      if (stdout) {
+        try {
+          codePage = Number(stdout.split(':')[1])
+        } catch {
+          codePage = undefined
+        }        
+      }
+    })
   }
 
   ipcMain.handle('dark-theme:toggle', () => {
@@ -185,7 +190,7 @@ const createWindow = async () => {
 
       const manageOutputData = (data, isStdout) => {
         var output
-        if (process.platform === 'win32') {
+        if (process.platform === 'win32' && codePage !== undefined) {
           // get Windows code page
           output = iconv.decode(data, `cp${codePage}`)
         } else {
