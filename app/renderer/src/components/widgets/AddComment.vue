@@ -11,10 +11,16 @@
     @dragover="onDragover"
     @dragleave="onDragleave"
   >
-    <figure v-if="!light" class="media-left">
+    <figure
+      v-if="!light"
+      class="media-left"
+    >
       <div class="level">
         <div class="level-left">
-          <people-avatar class="level-item" :person="user" />
+          <people-avatar
+            class="level-item"
+            :person="user"
+          />
         </div>
       </div>
     </figure>
@@ -40,7 +46,10 @@
         @remove-task="removeTask"
       />
       <div class="flexrow preview-section">
-        <button class="button flexrow-item" @click="$emit('add-preview')">
+        <button
+          class="button flexrow-item"
+          @click="$emit('add-preview')"
+        >
           {{ $t('comments.add_preview') }}
         </button>
         <span class="attachment-file flexrow-item">
@@ -91,7 +100,10 @@
           {{ $t('comments.post_status') }}
         </button>
       </group-button>
-      <div v-if="isError" class="error pull-right">
+      <div
+        v-if="isError"
+        class="error pull-right"
+      >
         <em>{{ $t('comments.error') }}</em>
       </div>
     </div>
@@ -210,7 +222,7 @@ export default {
   },
 
   mounted() {
-    ;[
+    [
       'drag',
       'dragstart',
       'dragend',

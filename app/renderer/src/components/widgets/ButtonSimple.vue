@@ -10,7 +10,11 @@
     }"
     :title="title"
   >
-    <icon v-if="name && name !== ''" :class="iconClass" :name="name" />
+    <icon
+      v-if="name && name !== ''"
+      :class="iconClass"
+      :name="name"
+    />
     <span
       v-if="isText"
       :class="{

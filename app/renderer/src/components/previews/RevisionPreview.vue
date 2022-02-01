@@ -1,6 +1,9 @@
 <template>
   <div class="wrapper flexrow">
-    <drag :transfer-data="index" @drag="onDragged">
+    <drag
+      :transfer-data="index"
+      @drag="onDragged"
+    >
       <div
         :class="{
           'flerow-item': true,
@@ -15,11 +18,17 @@
           height="103px"
           :preview-file-id="previewFile.id"
         />
-        <span v-else :title="originalName"> .{{ previewFile.extension }} </span>
+        <span
+          v-else
+          :title="originalName"
+        > .{{ previewFile.extension }} </span>
       </div>
     </drag>
     <drop @drop="onDropped">
-      <div ref="drop-area" class="drop-area flexrow-item" />
+      <div
+        ref="drop-area"
+        class="drop-area flexrow-item"
+      />
     </drop>
   </div>
 </template>

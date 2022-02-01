@@ -1,5 +1,8 @@
 <template>
-  <div ref="playlist-annotation" class="annotation-bar">
+  <div
+    ref="playlist-annotation"
+    class="annotation-bar"
+  >
     <span
       v-for="(annotation, index) in annotations"
       :key="`annotation-${index}`"

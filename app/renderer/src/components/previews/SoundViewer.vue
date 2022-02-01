@@ -6,10 +6,16 @@
       width: '100%'
     }"
   >
-    <div v-show="isLoading" class="loading">
+    <div
+      v-show="isLoading"
+      class="loading"
+    >
       <spinner />
     </div>
-    <div v-show="!isLoading" class="file-name">
+    <div
+      v-show="!isLoading"
+      class="file-name"
+    >
       {{ fileName }}
     </div>
     <div id="waveform" />

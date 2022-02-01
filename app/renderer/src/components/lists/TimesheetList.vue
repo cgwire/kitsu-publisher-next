@@ -22,7 +22,10 @@
       />
     </div>
 
-    <div ref="body" class="datatable-wrapper">
+    <div
+      ref="body"
+      class="datatable-wrapper"
+    >
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
@@ -48,12 +51,18 @@
             >
               {{ $t('tasks.fields.entity') }}
             </th>
-            <th scope="col" class="time-spent">
+            <th
+              scope="col"
+              class="time-spent"
+            >
               {{ $t('timesheets.time_spents') }}
             </th>
           </tr>
         </thead>
-        <tbody v-if="tasks.length > 0 && !isLoading" class="datatable-body">
+        <tbody
+          v-if="tasks.length > 0 && !isLoading"
+          class="datatable-body"
+        >
           <tr
             v-for="(task, i) in displayedTasks"
             :key="task.id + '-' + i"
@@ -104,9 +113,18 @@
             <td v-else />
           </tr>
         </tbody>
-        <tbody v-if="!isLoading && !hideDone" class="datatable-body">
-          <tr v-if="!hideDone" class="datatable-type-header">
-            <th colspan="4" scope="rowgroup">
+        <tbody
+          v-if="!isLoading && !hideDone"
+          class="datatable-body"
+        >
+          <tr
+            v-if="!hideDone"
+            class="datatable-type-header"
+          >
+            <th
+              colspan="4"
+              scope="rowgroup"
+            >
               <div class="datatable-row-header">
                 <page-subtitle :text="$t('timesheets.done_tasks')" />
               </div>
@@ -159,9 +177,15 @@
       </table>
     </div>
 
-    <table-info :is-loading="isLoading" :is-error="isError" />
+    <table-info
+      :is-loading="isLoading"
+      :is-error="isError"
+    />
 
-    <p v-if="!isLoading" class="has-text-centered footer-info mt1">
+    <p
+      v-if="!isLoading"
+      class="has-text-centered footer-info mt1"
+    >
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
 

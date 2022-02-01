@@ -1,7 +1,10 @@
 <template>
   <div class="data-list">
     <div style="overflow: hidden">
-      <table ref="headerWrapper" class="datatable">
+      <table
+        ref="headerWrapper"
+        class="datatable"
+      >
         <thead class="datatable-head">
           <tr class="datatable-row-header">
             <th class="type">
@@ -28,7 +31,10 @@
       </table>
     </div>
 
-    <table-info :is-loading="isLoading" :is-error="isError" />
+    <table-info
+      :is-loading="isLoading"
+      :is-error="isError"
+    />
 
     <div v-if="entries.length > 0">
       <table class="datatable">

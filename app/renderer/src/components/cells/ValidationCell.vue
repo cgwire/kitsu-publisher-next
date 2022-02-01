@@ -14,7 +14,10 @@
     @mouseout="onMouseOut"
     @click="onClick"
   >
-    <div v-if="!minimized" class="wrapper">
+    <div
+      v-if="!minimized"
+      class="wrapper"
+    >
       <span v-if="task">
         <span
           class="tag"
@@ -26,7 +29,10 @@
         >
           {{ taskStatus.short_name }}
         </span>
-        <span v-if="!isCurrentUserClient" class="priority">
+        <span
+          v-if="!isCurrentUserClient"
+          class="priority"
+        >
           {{ priority }}
         </span>
         <span
@@ -34,7 +40,10 @@
           class="casting-status"
           :title="castingTitle"
         >
-          <img src="@/assets/icons/casting-ready.png" width="20" />
+          <img
+            src="@/assets/icons/casting-ready.png"
+            width="20"
+          >
         </span>
         <span
           v-else-if="!isCurrentUserClient"
@@ -64,13 +73,16 @@
           v-lazy="avatarPath(personId)"
           width="20"
           height="20"
-        />
+        >
         <span v-else>
           {{ personMap.get(personId).initials }}
         </span>
       </span>
     </div>
-    <div v-else class="wrapper">
+    <div
+      v-else
+      class="wrapper"
+    >
       <span
         class="tag"
         :style="{

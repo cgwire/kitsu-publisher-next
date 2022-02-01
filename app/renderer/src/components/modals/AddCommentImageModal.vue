@@ -5,7 +5,10 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box content">
@@ -24,12 +27,25 @@
           :multiple="true"
           @fileselected="onFileSelected"
         />
-        <p v-if="isError" class="error">$t('main.add')</p>
+        <p
+          v-if="isError"
+          class="error"
+        >
+          $t('main.add')
+        </p>
 
-        <p v-if="isMovie" class="mt1">Or:</p>
+        <p
+          v-if="isMovie"
+          class="mt1"
+        >
+          Or:
+        </p>
 
         <p v-if="isMovie">
-          <button class="button" @click="$emit('add-snapshots')">
+          <button
+            class="button"
+            @click="$emit('add-snapshots')"
+          >
             {{ $t('main.attach_snapshots') }}
           </button>
         </p>
@@ -46,15 +62,28 @@
           >
             {{ $t('main.confirmation') }}
           </a>
-          <button class="button is-link" @click="$emit('cancel')">
+          <button
+            class="button is-link"
+            @click="$emit('cancel')"
+          >
             {{ $t('main.cancel') }}
           </button>
         </p>
 
-        <p v-if="forms" class="upload-previews">
-          <template v-for="(form, i) in forms" :key="'separator-' + i">
-            <hr />
-            <img v-if="isImage(form)" alt="uploaded file" :src="getURL(form)" />
+        <p
+          v-if="forms"
+          class="upload-previews"
+        >
+          <template
+            v-for="(form, i) in forms"
+            :key="'separator-' + i"
+          >
+            <hr>
+            <img
+              v-if="isImage(form)"
+              alt="uploaded file"
+              :src="getURL(form)"
+            >
             <video
               v-else-if="isVideo(form)"
               class="is-fullwidth"

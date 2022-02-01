@@ -21,7 +21,11 @@
         :title="shade"
         :style="{ color: shade }"
       >
-        <input type="radio" :value="shade" @click="onColorPicked(shade)" />
+        <input
+          type="radio"
+          :value="shade"
+          @click="onColorPicked(shade)"
+        >
       </label>
     </div>
   </div>

@@ -1,5 +1,9 @@
 <template>
-  <td class="description-cell" @keyup.esc="onClick" @click="onClick">
+  <td
+    class="description-cell"
+    @keyup.esc="onClick"
+    @click="onClick"
+  >
     <template v-if="full">
       <div
         class="description-shorten-text"
@@ -7,7 +11,10 @@
       />
     </template>
     <template v-else>
-      <div v-if="isOpen" class="c-mask" />
+      <div
+        v-if="isOpen"
+        class="c-mask"
+      />
       <span
         class="description-shorten-text selectable"
         v-html="compileMarkdown(shortenText(entry.description || '', 20))"

@@ -9,7 +9,10 @@
         :font-size="14"
         :person="task.last_comment.person"
       />
-      <span v-else class="no-avatar"> &nbsp; </span>
+      <span
+        v-else
+        class="no-avatar"
+      > &nbsp; </span>
 
       <span
         v-if="commentText && commentText.length > 0"

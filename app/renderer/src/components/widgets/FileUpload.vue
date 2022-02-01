@@ -6,7 +6,10 @@
     @dragover="onDragover"
     @dragleave="onDragleave"
   >
-    <form enctype="multipart/form-data" novalidate>
+    <form
+      enctype="multipart/form-data"
+      novalidate
+    >
       <div class="dropbox">
         <label
           :class="{
@@ -24,12 +27,18 @@
             :disabled="isSaving || disabled"
             :multiple="multiple"
             @change="filesChange($event.target.name, $event.target.files)"
-          />
+          >
         </label>
-        <span v-if="uploadedFiles.length > 1" class="file-upload-status">
+        <span
+          v-if="uploadedFiles.length > 1"
+          class="file-upload-status"
+        >
           {{ uploadedFiles.length }} {{ $tc('main.files_selected') }}
         </span>
-        <span v-if="uploadedFiles.length === 1" class="file-upload-status">
+        <span
+          v-if="uploadedFiles.length === 1"
+          class="file-upload-status"
+        >
           {{ uploadedFiles[0] }}
         </span>
       </div>

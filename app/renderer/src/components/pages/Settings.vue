@@ -21,7 +21,10 @@
             @click="openExplorerExportsDirectory()"
           >
             <span class="icon">
-              <icon name="folder" :width="20" />
+              <icon
+                name="folder"
+                :width="20"
+              />
             </span>
           </button>
         </div>
@@ -40,12 +43,18 @@
           >
             <button class="button is-link">
               <span class="icon">
-                <icon name="info" :width="20" />
+                <icon
+                  name="info"
+                  :width="20"
+                />
               </span>
             </button>
             <template #content>
               <span class="icon">
-                <icon name="info" :width="20" />
+                <icon
+                  name="info"
+                  :width="20"
+                />
               </span>
               <p>
                 {{

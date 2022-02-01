@@ -20,7 +20,10 @@
       >
         {{ taskStatus.short_name }}
       </span>
-      <span v-if="isPriority && !isCurrentUserClient" class="priority">
+      <span
+        v-if="isPriority && !isCurrentUserClient"
+        class="priority"
+      >
         {{ priority }}
       </span>
     </span>
@@ -34,7 +37,11 @@
       >
         &nbsp;
       </router-link>
-      <span v-else class="tag" :style="cursor"> &nbsp; </span>
+      <span
+        v-else
+        class="tag"
+        :style="cursor"
+      > &nbsp; </span>
     </span>
   </span>
 </template>

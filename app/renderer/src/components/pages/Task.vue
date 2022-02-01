@@ -2,7 +2,10 @@
   <div class="fixed-page columns">
     <div class="page column main-column">
       <div class="page-header">
-        <div v-if="currentTask" class="flexrow header-title">
+        <div
+          v-if="currentTask"
+          class="flexrow header-title"
+        >
           <router-link
             :to="entityPage"
             class="flexrow-item has-text-centered back-link"
@@ -28,7 +31,10 @@
           />
         </div>
 
-        <div v-if="currentTask" class="flexrow task-information">
+        <div
+          v-if="currentTask"
+          class="flexrow task-information"
+        >
           <span class="flexrow-item">{{ $t('tasks.current_status') }}</span>
           <validation-tag
             v-if="currentTask"
@@ -53,7 +59,10 @@
         </div>
       </div>
 
-      <div ref="task-columns" class="task-columns">
+      <div
+        ref="task-columns"
+        class="task-columns"
+      >
         <div class="task-column comments-column">
           <div v-if="currentTask">
             <div>
@@ -90,7 +99,7 @@
                   :current-user="user"
                   :editable="
                     (comment.person && user.id === comment.person.id) ||
-                    isCurrentUserAdmin
+                      isCurrentUserAdmin
                   "
                   :is-first="index === 0"
                   :is-last="index === pinnedCount"
@@ -103,7 +112,10 @@
                   @time-code-clicked="timeCodeClicked"
                 />
               </div>
-              <div v-else class="no-comment">
+              <div
+                v-else
+                class="no-comment"
+              >
                 <em>
                   {{ $t('tasks.no_comment') }}
                 </em>
@@ -111,7 +123,10 @@
             </div>
           </div>
 
-          <div v-else class="has-text-centered">
+          <div
+            v-else
+            class="has-text-centered"
+          >
             <spinner />
           </div>
         </div>
@@ -135,20 +150,26 @@
                   }"
                   @click="setPreview"
                 >
-                  <icon name="image" class="icon" />
+                  <icon
+                    name="image"
+                    class="icon"
+                  />
                   <span class="text">
                     {{ $t('tasks.set_preview') }}
                   </span>
                 </button>
-                <span v-if="errors.setPreview" class="error flexrow-item">
+                <span
+                  v-if="errors.setPreview"
+                  class="error flexrow-item"
+                >
                   {{ $t('tasks.set_preview_error') }}
                 </span>
               </div>
               <div
                 v-if="
                   currentTask &&
-                  currentTask.entity &&
-                  currentTask.entity.preview_file_id === currentPreviewId
+                    currentTask.entity &&
+                    currentTask.entity.preview_file_id === currentPreviewId
                 "
                 class="set-main-preview flexrow-item pull-right"
               >
@@ -156,7 +177,10 @@
               </div>
             </div>
 
-            <div v-if="isPreviews" class="preview-list mt2">
+            <div
+              v-if="isPreviews"
+              class="preview-list mt2"
+            >
               <preview-row
                 v-for="preview in currentTaskPreviews"
                 :key="preview.id"
@@ -195,7 +219,10 @@
           <div class="flexrow-item task-information">
             <page-subtitle :text="$t('main.info')" />
             <div class="table-body mt1">
-              <table v-if="currentTask" class="datatable">
+              <table
+                v-if="currentTask"
+                class="datatable"
+              >
                 <tbody class="table-body">
                   <tr class="datatable-row">
                     <td class="field-label">

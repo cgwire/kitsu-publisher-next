@@ -3,8 +3,10 @@
     <div class="container has-text-centered">
       <div class="box has-text-left">
         <div class="has-text-centered login-header">
-          <img src="@/assets/kitsu.png" />
-          <h1 class="title">Kitsu Publisher</h1>
+          <img src="@/assets/kitsu.png">
+          <h1 class="title">
+            Kitsu Publisher
+          </h1>
         </div>
         <form>
           <div class="field mt1">
@@ -17,9 +19,12 @@
                 :placeholder="$t('login.fields.server')"
                 @input="updateServer"
                 @keyup.enter="confirmLogIn"
-              />
+              >
               <span class="icon">
-                <icon name="server" :width="20" />
+                <icon
+                  name="server"
+                  :width="20"
+                />
               </span>
             </p>
           </div>
@@ -32,9 +37,12 @@
                 :placeholder="$t('login.fields.email')"
                 @input="updateEmail"
                 @keyup.enter="confirmLogIn"
-              />
+              >
               <span class="icon">
-                <icon name="mail" :width="20" />
+                <icon
+                  name="mail"
+                  :width="20"
+                />
               </span>
             </p>
           </div>
@@ -47,9 +55,12 @@
                 :placeholder="$t('login.fields.password')"
                 @input="updatePassword"
                 @keyup.enter="confirmLogIn"
-              />
+              >
               <span class="icon">
-                <icon name="lock" :width="20" />
+                <icon
+                  name="lock"
+                  :width="20"
+                />
               </span>
             </p>
           </div>
@@ -67,10 +78,16 @@
             {{ $t('login.login') }}
           </a>
         </p>
-        <p v-show="isLoginError" class="control error">
+        <p
+          v-show="isLoginError"
+          class="control error"
+        >
           {{ $t('login.login_failed') }}
         </p>
-        <p v-show="isServerError" class="control error">
+        <p
+          v-show="isServerError"
+          class="control error"
+        >
           {{ $t('login.server_error') }}
         </p>
         <p class="has-text-centered">

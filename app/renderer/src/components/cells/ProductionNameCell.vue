@@ -45,10 +45,13 @@
           {{ generateAvatar(entry) }}
         </span>
         <span v-else>
-          <img :src="getThumbnailPath(entry)" />
+          <img :src="getThumbnailPath(entry)">
         </span>
       </div>
-      <span v-if="!onlyAvatar" class="flexrow-item">
+      <span
+        v-if="!onlyAvatar"
+        class="flexrow-item"
+      >
         {{ entry.name }}
       </span>
     </div>

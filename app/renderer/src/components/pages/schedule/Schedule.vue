@@ -1,7 +1,14 @@
 <template>
   <div class="schedule-wrapper">
-    <div ref="schedule" :class="scheduleClass">
-      <div ref="entity-list" class="entities" @mousedown="startBrowsingY">
+    <div
+      ref="schedule"
+      :class="scheduleClass"
+    >
+      <div
+        ref="entity-list"
+        class="entities"
+        @mousedown="startBrowsingY"
+      >
         <div
           class="has-text-right total-man-days mr0"
           :class="{
@@ -11,7 +18,10 @@
             'without-milestones': !withMilestones
           }"
         >
-          <span v-show="!hideManDays" class="total-value">
+          <span
+            v-show="!hideManDays"
+            class="total-value"
+          >
             {{ formatDuration(totalManDays) }} {{ $t('schedule.md') }}
           </span>
         </div>
@@ -41,10 +51,19 @@
                 class="expand flexrow-item mr1"
                 @click="expandRootElement(rootElement)"
               >
-                <icon v-if="!rootElement.expanded" name="chevron-right" />
-                <icon v-else name="chevron-down" />
+                <icon
+                  v-if="!rootElement.expanded"
+                  name="chevron-right"
+                />
+                <icon
+                  v-else
+                  name="chevron-down"
+                />
               </span>
-              <span v-if="rootElement.avatar" class="avatar flexrow-item">
+              <span
+                v-if="rootElement.avatar"
+                class="avatar flexrow-item"
+              >
                 <production-name
                   v-if="rootElement.type === 'Project'"
                   :production="rootElement"
@@ -87,7 +106,7 @@
                     item: rootElement
                   })
                 "
-              />
+              >
               <span
                 v-if="
                   !rootElement.avatar && rootElement.editable && !hideManDays
@@ -111,7 +130,10 @@
               class="children"
               :style="childrenStyle(rootElement)"
             >
-              <div v-if="rootElement.loading" class="flexrow">
+              <div
+                v-if="rootElement.loading"
+                class="flexrow"
+              >
                 <spinner
                   style="width: 20px; margin: 0 0 10px 10px"
                   class="child-spinner flexrow-item"
@@ -133,7 +155,10 @@
                   >
                     {{ childElement.name }}
                   </router-link>
-                  <span v-else class="filler flexrow-item">
+                  <span
+                    v-else
+                    class="filler flexrow-item"
+                  >
                     {{ childElement.name }}
                   </span>
                   <span
@@ -155,10 +180,13 @@
                           rootElement
                         )
                       "
-                    />
+                    >
                     {{ $t('schedule.md') }}
                   </span>
-                  <span v-else class="man-days-unit flexrow-item">
+                  <span
+                    v-else
+                    class="man-days-unit flexrow-item"
+                  >
                     {{ childElement.man_days }}
                     {{ $t('schedule.md') }}
                   </span>
@@ -187,7 +215,10 @@
               class="milestone"
               @click="showEditMilestoneModal(day, currentMilestones[day.text])"
             >
-              <div class="milestone-tooltip" :style="milestoneTooltipStyle">
+              <div
+                class="milestone-tooltip"
+                :style="milestoneTooltipStyle"
+              >
                 <span>
                   {{ currentMilestones[day.text].name }}
                 </span>
@@ -196,7 +227,10 @@
                 <span class="bull">&bull;</span>
               </div>
             </div>
-            <div v-else-if="withMilestones" class="milestone">
+            <div
+              v-else-if="withMilestones"
+              class="milestone"
+            >
               <div>
                 <span class="bull">&nbsp;</span>
               </div>
@@ -218,7 +252,10 @@
                 <span>+</span>
               </div>
               <div class="date-name">
-                <span v-if="day.newMonth" class="month-name">
+                <span
+                  v-if="day.newMonth"
+                  class="month-name"
+                >
                   {{ day.monthText }}
                 </span>
                 <div :class="dayClass(day, index)">
@@ -257,7 +294,10 @@
               }"
             >
               <div class="date-name">
-                <span v-if="week.newMonth" class="month-name">
+                <span
+                  v-if="week.newMonth"
+                  class="month-name"
+                >
                   {{ week.monthText }}
                 </span>
                 <div :class="dayClass(week, index)">
@@ -312,15 +352,18 @@
                   class="timebar-wrapper"
                   :title="
                     rootElement.name +
-                    ' (' +
-                    rootElement.startDate.format('DD-MM') +
-                    ' - ' +
-                    rootElement.endDate.format('DD-MM') +
-                    ')'
+                      ' (' +
+                      rootElement.startDate.format('DD-MM') +
+                      ' - ' +
+                      rootElement.endDate.format('DD-MM') +
+                      ')'
                   "
                   :style="timebarStyle(rootElement, true)"
                 >
-                  <div v-show="isVisible(rootElement)" class="timebar">
+                  <div
+                    v-show="isVisible(rootElement)"
+                    class="timebar"
+                  >
                     <div
                       :class="{
                         'timebar-left-hand':
@@ -348,7 +391,10 @@
                 class="children"
                 :style="childrenStyle(rootElement)"
               >
-                <div v-if="rootElement.loading" class="flexrow">
+                <div
+                  v-if="rootElement.loading"
+                  class="flexrow"
+                >
                   <spinner
                     style="width: 20px; margin: 0 0 10px 10px; opacity: 0"
                     class="child-spinner flexrow-item"
@@ -365,11 +411,11 @@
                     class="timebar"
                     :title="
                       childElement.name +
-                      ' (' +
-                      childElement.startDate.format('DD-MM') +
-                      ' - ' +
-                      childElement.endDate.format('DD-MM') +
-                      ')'
+                        ' (' +
+                        childElement.startDate.format('DD-MM') +
+                        ' - ' +
+                        childElement.endDate.format('DD-MM') +
+                        ')'
                     "
                     :style="timebarChildStyle(childElement, rootElement, true)"
                   >

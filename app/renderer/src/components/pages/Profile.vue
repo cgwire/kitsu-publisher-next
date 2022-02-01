@@ -45,14 +45,20 @@
           :label="$t('people.fields.email')"
           :disabled="isLdap"
         />
-        <text-field v-model="form.phone" :label="$t('people.fields.phone')" />
+        <text-field
+          v-model="form.phone"
+          :label="$t('people.fields.phone')"
+        />
         <div class="field">
           <label class="label">
             {{ $t('profile.timezone') }}
           </label>
           <span class="select is-medium">
             <select v-model="form.timezone">
-              <option v-for="timezone in timezones" :key="timezone">
+              <option
+                v-for="timezone in timezones"
+                :key="timezone"
+              >
                 {{ timezone }}
               </option>
             </select>

@@ -95,7 +95,9 @@
           @scroll="setTodoListScrollPosition"
         />
 
-        <div v-if="isTabActive('done')">&nbsp;</div>
+        <div v-if="isTabActive('done')">
+&nbsp;
+        </div>
         <todos-list
           v-if="isTabActive('done')"
           ref="done-list"
@@ -125,7 +127,10 @@
       </div>
     </div>
 
-    <div v-if="nbSelectedTasks === 1" class="column side-column">
+    <div
+      v-if="nbSelectedTasks === 1"
+      class="column side-column"
+    >
       <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>

@@ -1,14 +1,44 @@
 <template>
-  <div :style="styles" class="spinner spinner--square-grid">
-    <div :style="cubeStyles" class="sk-cube sk-cube1" />
-    <div :style="cubeStyles" class="sk-cube sk-cube2" />
-    <div :style="cubeStyles" class="sk-cube sk-cube3" />
-    <div :style="cubeStyles" class="sk-cube sk-cube4" />
-    <div :style="cubeStyles" class="sk-cube sk-cube5" />
-    <div :style="cubeStyles" class="sk-cube sk-cube6" />
-    <div :style="cubeStyles" class="sk-cube sk-cube7" />
-    <div :style="cubeStyles" class="sk-cube sk-cube8" />
-    <div :style="cubeStyles" class="sk-cube sk-cube9" />
+  <div
+    :style="styles"
+    class="spinner spinner--square-grid"
+  >
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube1"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube2"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube3"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube4"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube5"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube6"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube7"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube8"
+    />
+    <div
+      :style="cubeStyles"
+      class="sk-cube sk-cube9"
+    />
   </div>
 </template>
 

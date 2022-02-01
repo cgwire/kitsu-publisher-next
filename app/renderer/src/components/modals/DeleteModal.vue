@@ -6,14 +6,20 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box">
         <p class="text">
           {{ text }}
         </p>
-        <p v-if="isError" class="is-danger">
+        <p
+          v-if="isError"
+          class="is-danger"
+        >
           {{ errorText }}
         </p>
         <p class="has-text-right">
@@ -27,7 +33,10 @@
           >
             {{ $t('main.confirmation') }}
           </a>
-          <button class="button is-link" @click="$emit('cancel')">
+          <button
+            class="button is-link"
+            @click="$emit('cancel')"
+          >
             {{ $t('main.cancel') }}
           </button>
         </p>

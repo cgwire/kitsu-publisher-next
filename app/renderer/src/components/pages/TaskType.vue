@@ -1,13 +1,25 @@
 <template>
   <div class="task-type columns fixed-page">
     <div class="column main-column">
-      <div ref="page" class="task-type page">
-        <div ref="header" class="task-type-header page-header flexrow-item">
+      <div
+        ref="page"
+        class="task-type page"
+      >
+        <div
+          ref="header"
+          class="task-type-header page-header flexrow-item"
+        >
           <div class="flexcolumn-item flexrow">
-            <router-link class="back-link flexrow-item" :to="backPath">
+            <router-link
+              class="back-link flexrow-item"
+              :to="backPath"
+            >
               <icon name="chevron-left" />
             </router-link>
-            <task-type-name class="flexrow-item" :task-type="currentTaskType" />
+            <task-type-name
+              class="flexrow-item"
+              :task-type="currentTaskType"
+            />
             <div class="filler" />
             <div class="flexrow-item">
               <button-simple
@@ -51,7 +63,10 @@
               />
             </div>
             <div class="filler" />
-            <div v-if="isActiveTab('tasks')" class="flexrow-item">
+            <div
+              v-if="isActiveTab('tasks')"
+              class="flexrow-item"
+            >
               <combobox
                 v-model="currentSort"
                 :label="$t('main.sorted_by')"
@@ -99,7 +114,10 @@
                 locale-key-prefix="tasks.colors."
               />
             </div>
-            <div v-if="isActiveTab('schedule')" class="flexrow-item zoom-level">
+            <div
+              v-if="isActiveTab('schedule')"
+              class="flexrow-item zoom-level"
+            >
               <combobox-number
                 v-if="isActiveTab('schedule')"
                 v-model="schedule.zoomLevel"
@@ -161,7 +179,10 @@
       </div>
     </div>
 
-    <div v-if="nbSelectedTasks === 1" class="column side-column">
+    <div
+      v-if="nbSelectedTasks === 1"
+      class="column side-column"
+    >
       <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>

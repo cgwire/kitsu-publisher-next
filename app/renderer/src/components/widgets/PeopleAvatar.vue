@@ -21,8 +21,15 @@
       :title="person.full_name"
       class="avatar-link"
     >
-      <img v-if="person.has_avatar && noCache" :src="avatarPath" />
-      <img v-else-if="person.has_avatar" :key="avatarKey" v-lazy="avatarPath" />
+      <img
+        v-if="person.has_avatar && noCache"
+        :src="avatarPath"
+      >
+      <img
+        v-else-if="person.has_avatar"
+        :key="avatarKey"
+        v-lazy="avatarPath"
+      >
       <span v-if="!person.has_avatar">
         {{ initials }}
       </span>
@@ -40,8 +47,15 @@
       'font-size': fontSize + 'px'
     }"
   >
-    <img v-if="person.has_avatar && noCache" :src="avatarPath" />
-    <img v-else-if="person.has_avatar" :key="avatarKey" v-lazy="avatarPath" />
+    <img
+      v-if="person.has_avatar && noCache"
+      :src="avatarPath"
+    >
+    <img
+      v-else-if="person.has_avatar"
+      :key="avatarKey"
+      v-lazy="avatarPath"
+    >
     <span v-else>
       {{ initials }}
     </span>

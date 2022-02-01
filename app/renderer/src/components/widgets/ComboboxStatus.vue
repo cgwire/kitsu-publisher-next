@@ -5,11 +5,17 @@
       'field--narrow': narrow
     }"
   >
-    <label v-if="label.length > 0" class="label">
+    <label
+      v-if="label.length > 0"
+      class="label"
+    >
       {{ label }}
     </label>
     <div class="status-combo">
-      <div class="flexrow" @click="toggleStatusList">
+      <div
+        class="flexrow"
+        @click="toggleStatusList"
+      >
         <div class="selected-status-line flexrow-item">
           <span
             v-if="currentStatus"
@@ -22,9 +28,16 @@
             {{ currentStatus.short_name }}
           </span>
         </div>
-        <icon name="chevron-down" class="down-icon flexrow-item" />
+        <icon
+          name="chevron-down"
+          class="down-icon flexrow-item"
+        />
       </div>
-      <div v-if="showStatusList" ref="select" class="select-input">
+      <div
+        v-if="showStatusList"
+        ref="select"
+        class="select-input"
+      >
         <div
           v-for="status in taskStatusList"
           :key="status.id"
@@ -43,7 +56,10 @@
         </div>
       </div>
     </div>
-    <combobox-mask :displayed="showStatusList" @click="toggleStatusList" />
+    <combobox-mask
+      :displayed="showStatusList"
+      @click="toggleStatusList"
+    />
   </div>
 </template>
 

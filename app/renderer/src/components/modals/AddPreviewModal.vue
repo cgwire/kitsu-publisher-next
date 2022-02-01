@@ -6,14 +6,23 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box content">
-        <h1 v-if="isEditing" class="title">
+        <h1
+          v-if="isEditing"
+          class="title"
+        >
           {{ $t('tasks.change_preview') }}
         </h1>
-        <h1 v-else class="title">
+        <h1
+          v-else
+          class="title"
+        >
           {{ $t('tasks.add_preview') }}
         </h1>
 
@@ -32,9 +41,12 @@
           @fileselected="onFileSelected"
         />
 
-        <hr />
+        <hr>
 
-        <h3 v-if="DCCClients.length > 0" class="title">
+        <h3
+          v-if="DCCClients.length > 0"
+          class="title"
+        >
           {{ DCCClients.length }}
           {{ $t('tasks.dcc_connectors') }}
           <button
@@ -47,7 +59,10 @@
             @click="refreshConnectedDCCClients()"
           >
             <span class="icon">
-              <icon name="refresh-cw" :width="20" />
+              <icon
+                name="refresh-cw"
+                :width="20"
+              />
             </span>
           </button>
 
@@ -69,7 +84,10 @@
           </button>
         </h3>
 
-        <h3 v-else class="title">
+        <h3
+          v-else
+          class="title"
+        >
           {{ $t('tasks.no_dcc_connectors') }}
           <button
             :class="{
@@ -81,7 +99,10 @@
             @click="refreshConnectedDCCClients()"
           >
             <span class="icon">
-              <icon name="refresh-cw" :width="20" />
+              <icon
+                name="refresh-cw"
+                :width="20"
+              />
             </span>
           </button>
 
@@ -95,7 +116,10 @@
             @click="showHideOutputCommand()"
           >
             <span>
-              <icon name="file-plus" :width="20" />
+              <icon
+                name="file-plus"
+                :width="20"
+              />
             </span>
           </button>
         </h3>
@@ -120,17 +144,26 @@
             {{ DCCClient.DCCName }} v{{ DCCClient.DCCVersion }}
           </h3>
 
-          <h5 v-if="DCCClient.currentProject === ''" class="title">
+          <h5
+            v-if="DCCClient.currentProject === ''"
+            class="title"
+          >
             {{ $t('tasks.no_opened_project') }}
           </h5>
 
-          <h5 v-else class="title">
+          <h5
+            v-else
+            class="title"
+          >
             {{ $t('tasks.currently_opened_project') }}
             {{ DCCClient.currentProject }}
           </h5>
 
           <p>
-            <span v-if="DCCClient.cameras.length > 0" class="select">
+            <span
+              v-if="DCCClient.cameras.length > 0"
+              class="select"
+            >
               <select
                 :class="{
                   'select-input': true,
@@ -149,7 +182,10 @@
               </select>
             </span>
 
-            <span v-if="DCCClient.renderers.length > 0" class="select">
+            <span
+              v-if="DCCClient.renderers.length > 0"
+              class="select"
+            >
               <select
                 :class="{
                   'select-input': true,
@@ -192,7 +228,10 @@
           </p>
         </div>
 
-        <p v-if="isError" class="error">
+        <p
+          v-if="isError"
+          class="error"
+        >
           {{ $t('tasks.add_preview_error') }}
         </p>
 
@@ -208,15 +247,28 @@
           >
             {{ $t('main.confirmation') }}
           </a>
-          <button class="button is-link" @click="$emit('cancel')">
+          <button
+            class="button is-link"
+            @click="$emit('cancel')"
+          >
             {{ $t('main.cancel') }}
           </button>
         </p>
 
-        <p v-if="forms" class="upload-previews">
-          <template v-for="(form, i) in forms" :key="'preview-' + i">
-            <hr />
-            <img v-if="isImage(form)" alt="uploaded file" :src="getURL(form)" />
+        <p
+          v-if="forms"
+          class="upload-previews"
+        >
+          <template
+            v-for="(form, i) in forms"
+            :key="'preview-' + i"
+          >
+            <hr>
+            <img
+              v-if="isImage(form)"
+              alt="uploaded file"
+              :src="getURL(form)"
+            >
             <video
               v-else-if="isVideo(form)"
               preload="auto"

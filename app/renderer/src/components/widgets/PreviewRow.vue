@@ -7,7 +7,10 @@
       green: preview.validation_status === 'validated'
     }"
   >
-    <button-link :text="label" :path="previewPath" />
+    <button-link
+      :text="label"
+      :path="previewPath"
+    />
   </div>
 </template>
 

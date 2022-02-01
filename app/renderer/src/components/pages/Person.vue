@@ -1,9 +1,18 @@
 <template>
-  <div ref="page" class="columns fixed-page">
+  <div
+    ref="page"
+    class="columns fixed-page"
+  >
     <div class="column main-column">
       <div class="person page">
-        <div ref="header" class="flexrow page-header">
-          <div v-if="person" class="flexrow-item">
+        <div
+          ref="header"
+          class="flexrow page-header"
+        >
+          <div
+            v-if="person"
+            class="flexrow-item"
+          >
             <people-avatar
               :person="person"
               :size="80"
@@ -16,7 +25,10 @@
           </div>
         </div>
 
-        <div ref="tabs" class="task-tabs tabs">
+        <div
+          ref="tabs"
+          class="task-tabs tabs"
+        >
           <ul v-if="person">
             <li :class="{ 'is-active': isActiveTab('todos') }">
               <router-link
@@ -75,7 +87,10 @@
           </ul>
         </div>
 
-        <div ref="search" class="flexrow">
+        <div
+          ref="search"
+          class="flexrow"
+        >
           <search-field
             v-if="!isActiveTab('done')"
             ref="person-tasks-search-field"
@@ -158,13 +173,19 @@
             :is-estimation-linked="true"
             :with-milestones="false"
           />
-          <div v-else class="has-text-centered">
+          <div
+            v-else
+            class="has-text-centered"
+          >
             There is no tasks scheduled for current person.
           </div>
         </div>
       </div>
     </div>
-    <div v-if="nbSelectedTasks === 1" class="column side-column">
+    <div
+      v-if="nbSelectedTasks === 1"
+      class="column side-column"
+    >
       <task-info :task="selectedTasks.values().next().value" />
     </div>
   </div>

@@ -1,15 +1,28 @@
 <template>
-  <div ref="main" class="comment-menu hidden">
-    <div v-show="!isEmpty" @click="onPinClicked">
+  <div
+    ref="main"
+    class="comment-menu hidden"
+  >
+    <div
+      v-show="!isEmpty"
+      @click="onPinClicked"
+    >
       <span v-if="isPinned">
         {{ $t('comments.unpin') }}
       </span>
       <span v-else>{{ $t('comments.pin') }}</span>
     </div>
-    <div v-if="isEditable" @click="$emit('edit-clicked')">
+    <div
+      v-if="isEditable"
+      @click="$emit('edit-clicked')"
+    >
       {{ $t('main.edit') }}
     </div>
-    <div v-if="isEditable" class="error" @click="$emit('delete-clicked')">
+    <div
+      v-if="isEditable"
+      class="error"
+      @click="$emit('delete-clicked')"
+    >
       {{ $t('main.delete') }}
     </div>
   </div>

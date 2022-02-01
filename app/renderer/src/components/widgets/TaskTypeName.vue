@@ -17,7 +17,11 @@
     :style="{ 'border-left': '4px solid ' + color }"
   >
     {{ taskType.name }}
-    <span v-if="deletable" class="delete-times" @click="$emit('delete')">
+    <span
+      v-if="deletable"
+      class="delete-times"
+      @click="$emit('delete')"
+    >
       ×
     </span>
   </div>

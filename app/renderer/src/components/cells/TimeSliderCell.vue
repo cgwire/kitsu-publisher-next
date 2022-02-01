@@ -9,8 +9,18 @@
         v-bind="sliderConfiguration"
         class="flexrow-item slider slider-green"
       />
-      <button class="button flexrow-item" @click="setValue(1)">1</button>
-      <button class="button flexrow-item" @click="setValue(4)">4</button>
+      <button
+        class="button flexrow-item"
+        @click="setValue(1)"
+      >
+        1
+      </button>
+      <button
+        class="button flexrow-item"
+        @click="setValue(4)"
+      >
+        4
+      </button>
       <button
         class="button flexrow-item"
         @click="setValue(organisation.hours_by_day || 8)"
