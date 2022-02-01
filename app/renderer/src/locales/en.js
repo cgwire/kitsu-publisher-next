@@ -764,7 +764,14 @@ export default {
       rendererSelected:
         'rendererSelected (String) : the name of the renderer selected.',
       extensionSelected:
-        'extensionSelected (String) : the name of the extension selected.'
+        'extensionSelected (String) : the name of the extension selected.',
+      entityName: 'entityName (String) : the name of the entity.',
+      entityTypeName: 'entityTypeName (String) : the name of the entity type.',
+      episodeName: 'episodeName (String) : the name of the episode type.',
+      fullEntityName: 'fullEntityName (String) : the full name of the entity.',
+      projectName: 'projectName (String) : the name of the project.',
+      taskStatusName: 'taskStatusName (String) : the name of the task status.',
+      taskTypeName: 'taskTypeName (String) : the name of the task type.'
     },
     save: {
       button: 'Save changes'

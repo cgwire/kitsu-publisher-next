@@ -279,6 +279,10 @@ export default {
     extensions: {
       type: String,
       default: files.ALL_EXTENSIONS_STRING
+    },
+    currentTask: {
+      type: Object,
+      default: null
     }
   },
 
@@ -374,21 +378,36 @@ export default {
             this.DCCsExportsDirectory
           )
       ).then((data) => {
+        let variablesFormat = {
+          exportsDirectory: this.DCCsExportsDirectory,
+          exportFile: data.file,
+          exportIsAnimation: isAnimation,
+          exportIsScreenshot: !isAnimation,
+          DCCName: DCCClient.DCCName,
+          DCCVersion: DCCClient.DCCVersion,
+          currentProject: DCCClient.currentProject,
+          cameraSelected: DCCClient.cameraSelected,
+          rendererSelected: DCCClient.rendererSelected,
+          extensionSelected: isAnimation
+            ? DCCClient.videoExtensionSelected
+            : DCCClient.imageExtensionSelected
+        }
+        if (this.currentTask) {
+          variablesFormat = {
+            ...variablesFormat,
+            ...{
+              entityName: this.currentTask.entity_name,
+              entityTypeName: this.currentTask.entity_type_name,
+              episodeName: this.currentTask.episode_name,
+              fullEntityName: this.currentTask.full_entity_name,
+              projectName: this.currentTask.project_name,
+              taskStatusName: this.currentTask.task_status_name,
+              taskTypeName: this.currentTask.task_type_name
+            }
+          }
+        }
         window.electron
-          .launchCommandBeforeExport(this.PostExportsCommand, {
-            exportsDirectory: this.DCCsExportsDirectory,
-            exportFile: data.file,
-            exportIsAnimation: isAnimation,
-            exportIsScreenshot: !isAnimation,
-            DCCName: DCCClient.DCCName,
-            DCCVersion: DCCClient.DCCVersion,
-            currentProject: DCCClient.currentProject,
-            cameraSelected: DCCClient.cameraSelected,
-            rendererSelected: DCCClient.rendererSelected,
-            extensionSelected: isAnimation
-              ? DCCClient.videoExtensionSelected
-              : DCCClient.imageExtensionSelected
-          })
+          .launchCommandBeforeExport(this.PostExportsCommand, variablesFormat)
           .then((success, _) => {
             if (!success) {
               this.exportCommandOutput = null

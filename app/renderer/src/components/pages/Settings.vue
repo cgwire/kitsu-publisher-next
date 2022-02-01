@@ -109,6 +109,35 @@
                     )
                   }}
                 </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.entityName') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.entityTypeName')
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.episodeName') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.fullEntityName')
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.projectName') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.taskStatusName')
+                  }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.taskTypeName')
+                  }}
+                </li>
               </ul>
             </template>
           </popper>
