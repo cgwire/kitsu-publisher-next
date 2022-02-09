@@ -7,6 +7,7 @@
           class="flexrow-item"
           :disabled-dates="disabledDates"
           :label="$t('logs.current_date_label')"
+          :can-delete="false"
         />
       </div>
       <div class="flexrow-item flexrow time-spent-total">
