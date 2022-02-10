@@ -1685,14 +1685,8 @@ th.validation-cell {
   margin: 0px;
 }
 
-.theme .vue-slider-dot-tooltip-inner {
-  background: $purple-strong;
-  border-color: $purple-strong;
-}
-
-.dark .vue-slider-dot-tooltip-inner {
-  background: $dark-purple;
-  border-color: $dark-purple;
+.slider {
+  cursor: pointer;
 }
 
 .c-mask {

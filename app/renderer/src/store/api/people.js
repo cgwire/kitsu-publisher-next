@@ -124,6 +124,10 @@ export default {
     return client.pget(`/api/data/user/time-spents/${date}`)
   },
 
+  getUserTaskTimeSpent(taskId, date, callback) {
+    client.get(`/api/data/user/tasks/${taskId}/time-spents/${date}`, callback)
+  },
+
   getPersonTasks(personId, callback) {
     client.get(`/api/data/persons/${personId}/tasks`, callback)
   },

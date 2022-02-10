@@ -7,7 +7,7 @@
       <slider
         v-model="value"
         v-bind="sliderConfiguration"
-        class="flexrow-item slider slider-green"
+        class="flexrow-item slider"
       />
       <button
         class="button flexrow-item"
@@ -100,15 +100,7 @@ export default {
 }
 
 .slider {
-  cursor: pointer;
   z-index: 0;
   width: 400px;
-  --slider-connect-bg: #00b242;
-  --slider-tooltip-bg: #00b242;
-}
-
-.dark .slider-green {
-  --slider-connect-bg: #008732;
-  --slider-tooltip-bg: #008732;
 }
 </style>

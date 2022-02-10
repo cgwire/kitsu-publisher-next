@@ -67,6 +67,8 @@ $blue: #7289da;
   --vdp-box-shadow: 0 4px 10px 0 rgba(128, 144, 160, 0.1), 0 0 1px 0 rgba(128, 144, 160, 0.81)
   --vdp-heading-size: 2.5em;
   --vdp-elem-font-size: 1em;
+  --slider-connect-bg: #00b242;
+  --slider-tooltip-bg: #00b242;
 }
 
 .dark {
@@ -95,4 +97,6 @@ $blue: #7289da;
   --vdp-hover-color: var(--text);
   --vdp-selected-color: var(--text);
   --vdp-text-color: var(--text);
+  --slider-connect-bg: #008732;
+  --slider-tooltip-bg: #008732;
 }
