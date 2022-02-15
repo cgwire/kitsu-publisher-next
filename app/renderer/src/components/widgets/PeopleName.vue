@@ -12,7 +12,10 @@
   >
     {{ person.first_name + ' ' + person.last_name }}
   </router-link>
-  <span v-else class="person-name">
+  <span
+    v-else
+    class="person-name"
+  >
     {{ person.first_name + ' ' + person.last_name }}
   </span>
 </template>

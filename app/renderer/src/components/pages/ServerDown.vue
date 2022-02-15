@@ -1,7 +1,7 @@
 <template>
   <div class="server-down page has-text-centered">
     <div class="illustration">
-      <img src="@/assets/illustrations/500.png" />
+      <img src="@/assets/illustrations/500.png">
     </div>
     <h1 class="title">
       {{ $t('server_down.title') }}

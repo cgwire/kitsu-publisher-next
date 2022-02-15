@@ -21,9 +21,12 @@
           width: size + 'px',
           height: size + 'px'
         }"
-      />
+      >
     </div>
-    <span v-if="!onlyAvatar" class="flexrow-item avatar-name">
+    <span
+      v-if="!onlyAvatar"
+      class="flexrow-item avatar-name"
+    >
       {{ production.name }}
     </span>
   </div>

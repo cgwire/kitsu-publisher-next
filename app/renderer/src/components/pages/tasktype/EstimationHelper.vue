@@ -1,7 +1,10 @@
 <template>
   <div class="estimation-wrapper">
     <div class="estimation-helper columns">
-      <div ref="body" class="task-list column datatable-wrapper">
+      <div
+        ref="body"
+        class="task-list column datatable-wrapper"
+      >
         <table class="datatable">
           <thead class="datatable-head">
             <tr>
@@ -9,25 +12,39 @@
                 {{ $t('tasks.fields.assignees') }}
               </th>
               <th class="thumbnail" />
-              <th v-if="isAssets" class="asset-type">
+              <th
+                v-if="isAssets"
+                class="asset-type"
+              >
                 {{ $t('tasks.fields.asset_type') }}
               </th>
-              <th v-else class="sequence">
+              <th
+                v-else
+                class="sequence"
+              >
                 {{ $t('tasks.fields.sequence') }}
               </th>
               <th class="name">
                 {{ $t('tasks.fields.entity_name') }}
               </th>
-              <th v-if="!isAssets" class="frames numeric-cell">
+              <th
+                v-if="!isAssets"
+                class="frames numeric-cell"
+              >
                 {{ $t('tasks.fields.frames') }}
               </th>
-              <th v-if="!isAssets" class="seconds numeric-cell">
+              <th
+                v-if="!isAssets"
+                class="seconds numeric-cell"
+              >
                 {{ $t('tasks.fields.seconds').substring(0, 3) }}.
               </th>
               <th class="estimation numeric-cell">
                 {{ $t('tasks.fields.estimation').substring(0, 3) }}.
               </th>
-              <th class="empty">&nbsp;</th>
+              <th class="empty">
+&nbsp;
+              </th>
             </tr>
           </thead>
 
@@ -79,19 +96,31 @@
                   :empty-height="31"
                 />
               </td>
-              <td v-if="isAssets" class="asset-type">
+              <td
+                v-if="isAssets"
+                class="asset-type"
+              >
                 {{ getEntity(task.entity.id).asset_type_name }}
               </td>
-              <td v-else class="sequence">
+              <td
+                v-else
+                class="sequence"
+              >
                 {{ getEntity(task.entity.id).sequence_name }}
               </td>
               <td class="name">
                 {{ getEntity(task.entity.id).name }}
               </td>
-              <td v-if="!isAssets" class="frames numeric-cell">
+              <td
+                v-if="!isAssets"
+                class="frames numeric-cell"
+              >
                 {{ getEntity(task.entity.id).nb_frames }}
               </td>
-              <td v-if="!isAssets" class="frames numeric-cell">
+              <td
+                v-if="!isAssets"
+                class="frames numeric-cell"
+              >
                 {{ getSeconds(task) }}
               </td>
               <td
@@ -108,7 +137,7 @@
                   @keydown="onKeyDown"
                   @mouseout="onInputMouseOut"
                   @mouseover="onInputMouseOver"
-                />
+                >
                 <span v-else>
                   {{ formatDuration(task.estimation) }}
                 </span>
@@ -121,7 +150,10 @@
 
       <div class="person-list column datatable-wrapper">
         <table class="datatable">
-          <thead ref="thead" class="datatable-head">
+          <thead
+            ref="thead"
+            class="datatable-head"
+          >
             <tr>
               <th class="assignees">
                 {{ $t('tasks.fields.assignees') }}
@@ -141,7 +173,9 @@
               <th class="quota numeric-cell">
                 {{ $t('tasks.fields.estimated_quota') }}.
               </th>
-              <th class="empty">&nbsp;</th>
+              <th class="empty">
+&nbsp;
+              </th>
             </tr>
           </thead>
 
@@ -162,7 +196,10 @@
                   :size="30"
                   :font-size="17"
                 />
-                <people-name class="flexrow-item" :person="person" />
+                <people-name
+                  class="flexrow-item"
+                  :person="person"
+                />
               </td>
               <td class="count numeric-cell">
                 {{ person.count }}

@@ -42,7 +42,10 @@
       @click="$emit('remove-preview-clicked')"
     />
 
-    <div v-if="isBigDisplay" class="separator" />
+    <div
+      v-if="isBigDisplay"
+      class="separator"
+    />
   </div>
 </template>
 

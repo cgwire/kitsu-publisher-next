@@ -1,6 +1,9 @@
 <template>
   <div class="data-list task-list">
-    <div ref="body" class="datatable-wrapper">
+    <div
+      ref="body"
+      class="datatable-wrapper"
+    >
       <table class="datatable">
         <thead class="datatable-head">
           <tr>
@@ -32,27 +35,51 @@
               {{ $t('assets.fields.description') }}
             </th>
             -->
-            <th scope="col" class="estimation" :title="$t('main.estimation')">
+            <th
+              scope="col"
+              class="estimation"
+              :title="$t('main.estimation')"
+            >
               {{ $t('main.estimation_short') }}
             </th>
-            <th scope="col" class="estimation">
+            <th
+              scope="col"
+              class="estimation"
+            >
               {{ $t('tasks.fields.duration').substring(0, 3) }}.
             </th>
-            <th scope="col" class="due-date">
+            <th
+              scope="col"
+              class="due-date"
+            >
               {{ $t('tasks.fields.due_date') }}
             </th>
-            <th scope="col" class="status">
+            <th
+              scope="col"
+              class="status"
+            >
               {{ $t('tasks.fields.task_status') }}
             </th>
-            <th v-if="!done" scope="col" class="last-comment">
+            <th
+              v-if="!done"
+              scope="col"
+              class="last-comment"
+            >
               {{ $t('tasks.fields.last_comment') }}
             </th>
-            <th v-else scope="col" class="end-date">
+            <th
+              v-else
+              scope="col"
+              class="end-date"
+            >
               {{ $t('tasks.fields.end_date') }}
             </th>
           </tr>
         </thead>
-        <tbody v-if="tasks.length > 0" class="datatable-body">
+        <tbody
+          v-if="tasks.length > 0"
+          class="datatable-body"
+        >
           <tr
             v-for="(entry, i) in displayedTasks"
             :key="entry + '-' + i"
@@ -133,7 +160,10 @@
               class="last-comment"
               :task="entry"
             />
-            <td v-else class="end-date">
+            <td
+              v-else
+              class="end-date"
+            >
               {{ formatDate(entry.end_date) }}
             </td>
           </tr>
@@ -141,14 +171,17 @@
       </table>
     </div>
 
-    <table-info :is-loading="isLoading" :is-error="isError" />
+    <table-info
+      :is-loading="isLoading"
+      :is-error="isError"
+    />
 
     <div
       v-if="tasks.length === 0 && !isLoading"
       class="has-text-centered empty-list"
     >
       <p>
-        <img src="@/assets/illustrations/empty_todo.png" />
+        <img src="@/assets/illustrations/empty_todo.png">
       </p>
       <p>
         {{ $t('people.no_task_assigned') }}

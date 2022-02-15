@@ -10,7 +10,10 @@
       }"
       @click="togglePalette"
     />
-    <div v-show="isOpen" class="pencil-palette">
+    <div
+      v-show="isOpen"
+      class="pencil-palette"
+    >
       <label
         v-for="pencil in sizes"
         :key="pencil"
@@ -20,7 +23,11 @@
           small: pencil === 'small'
         }"
       >
-        <input type="radio" :value="pencil" @click="onPencilPicked(pencil)" />
+        <input
+          type="radio"
+          :value="pencil"
+          @click="onPencilPicked(pencil)"
+        >
       </label>
     </div>
   </div>

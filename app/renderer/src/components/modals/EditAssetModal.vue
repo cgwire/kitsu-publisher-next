@@ -5,14 +5,23 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box">
-        <h1 v-if="assetToEdit && assetToEdit.id" class="title">
+        <h1
+          v-if="assetToEdit && assetToEdit.id"
+          class="title"
+        >
           {{ $t('assets.edit_title') }} {{ assetToEdit.name }}
         </h1>
-        <h1 v-else class="title">
+        <h1
+          v-else
+          class="title"
+        >
           {{ $t('assets.new_asset') }}
         </h1>
 
@@ -84,13 +93,22 @@
           >
             {{ $t('main.confirmation') }}
           </a>
-          <button class="button is-link" @click="$emit('cancel')">
+          <button
+            class="button is-link"
+            @click="$emit('cancel')"
+          >
             {{ $t('main.close') }}
           </button>
-          <p v-if="isError" class="error has-text-right info-message">
+          <p
+            v-if="isError"
+            class="error has-text-right info-message"
+          >
             {{ $t('assets.edit_fail') }}
           </p>
-          <p v-if="isSuccess" class="success has-text-right info-message">
+          <p
+            v-if="isSuccess"
+            class="success has-text-right info-message"
+          >
             {{ assetSuccessText }}
           </p>
         </div>

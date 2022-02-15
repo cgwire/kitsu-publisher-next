@@ -5,15 +5,24 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box content">
-        <h1 v-if="!isEdit" class="title">
+        <h1
+          v-if="!isEdit"
+          class="title"
+        >
           {{ $t('schedule.milestone.add_milestone') }}:
           {{ milestoneToEdit.date.format('YYYY-MM-DD') }}
         </h1>
-        <h1 v-else class="title">
+        <h1
+          v-else
+          class="title"
+        >
           {{ $t('schedule.milestone.edit_milestone') }}:
           {{ milestoneToEdit.date.format('YYYY-MM-DD') }}
         </h1>

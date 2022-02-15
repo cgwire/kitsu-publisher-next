@@ -601,39 +601,6 @@ body {
     background-color: #5e6169;
   }
 
-  .vdp-datepicker__calendar {
-    background-color: #36393f;
-    border-color: #25282e;
-
-    .prev,
-    .next,
-    .day__month_btn,
-    header span:hover {
-      background: #36393f;
-    }
-
-    header .prev::after,
-    header .prev::after {
-      border-right-color: #eee;
-    }
-
-    header .next::after,
-    header .next::after {
-      border-left-color: #eee;
-    }
-
-    header .next.disabled::after,
-    header .next.disabled::after {
-      border-left-color: #666;
-    }
-
-    .cell.year.disabled,
-    .cell.month.disabled,
-    .cell.day.disabled {
-      color: $grey;
-    }
-  }
-
   .hero .control .icon {
     color: #555;
   }
@@ -1697,44 +1664,29 @@ th.validation-cell {
 }
 
 .theme .v3dp__datepicker .v3dp__input_wrapper input {
-  border: 1px solid #dbdbdb;
+  border: 1px solid var(--border);
   border-radius: 3px;
   box-shadow: inset 0 1px 2px rgba(10, 10, 10, 0.1);
   padding: 1em;
   height: 3em;
   width: 110px;
+  background: var(--background);
+  color: var(--text);
+  font-size: 1em;
 
   &:focus {
     border-color: #00b242;
     outline: none;
   }
-
-  .cell.year.selected,
-  .cell.month.selected,
-  .cell.day.selected {
-    background: var(--background-selected);
-  }
-
-  .cell.year.selected:not(.blank):not(.disabled):hover,
-  .cell.month.selected:not(.blank):not(.disabled):hover,
-  .cell.day.selected:not(.blank):not(.disabled):hover {
-    border: 1px solid transparent;
-    background: var(--background-selected);
-  }
-
-  header span:not(.disabled):hover {
-    background: var(--background-selectable);
-  }
 }
 
-.theme .vue-slider-dot-tooltip-inner {
-  background: $purple-strong;
-  border-color: $purple-strong;
+.theme .v3dp__divider{
+  visibility: hidden;
+  margin: 0px;
 }
 
-.dark .vue-slider-dot-tooltip-inner {
-  background: $dark-purple;
-  border-color: $dark-purple;
+.slider {
+  cursor: pointer;
 }
 
 .c-mask {

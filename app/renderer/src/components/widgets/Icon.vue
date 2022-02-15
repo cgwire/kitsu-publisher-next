@@ -1,6 +1,9 @@
 <template>
   <span>
-    <vue-feather :size="width" :type="type" />
+    <vue-feather
+      :size="width"
+      :type="type"
+    />
   </span>
 </template>
 

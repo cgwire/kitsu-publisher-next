@@ -8,9 +8,19 @@
 
     <nav class="nav">
       <div class="nav-left">
-        <div v-if="!$route.path.startsWith('/todos')" class="nav-item">
-          <router-link :to="'/todos'" class="flexrow">
-            <icon class="back" name="chevron-left" :width="24" />
+        <div
+          v-if="!$route.path.startsWith('/todos')"
+          class="nav-item"
+        >
+          <router-link
+            :to="'/todos'"
+            class="flexrow"
+          >
+            <icon
+              class="back"
+              name="chevron-left"
+              :width="24"
+            />
             {{ $t('main.go_todos') }}
           </router-link>
         </div>
@@ -45,7 +55,10 @@
       }"
     >
       <ul>
-        <router-link to="/profile" @click="toggleUserMenu()">
+        <router-link
+          to="/profile"
+          @click="toggleUserMenu()"
+        >
           <li>
             {{ $t('main.profile') }}
           </li>
@@ -58,8 +71,11 @@
             {{ $t('main.white_theme') }}
           </span>
         </li>
-        <hr />
-        <a href="https://kitsu.cg-wire.com" target="_blank">
+        <hr>
+        <a
+          href="https://kitsu.cg-wire.com"
+          target="_blank"
+        >
           <li>
             {{ $t('main.documentation') }}
           </li>
@@ -79,30 +95,53 @@
           </li>
         </a>
         -->
-        <hr />
-        <a href="https://discord.gg/VbCxtKN" target="_blank">
+        <hr>
+        <a
+          href="https://discord.gg/VbCxtKN"
+          target="_blank"
+        >
           <li>Discord</li>
         </a>
-        <a href="https://cgwire.canny.io" target="_blank">
+        <a
+          href="https://cgwire.canny.io"
+          target="_blank"
+        >
           <li>Roadmap / Feedback</li>
         </a>
-        <hr />
-        <a href="https://cg-wire.com/en/about.html" target="_blank">
+        <hr>
+        <a
+          href="https://cg-wire.com/en/about.html"
+          target="_blank"
+        >
           <li>
             {{ $t('main.about') }}
           </li>
         </a>
-        <li class="version">Kitsu Publisher {{ kitsuPublisherVersion }}</li>
-        <hr />
-        <router-link to="/settings" @click="toggleUserMenu()">
+        <li class="version">
+          Kitsu Publisher {{ kitsuPublisherVersion }}
+        </li>
+        <hr>
+        <router-link
+          to="/settings"
+          @click="toggleUserMenu()"
+        >
           <li class="flexrow">
-            <icon name="settings" class="icon flexrow-item" />
+            <icon
+              name="settings"
+              class="icon flexrow-item"
+            />
             <span class="flexrow-item">{{ $t('main.settings') }}</span>
           </li>
         </router-link>
-        <hr />
-        <li class="flexrow" @click="onLogoutClicked">
-          <icon name="log-out" class="icon flexrow-item" />
+        <hr>
+        <li
+          class="flexrow"
+          @click="onLogoutClicked"
+        >
+          <icon
+            name="log-out"
+            class="icon flexrow-item"
+          />
           <span class="flexrow-item">{{ $t('main.logout') }}</span>
         </li>
       </ul>

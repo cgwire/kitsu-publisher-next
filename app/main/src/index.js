@@ -160,7 +160,7 @@ const createWindow = async () => {
           codePage = Number(stdout.split(':')[1])
         } catch {
           codePage = undefined
-        }        
+        }
       }
     })
   }

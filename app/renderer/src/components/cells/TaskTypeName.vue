@@ -1,6 +1,9 @@
 <template>
   <td class="name">
-    <task-type-name :task-type="taskType" :production-id="productionId" />
+    <task-type-name
+      :task-type="taskType"
+      :production-id="productionId"
+    />
   </td>
 </template>
 

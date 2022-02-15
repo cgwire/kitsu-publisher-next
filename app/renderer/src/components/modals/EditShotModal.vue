@@ -5,14 +5,23 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box">
-        <h1 v-if="shotToEdit && shotToEdit.id" class="title">
+        <h1
+          v-if="shotToEdit && shotToEdit.id"
+          class="title"
+        >
           {{ $t('shots.edit_title') }} {{ shotToEdit.name }}
         </h1>
-        <h1 v-else class="title">
+        <h1
+          v-else
+          class="title"
+        >
           {{ $t('shots.new_shot') }}
         </h1>
 

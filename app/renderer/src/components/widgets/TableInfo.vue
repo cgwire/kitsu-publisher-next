@@ -5,7 +5,10 @@
       class="table-info"
       :is-stylish="true"
     />
-    <div v-if="isError" class="has-text-centered table-info">
+    <div
+      v-if="isError"
+      class="has-text-centered table-info"
+    >
       <span class="tag is-danger">
         {{ $t('main.loading_error') }}
       </span>

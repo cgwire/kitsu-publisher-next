@@ -1,26 +1,57 @@
 <template>
   <div class="data-list">
-    <div ref="body" v-scroll="onBodyScroll" class="datatable-wrapper">
+    <div
+      ref="body"
+      v-scroll="onBodyScroll"
+      class="datatable-wrapper"
+    >
       <table class="datatable">
-        <thead ref="thead" class="datatable-head">
+        <thead
+          ref="thead"
+          class="datatable-head"
+        >
           <tr>
-            <th ref="th-thumbnail" class="thumbnail" />
-            <th v-if="isAssets" ref="th-type" class="asset-type">
+            <th
+              ref="th-thumbnail"
+              class="thumbnail"
+            />
+            <th
+              v-if="isAssets"
+              ref="th-type"
+              class="asset-type"
+            >
               {{ $t('tasks.fields.asset_type') }}
             </th>
-            <th v-else ref="th-type" class="sequence">
+            <th
+              v-else
+              ref="th-type"
+              class="sequence"
+            >
               {{ $t('tasks.fields.sequence') }}
             </th>
-            <th ref="th-name" class="name">
+            <th
+              ref="th-name"
+              class="name"
+            >
               {{ $t('tasks.fields.entity_name') }}
             </th>
-            <th ref="th-status" class="status">
+            <th
+              ref="th-status"
+              class="status"
+            >
               {{ $t('tasks.fields.task_status') }}
             </th>
-            <th ref="th-assignees" class="assignees">
+            <th
+              ref="th-assignees"
+              class="assignees"
+            >
               {{ $t('tasks.fields.assignees') }}
             </th>
-            <th v-if="!isAssets" ref="th-frames" class="frames">
+            <th
+              v-if="!isAssets"
+              ref="th-frames"
+              class="frames"
+            >
               {{ $t('tasks.fields.frames') }}
             </th>
             <th
@@ -30,28 +61,54 @@
             >
               {{ $t('tasks.fields.estimation').substring(0, 3) }}.
             </th>
-            <th ref="th-duration" class="duration">
+            <th
+              ref="th-duration"
+              class="duration"
+            >
               {{ $t('tasks.fields.duration').substring(0, 3) }}.
             </th>
-            <th ref="th-retake-count" class="retake-count">
+            <th
+              ref="th-retake-count"
+              class="retake-count"
+            >
               {{ $t('tasks.fields.retake_count') }}
             </th>
-            <th ref="th-estimation" class="start-date">
+            <th
+              ref="th-estimation"
+              class="start-date"
+            >
               {{ $t('tasks.fields.start_date') }}
             </th>
-            <th ref="th-estimation" class="due-date">
+            <th
+              ref="th-estimation"
+              class="due-date"
+            >
               {{ $t('tasks.fields.due_date') }}
             </th>
-            <th ref="th-status" class="real-start-date">
+            <th
+              ref="th-status"
+              class="real-start-date"
+            >
               {{ $t('tasks.fields.real_start_date') }}
             </th>
-            <th ref="th-status" class="real-end-date">
+            <th
+              ref="th-status"
+              class="real-end-date"
+            >
               {{ $t('tasks.fields.real_end_date') }}
             </th>
-            <th ref="th-status" class="last-comment-date">
+            <th
+              ref="th-status"
+              class="last-comment-date"
+            >
               {{ $t('tasks.fields.last_comment_date') }}
             </th>
-            <th ref="" class="empty">&nbsp;</th>
+            <th
+              ref=""
+              class="empty"
+            >
+&nbsp;
+            </th>
           </tr>
         </thead>
 
@@ -78,10 +135,16 @@
                 :empty-height="33"
               />
             </td>
-            <td v-if="isAssets" class="asset-type">
+            <td
+              v-if="isAssets"
+              class="asset-type"
+            >
               {{ getEntity(task.entity.id).asset_type_name }}
             </td>
-            <td v-else class="sequence">
+            <td
+              v-else
+              class="sequence"
+            >
               {{ getEntity(task.entity.id).sequence_name }}
             </td>
             <td class="name">
@@ -107,7 +170,10 @@
                 />
               </div>
             </td>
-            <td v-if="!isAssets" class="frames">
+            <td
+              v-if="!isAssets"
+              class="frames"
+            >
               {{ getEntity(task.entity.id).nb_frames }}
             </td>
             <td class="estimation">
@@ -117,7 +183,7 @@
                 class="input"
                 :value="formatDuration(task.estimation)"
                 @change="updateEstimation($event.target.value)"
-              />
+              >
               <span v-else>
                 {{ formatDuration(task.estimation) }}
               </span>
@@ -131,7 +197,10 @@
               {{ formatDuration(task.duration) }}
             </td>
             <td class="retake-count">
-              <span v-for="index in task.retake_count" :key="index">
+              <span
+                v-for="index in task.retake_count"
+                :key="index"
+              >
                 &bull;
               </span>
             </td>
@@ -172,18 +241,22 @@
           </tr>
         </tbody>
       </table>
-      <table-info :is-loading="isLoading" :is-error="isError" />
+      <table-info
+        :is-loading="isLoading"
+        :is-error="isError"
+      />
     </div>
-    <p v-if="!isLoading" class="has-text-centered nb-tasks">
+    <p
+      v-if="!isLoading"
+      class="has-text-centered nb-tasks"
+    >
       {{ tasks.length }} {{ $tc('tasks.number', tasks.length) }} ({{
         formatDuration(timeEstimated)
       }}
       {{ $tc('main.days_estimated', isTimeEstimatedPlural) }},
       {{ formatDuration(timeSpent) }}
       {{ $tc('main.days_spent', isTimeSpentPlural)
-      }}<span v-if="!isAssets"
-        >, {{ nbFrames }} {{ $tc('main.nb_frames', nbFrames) }}</span
-      >)
+      }}<span v-if="!isAssets">, {{ nbFrames }} {{ $tc('main.nb_frames', nbFrames) }}</span>)
     </p>
   </div>
 </template>

@@ -5,7 +5,10 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box content">
@@ -36,7 +39,7 @@
                 <span
                   v-if="j !== shortcut.keys.length - 1"
                   class="shortcut-plus"
-                  >+
+                >+
                 </span>
               </div>
             </div>
@@ -45,7 +48,10 @@
         </div>
 
         <div class="has-text-right modal-footer">
-          <button class="button is-link" @click="$emit('cancel')">
+          <button
+            class="button is-link"
+            @click="$emit('cancel')"
+          >
             {{ $t('main.cancel') }}
           </button>
         </div>

@@ -1,7 +1,16 @@
 <template>
-  <div class="field" :class="{ 'is-inline': isInline }">
-    <label v-if="label" class="label">{{ label }}</label>
-    <label v-if="emptyLabel" class="label empty-label">A</label>
+  <div
+    class="field"
+    :class="{ 'is-inline': isInline }"
+  >
+    <label
+      v-if="label"
+      class="label"
+    >{{ label }}</label>
+    <label
+      v-if="emptyLabel"
+      class="label empty-label"
+    >A</label>
     <p
       class="control"
       :class="{
@@ -20,7 +29,7 @@
         min="0"
         @input="updateValue()"
         @keyup.enter="emitEnter()"
-      />
+      >
       <button
         v-if="buttonLabel"
         class="button flexrow-item"

@@ -1,8 +1,17 @@
 <template>
-  <th scope="row" class="name datatable-row-header">
+  <th
+    scope="row"
+    class="name datatable-row-header"
+  >
     <div class="people-name">
-      <people-avatar class="avatar" :person="person" />
-      <people-name class="people-name" :person="person" />
+      <people-avatar
+        class="avatar"
+        :person="person"
+      />
+      <people-name
+        class="people-name"
+        :person="person"
+      />
     </div>
   </th>
 </template>

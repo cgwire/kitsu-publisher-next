@@ -1,6 +1,13 @@
 <template>
-  <router-link class="button" :title="title" :to="path">
-    <span v-if="icon.length > 0 && icon.startsWith('fa')" class="icon is-small">
+  <router-link
+    class="button"
+    :title="title"
+    :to="path"
+  >
+    <span
+      v-if="icon.length > 0 && icon.startsWith('fa')"
+      class="icon is-small"
+    >
       <i :class="'fa ' + icon" />
     </span>
     <icon

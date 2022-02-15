@@ -5,7 +5,10 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box content">
@@ -24,7 +27,10 @@
           @fileselected="onFileSelected"
         />
 
-        <p v-if="isError" class="error">
+        <p
+          v-if="isError"
+          class="error"
+        >
           {{ $t('profile.avatar.error_upload') }}
         </p>
 

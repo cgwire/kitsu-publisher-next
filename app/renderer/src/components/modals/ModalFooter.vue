@@ -12,11 +12,17 @@
       >
         {{ confirmLabel || $t('main.confirmation') }}
       </a>
-      <button class="button is-link" @click="$emit('cancel')">
+      <button
+        class="button is-link"
+        @click="$emit('cancel')"
+      >
         {{ cancelLabel || $t('main.cancel') }}
       </button>
     </p>
-    <p v-if="isError" class="error mt1 has-text-right">
+    <p
+      v-if="isError"
+      class="error mt1 has-text-right"
+    >
       {{ errorText }}
     </p>
   </div>

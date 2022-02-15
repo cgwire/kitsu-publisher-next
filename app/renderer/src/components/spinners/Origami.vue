@@ -1,6 +1,12 @@
 <template>
-  <div :style="styles" class="spinner spinner-origami">
-    <div :style="innerStyles" class="spinner-inner loading">
+  <div
+    :style="styles"
+    class="spinner spinner-origami"
+  >
+    <div
+      :style="innerStyles"
+      class="spinner-inner loading"
+    >
       <span class="slice" />
       <span class="slice" />
       <span class="slice" />

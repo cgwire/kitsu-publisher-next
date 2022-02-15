@@ -1,6 +1,9 @@
 <template>
   <div :class="{ field: withMargin }">
-    <label v-if="label" class="label">{{ label }}</label>
+    <label
+      v-if="label"
+      class="label"
+    >{{ label }}</label>
     <p class="control flexrow">
       <datepicker
         v-model="localValue"

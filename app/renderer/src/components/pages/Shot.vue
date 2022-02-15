@@ -15,7 +15,10 @@
           :with-link="false"
         />
         <div class="flexrow-item">
-          <page-title :text="title" class="entity-title" />
+          <page-title
+            :text="title"
+            class="entity-title"
+          />
         </div>
         <div class="flexrow-item">
           <button-simple
@@ -40,7 +43,10 @@
         <div class="flexrow-item">
           <page-subtitle :text="$t('main.info')" />
           <div class="table-body">
-            <table v-if="currentShot" class="datatable">
+            <table
+              v-if="currentShot"
+              class="datatable"
+            >
               <tbody class="datatable-body">
                 <tr
                   v-if="currentShot.data && currentShot.data.fps"
@@ -82,7 +88,10 @@
                   <td class="field-label">
                     {{ $t('shots.fields.description') }}
                   </td>
-                  <description-cell :entry="currentShot" :full="true" />
+                  <description-cell
+                    :entry="currentShot"
+                    :full="true"
+                  />
                 </tr>
 
                 <tr class="datatable-row">
@@ -116,8 +125,14 @@
         </div>
       </div>
 
-      <div v-if="scheduleItems.length > 0" class="infos schedule">
-        <page-subtitle class="schedule-title" text="Schedule" />
+      <div
+        v-if="scheduleItems.length > 0"
+        class="infos schedule"
+      >
+        <page-subtitle
+          class="schedule-title"
+          text="Schedule"
+        />
         <div class="wrapper">
           <schedule
             ref="schedule-widget"
@@ -141,7 +156,7 @@
           <div
             v-if="
               currentShot.castingAssetsByType &&
-              currentShot.castingAssetsByType[0].length > 0
+                currentShot.castingAssetsByType[0].length > 0
             "
           >
             <div
@@ -200,7 +215,10 @@
       </div>
     </div>
 
-    <div v-if="currentTask" class="column side-column">
+    <div
+      v-if="currentTask"
+      class="column side-column"
+    >
       <task-info :task="currentTask" />
     </div>
 

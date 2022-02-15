@@ -15,6 +15,7 @@
     "vue/require-explicit-emits": "off",
     "vue/no-use-v-if-with-v-for": "off",
     "vue/multi-word-component-names": "off",
-    "vue/attribute-hyphenation": "off"
+    "vue/attribute-hyphenation": "off",
+    "vue/order-in-components": "off"
   }
 }

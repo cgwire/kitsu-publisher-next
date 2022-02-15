@@ -1,6 +1,12 @@
 <template>
-  <div v-if="!isSimple" class="field">
-    <label v-if="label.length > 0" class="label">
+  <div
+    v-if="!isSimple"
+    class="field"
+  >
+    <label
+      v-if="label.length > 0"
+      class="label"
+    >
       {{ label }}
     </label>
     <p class="control">
@@ -32,7 +38,10 @@
       </span>
     </p>
   </div>
-  <span v-else class="select">
+  <span
+    v-else
+    class="select"
+  >
     <select
       ref="select"
       class="select-input"

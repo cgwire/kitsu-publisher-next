@@ -1,9 +1,15 @@
 <template>
   <div :class="{ field: withMargin, 'is-inline': isInline }">
-    <label v-if="label.length > 0" class="label">
+    <label
+      v-if="label.length > 0"
+      class="label"
+    >
       {{ label }}
     </label>
-    <p class="control" :class="{ 'is-inline': isInline }">
+    <p
+      class="control"
+      :class="{ 'is-inline': isInline }"
+    >
       <span
         :class="{
           select: true,

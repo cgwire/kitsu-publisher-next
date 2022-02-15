@@ -1,7 +1,14 @@
 <template>
-  <div ref="wrapper" class="flexrow search-field-wrapper" @click="focus">
+  <div
+    ref="wrapper"
+    class="flexrow search-field-wrapper"
+    @click="focus"
+  >
     <div class="flexrow-item">
-      <icon name="search" class="search-icon" />
+      <icon
+        name="search"
+        class="search-icon"
+      />
     </div>
 
     <div class="flexrow-item search-field">
@@ -18,16 +25,28 @@
         @keyup.enter="onEnterPressed"
         @focus="setFocusedStyle"
         @blur="unsetFocusedStyle"
-      />
+      >
     </div>
 
     <div class="flexrow-item erase-search">
-      <span class="tag" @click="clearSearch"> x </span>
+      <span
+        class="tag"
+        @click="clearSearch"
+      > x </span>
     </div>
 
-    <div v-if="canSave" class="flexrow-item save-search">
-      <button class="button save-button" @click="onSaveClicked">
-        <icon name="save" class="icon is-small only-icon" />
+    <div
+      v-if="canSave"
+      class="flexrow-item save-search"
+    >
+      <button
+        class="button save-button"
+        @click="onSaveClicked"
+      >
+        <icon
+          name="save"
+          class="icon is-small only-icon"
+        />
       </button>
     </div>
   </div>

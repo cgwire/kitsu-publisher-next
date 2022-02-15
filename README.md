@@ -137,24 +137,28 @@ You need to download the connectors-{version}.zip archive in the [releases](http
   - If Blender is installed with a system package (for example: deb or rpm):
 
     ```console
-    ./install.sh --system
+    bash ./install.sh --system
     ```
 
   - If Blender is an unpacked directory (tar.xz archive):
 
     ```console
-    ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
+    bash ./install.sh --unpacked-directory=PATH_TO_YOUR_PORTABLE_BLENDER
     ```
 
   - If Blender is installed with a snap package:
 
     ```console
-    ./install.sh --snap
+    bash ./install.sh --snap
     ```
 
 - On macOS:
 
-  - coming soon
+  - If Blender is installed with a dmg image or Homebrew :
+
+    ```console
+    bash ./install.sh --dmg
+    ```
 
 #### Toon Boom Harmony
 

@@ -1,5 +1,9 @@
 <template>
-  <div v-if="task" ref="side-panel" class="side task-info">
+  <div
+    v-if="task"
+    ref="side-panel"
+    class="side task-info"
+  >
     <div class="page-header">
       <div class="flexrow header-title">
         <div class="title flexrow-item">
@@ -58,7 +62,10 @@
           @click="toggleSubscribe"
         />
         <div class="filler" />
-        <div v-if="isPreview" class="preview-list flexrow">
+        <div
+          v-if="isPreview"
+          class="preview-list flexrow"
+        >
           <span
             v-for="(preview, index) in lastFivePreviews"
             :key="'preview-' + preview.id"
@@ -74,8 +81,14 @@
       </div>
     </div>
 
-    <div ref="task-columns" class="task-columns">
-      <div v-if="isPreview" class="task-column preview-column">
+    <div
+      ref="task-columns"
+      class="task-columns"
+    >
+      <div
+        v-if="isPreview"
+        class="task-column preview-column"
+      >
         <div class="preview-column-content">
           <div class="preview">
             <div v-if="taskPreviews && taskPreviews.length > 0">
@@ -107,6 +120,37 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <div class="task-column">
+        <article class="time-spent">
+          <div class="flexrow">
+            <date-field
+              v-model="selectedDate"
+              class="flexrow-item"
+              :disabled-dates="disabledDates"
+              :can-delete="false"
+              :with-margin="false"
+            />
+            <h1 class="title flexrow-item">
+              {{ $t('timesheets.time_spents') }}
+            </h1>
+          </div>
+          <div class="flexrow">
+            <div>
+              <span class="slider-infos flexrow-item">
+                {{ durationValue }}
+              </span>
+            </div>
+            <div class="slider-flex flexrow-item">
+              <slider
+                v-model="durationValue"
+                v-bind="sliderConfiguration"
+                class="slider slider-green"
+              />
+            </div>
+          </div>
+        </article>
       </div>
 
       <div class="task-column comments-column">
@@ -149,7 +193,7 @@
                 :is-change="isStatusChange(index)"
                 :editable="
                   (comment.person && user.id === comment.person.id) ||
-                  isCurrentUserAdmin
+                    isCurrentUserAdmin
                 "
                 @duplicate-comment="onDuplicateComment"
                 @pin-comment="onPinComment"
@@ -160,7 +204,10 @@
                 @time-code-clicked="timeCodeClicked"
               />
             </div>
-            <div v-else-if="!loading.task" class="no-comment">
+            <div
+              v-else-if="!loading.task"
+              class="no-comment"
+            >
               <em>
                 {{ $t('tasks.no_comment') }}
               </em>
@@ -168,7 +215,10 @@
           </div>
         </div>
 
-        <div v-if="loading.task" class="has-text-centered">
+        <div
+          v-if="loading.task"
+          class="has-text-centered"
+        >
           <spinner />
         </div>
       </div>
@@ -179,6 +229,7 @@
       :active="modals.addPreview"
       :is-loading="loading.addPreview"
       :is-error="errors.addPreview"
+      :current-task="task"
       @cancel="onClosePreview"
       @fileselected="selectFile"
       @confirm="onClosePreview"
@@ -190,6 +241,7 @@
       :is-loading="loading.addExtraPreview"
       :is-error="errors.addExtraPreview"
       :form-data="addExtraPreviewFormData"
+      :current-task="task"
       extensions=".png,.jpg,.jpeg"
       @cancel="onCloseExtraPreview"
       @fileselected="selectFile"
@@ -227,7 +279,10 @@
     />
   </div>
 
-  <div v-else class="side task-info has-text-centered">
+  <div
+    v-else
+    class="side task-info has-text-centered"
+  >
     {{ $t('tasks.no_task_selected') }}
   </div>
 </template>
@@ -236,6 +291,8 @@
 import { mapGetters, mapActions } from 'vuex'
 import { getTaskEntityPath, getTaskPath } from '@/lib/path'
 import { getTaskTypeStyle } from '@/lib/render'
+import moment from 'moment-timezone'
+import peopleApi from '@/store/api/people'
 
 import AddComment from '@/components/widgets/AddComment'
 import AddPreviewModal from '@/components/modals/AddPreviewModal'
@@ -246,6 +303,9 @@ import Spinner from '@/components/widgets/Spinner'
 import SubscribeButton from '@/components/widgets/SubscribeButton'
 import TaskTypeName from '@/components/widgets/TaskTypeName'
 import PreviewPlayer from '@/components/previews/PreviewPlayer'
+import Slider from '@vueform/slider'
+import DateField from '@/components/widgets/DateField'
+import '@vueform/slider/themes/default.css'
 
 export default {
   name: 'TaskInfo',
@@ -253,12 +313,14 @@ export default {
     AddComment,
     AddPreviewModal,
     Comment,
+    DateField,
     DeleteModal,
     EditCommentModal,
     PreviewPlayer,
     Spinner,
     SubscribeButton,
-    TaskTypeName
+    TaskTypeName,
+    Slider
   },
 
   props: {
@@ -290,6 +352,10 @@ export default {
 
   data() {
     return {
+      durationValue: 0,
+      updatedDurationValue: true,
+      selectedDate: moment().toDate(),
+      disabledDates: {},
       addExtraPreviewFormData: null,
       attachedFileName: '',
       attachedImage: '',
@@ -328,6 +394,15 @@ export default {
         editComment: false,
         deleteComment: false,
         deleteExtraPreview: false
+      },
+      sliderConfiguration: {
+        min: 0,
+        max: 10,
+        step: 0.25,
+        lazy: true,
+        tooltipPosition: 'bottom',
+        showTooltip: 'drag',
+        format: (value) => `${value}`
       }
     }
   },
@@ -336,6 +411,15 @@ export default {
     this.loadTaskData()
     if (this.$refs['add-comment']) {
       this.$refs['add-comment'].text = this.lastCommentDraft
+    }
+    const beginningOfTheWeek = moment().startOf('isoWeek').toDate()
+    this.disabledDates = {
+      to:
+        this.isCurrentUserArtist &&
+        this.organisation.timesheets_locked === 'true'
+          ? beginningOfTheWeek
+          : undefined,
+      from: moment().toDate() // Disable dates after today.
     }
   },
 
@@ -360,6 +444,7 @@ export default {
       'isSingleEpisode',
       'isTVShow',
       'lastCommentDraft',
+      'organisation',
       'personMap',
       'previewFormData',
       'productionMap',
@@ -584,6 +669,7 @@ export default {
             console.error(err)
             this.errors.task = true
           })
+        this.updateDurationValue()
       }
     },
 
@@ -984,6 +1070,17 @@ export default {
       const files = await this.previewPlayer.extractAnnotationSnapshots()
       this.$refs['add-comment'].setAnnotationSnapshots(files)
       return files
+    },
+
+    updateDurationValue() {
+      peopleApi.getUserTaskTimeSpent(this.task.id, moment(this.selectedDate).format('YYYY-MM-DD'), (err, timeSpent) => {
+        if (!err && timeSpent) {
+          this.durationValue = timeSpent.duration ? timeSpent.duration / 60 : 0
+        }
+        else {
+          this.durationValue = 0
+        }
+      })
     }
   },
 
@@ -993,6 +1090,20 @@ export default {
       this.currentPreviewIndex = 0
       if (!this.silent) {
         this.loadTaskData()
+      }
+    },
+
+    selectedDate() {
+      this.updateDurationValue()
+      this.updatedDurationValue = true
+    },
+
+    durationValue() {
+      if (!this.updatedDurationValue) {
+        peopleApi.setTimeSpent(this.task.id, this.user.id, moment(this.selectedDate).format('YYYY-MM-DD'), this.durationValue)
+      }
+      else {
+        this.updatedDurationValue = false
       }
     }
   },
@@ -1087,6 +1198,7 @@ export default {
 <style lang="scss" scoped>
 .dark {
   .add-comment,
+  .time-spent,
   .comment,
   .preview-column-content,
   .no-comment {
@@ -1117,6 +1229,13 @@ export default {
   padding: 0.5em;
   margin-bottom: 0.5em;
   box-shadow: 0px 0px 6px #e0e0e0;
+}
+
+.time-spent {
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  box-shadow: 0px 0px 6px #e0e0e0;
+  border-radius: 5px;
 }
 
 .page-header {
@@ -1219,5 +1338,16 @@ export default {
       background: var(--background-selected);
     }
   }
+}
+.slider-flex {
+  width: 100%;
+  padding-right: 10px;
+}
+
+.slider-infos {
+  font-size: 1.5em;
+  margin-right: 15px;
+  font-weight: bold;
+  width: 30px;
 }
 </style>

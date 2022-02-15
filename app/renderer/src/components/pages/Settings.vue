@@ -21,7 +21,10 @@
             @click="openExplorerExportsDirectory()"
           >
             <span class="icon">
-              <icon name="folder" :width="20" />
+              <icon
+                name="folder"
+                :width="20"
+              />
             </span>
           </button>
         </div>
@@ -40,12 +43,18 @@
           >
             <button class="button is-link">
               <span class="icon">
-                <icon name="info" :width="20" />
+                <icon
+                  name="info"
+                  :width="20"
+                />
               </span>
             </button>
             <template #content>
               <span class="icon">
-                <icon name="info" :width="20" />
+                <icon
+                  name="info"
+                  :width="20"
+                />
               </span>
               <p>
                 {{
@@ -107,6 +116,35 @@
                     $t(
                       'publishersettings.post_exports_command.extensionSelected'
                     )
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.entityName') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.entityTypeName')
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.episodeName') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.fullEntityName')
+                  }}
+                </li>
+                <li>
+                  {{ $t('publishersettings.post_exports_command.projectName') }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.taskStatusName')
+                  }}
+                </li>
+                <li>
+                  {{
+                    $t('publishersettings.post_exports_command.taskTypeName')
                   }}
                 </li>
               </ul>

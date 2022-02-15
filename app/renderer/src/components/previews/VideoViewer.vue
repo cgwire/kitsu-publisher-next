@@ -1,7 +1,16 @@
 <template>
-  <div ref="container" class="video-player">
-    <div ref="video-wrapper" class="video-wrapper">
-      <div v-if="isLoading" class="loading-background">
+  <div
+    ref="container"
+    class="video-player"
+  >
+    <div
+      ref="video-wrapper"
+      class="video-wrapper"
+    >
+      <div
+        v-if="isLoading"
+        class="loading-background"
+      >
         <spinner class="spinner" />
       </div>
       <video

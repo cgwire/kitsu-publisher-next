@@ -5,11 +5,17 @@
       'is-active': active
     }"
   >
-    <div class="modal-background" @click="$emit('cancel')" />
+    <div
+      class="modal-background"
+      @click="$emit('cancel')"
+    />
 
     <div class="modal-content">
       <div class="box">
-        <h1 v-if="commentToEdit && commentToEdit.id" class="title">
+        <h1
+          v-if="commentToEdit && commentToEdit.id"
+          class="title"
+        >
           {{ $t('comments.edit_title') }}
         </h1>
 

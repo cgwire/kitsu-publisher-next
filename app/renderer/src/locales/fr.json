@@ -642,7 +642,14 @@
         "currentProject": "currentProject (String) : le chemin du projet courant ouvert dans le DCC.",
         "cameraSelected": "cameraSelected (String) : le nom de la caméra selectionnée.",
         "rendererSelected": "rendererSelected (String) : le nom du moteur de rendu selectionné.",
-        "extensionSelected": "extensionSelected (String) : le nom de l'extension selectionnée."
+        "extensionSelected": "extensionSelected (String) : le nom de l'extension selectionnée.",
+        "entityName": "entityName (String) : le nom de l'entité.",
+        "entityTypeName": "entityTypeName (String) : le nom du type d'entité.",
+        "episodeName": "episodeName (String) : le nom de l'épisode.",
+        "fullEntityName": "fullEntityName (String) : le nom complet de l'entité.",
+        "projectName": "projectName (String) : le nom du projet.",
+        "taskStatusName": "taskStatusName (String) : le nom du statut de la tâche.",
+        "taskTypeName": "taskTypeName (String) : le nom du type de la tâche."
       },
       "save": {
         "button": "Sauvegardez vos changements"

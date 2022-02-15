@@ -9,9 +9,20 @@
         checked: entry.checked
       }"
     >
-      <span class="flexrow-item" @click="toggleEntryChecked(entry)">
-        <icon v-if="entry.checked" name="check-square" class="icon" />
-        <icon v-else name="square" class="icon" />
+      <span
+        class="flexrow-item"
+        @click="toggleEntryChecked(entry)"
+      >
+        <icon
+          v-if="entry.checked"
+          name="check-square"
+          class="icon"
+        />
+        <icon
+          v-else
+          name="square"
+          class="icon"
+        />
       </span>
       <!--textarea-autosize
       type="text"

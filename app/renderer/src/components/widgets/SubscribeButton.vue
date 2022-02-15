@@ -1,7 +1,19 @@
 <template>
-  <button class="button" :title="buttonTitle" @click="$emit('click')">
-    <icon v-if="subscribed" name="eye" class="icon is-small only-icon" />
-    <icon v-else name="eye-off" class="icon is-small only-icon" />
+  <button
+    class="button"
+    :title="buttonTitle"
+    @click="$emit('click')"
+  >
+    <icon
+      v-if="subscribed"
+      name="eye"
+      class="icon is-small only-icon"
+    />
+    <icon
+      v-else
+      name="eye-off"
+      class="icon is-small only-icon"
+    />
   </button>
 </template>
 
