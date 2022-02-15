@@ -32,9 +32,9 @@ Do_Install()
 {
     echo "Installation of the plugin."
     if [[ $OSTYPE == 'darwin'* ]]; then
-        BLENDER_ADDONS_PATH=~/Library/Application\ Support/Blender/$BLENDER_VERSION/scripts
+        BLENDER_ADDONS_PATH=~/Library/Application\ Support/Blender/$BLENDER_VERSION/scripts/addons
     else
-        BLENDER_ADDONS_PATH=~/.config/blender/$BLENDER_VERSION/scripts
+        BLENDER_ADDONS_PATH=~/.config/blender/$BLENDER_VERSION/scripts/addons
     fi
 
     "$PYTHON_EXECUTABLE" -m pip install "$SCRIPT_PATH" -t "$BLENDER_ADDONS_PATH/modules" -U
