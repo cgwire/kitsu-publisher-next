@@ -110,7 +110,25 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 #### On macOS
 
-- coming soon
+- DMG installer :
+  
+  - Double-click on the installer (Kitsu-publisher-{version}.dmg), a window should open.
+
+  - Drag and drop the Kitsu logo on the "Applications" folder and it will install directly the app.
+
+- PKG installer : 
+
+  - To install the package (you can also install the package by double-clicking on it and following the instructions):
+
+    ```console
+    sudo installer -package Kitsu-publisher-{version}.pkg -target /
+    ```
+
+- Zip portable application : 
+
+  - Double-click on the zip (Kitsu-publisher-{version}-mac.zip) to expand the zip.
+ 
+  - Double-click on the Kitsu publisher icon it will launch the app.
 
 ### Installation of the DCCs connectors
 
