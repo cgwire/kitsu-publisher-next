@@ -363,7 +363,7 @@ export default {
     refreshConnectedDCCClients() {
       this.DCCClients = []
       for (let port = 10000; port <= 10099; port++) {
-        let newClient = new DCCClient(`http://localhost:${port}`)
+        let newClient = new DCCClient(port)
         newClient
           .getInformation()
           .then(() => {
@@ -372,6 +372,7 @@ export default {
                 newClient.getExtensions(true).then(() => {
                   newClient.getExtensions(false).then(() => {
                     this.DCCClients.push(newClient)
+                    this.DCCClients.sort((a,b) => a.port - b.port)
                   })
                 })
               })
