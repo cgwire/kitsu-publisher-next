@@ -53,21 +53,7 @@ def set_current_color_space(color_space: str):
 
 @app.get("/take-viewport-screenshot")
 def take_viewport_screenshot(extension: str, output_path: str = ""):
-    if not output_path or os.path.isdir(output_path):
-        extension_str = ""
-        for extension_list in context.list_extensions(False):
-            if extension_list[1] == extension:
-                extension_str = extension_list[0]
-                break
-        output_path = os.path.join(
-            tempfile.gettempdir() if not output_path else output_path,
-            "%s-%s%s"
-            % (
-                context.get_dcc_name(),
-                datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                extension_str,
-            ),
-        )
+    output_path = generate_output_path(output_path, extension, False)
     context.push_state()
     try:
         context.take_viewport_screenshot(output_path, extension)
@@ -82,21 +68,7 @@ def take_viewport_screenshot(extension: str, output_path: str = ""):
 def take_render_screenshot(
     renderer: str, extension: str, output_path: str = "", use_colorspace: bool = False
 ):
-    if not output_path or os.path.isdir(output_path):
-        extension_str = ""
-        for extension_list in context.list_extensions(False):
-            if extension_list[1] == extension:
-                extension_str = extension_list[0]
-                break
-        output_path = os.path.join(
-            tempfile.gettempdir() if not output_path else output_path,
-            "%s-%s%s"
-            % (
-                context.get_dcc_name(),
-                datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                extension_str,
-            ),
-        )
+    output_path = generate_output_path(output_path, extension, False)
     context.push_state()
     try:
         context.take_render_screenshot(renderer, output_path, extension, use_colorspace)
@@ -109,21 +81,7 @@ def take_render_screenshot(
 
 @app.get("/take-viewport-animation")
 def take_viewport_animation(output_path: str, extension: str):
-    if not output_path or os.path.isdir(output_path):
-        extension_str = ""
-        for extension_list in context.list_extensions(False):
-            if extension_list[1] == extension:
-                extension_str = extension_list[0]
-                break
-        output_path = os.path.join(
-            tempfile.gettempdir() if not output_path else output_path,
-            "%s-%s%s"
-            % (
-                context.get_dcc_name(),
-                datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                extension_str,
-            ),
-        )
+    output_path = generate_output_path(output_path, extension, True)
     context.push_state()
     try:
         context.take_viewport_animation(output_path, extension)
@@ -138,21 +96,7 @@ def take_viewport_animation(output_path: str, extension: str):
 def take_render_animation(
     renderer: str, extension: str, output_path: str = "", use_colorspace: bool = False
 ):
-    if not output_path or os.path.isdir(output_path):
-        extension_str = ""
-        for extension_list in context.list_extensions(True):
-            if extension_list[1] == extension:
-                extension_str = extension_list[0]
-                break
-        output_path = os.path.join(
-            tempfile.gettempdir() if not output_path else output_path,
-            "%s-%s%s"
-            % (
-                context.get_dcc_name(),
-                datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
-                extension_str,
-            ),
-        )
+    output_path = generate_output_path(output_path, extension, True)
     context.push_state()
     try:
         context.take_render_animation(renderer, output_path, extension, use_colorspace)
@@ -161,3 +105,24 @@ def take_render_animation(
     finally:
         context.pop_state()
     return {"file": output_path}
+
+
+def generate_output_path(output_path="", extension="", is_video=False):
+    if not output_path or os.path.isdir(output_path):
+        extension_str = ""
+        for extension_list in context.list_extensions(is_video):
+            if extension_list[1] == extension:
+                extension_str = extension_list[0]
+                break
+        if extension_str == "":
+            extension_str = context.list_extensions(is_video)[0][0]
+        return os.path.join(
+            tempfile.gettempdir() if not output_path else output_path,
+            "%s-%s%s"
+            % (
+                context.get_dcc_name(),
+                datetime.datetime.now().strftime("%Y-%m-%d %H-%M-%S"),
+                extension_str,
+            ),
+        )
+    return output_path
