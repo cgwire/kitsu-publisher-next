@@ -1,8 +1,9 @@
 import apisauce from 'apisauce'
 
 class DCCClient {
-  constructor(baseURL) {
-    this.baseURL = baseURL
+  constructor(port) {
+    this.port = port
+    this.baseURL = `http://localhost:${port}`
     this.api = apisauce.create({ baseURL: this.baseURL })
     this.isCurrentlyOnTakeScreenshot = false
     this.isCurrentlyOnTakeAnimation = false
