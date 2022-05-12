@@ -44,10 +44,10 @@
         <hr>
 
         <h3
-          v-if="DCCClients.length > 0"
+          v-if="Object.keys(DCCClients).length > 0"
           class="title"
         >
-          {{ DCCClients.length }}
+          {{ Object.keys(DCCClients).length }}
           {{ $t('tasks.dcc_connectors') }}
           <button
             :class="{
@@ -136,16 +136,16 @@
         </div>
 
         <div
-          v-for="(DCCClient, index) in DCCClients"
-          :key="index"
+          v-for="port in Object.keys(DCCClients)"
+          :key="port"
           class="box content"
         >
           <h3 class="title">
-            {{ DCCClient.DCCName }} v{{ DCCClient.DCCVersion }}
+            {{ DCCClients[port].DCCName }} v{{ DCCClients[port].DCCVersion }}
           </h3>
 
           <h5
-            v-if="DCCClient.currentProject === ''"
+            v-if="DCCClients[port].currentProject === ''"
             class="title"
           >
             {{ $t('tasks.no_opened_project') }}
@@ -156,12 +156,12 @@
             class="title"
           >
             {{ $t('tasks.currently_opened_project') }}
-            {{ DCCClient.currentProject }}
+            {{ DCCClients[port].currentProject }}
           </h5>
 
           <p>
             <span
-              v-if="DCCClient.cameras.length > 0"
+              v-if="DCCClients[port].cameras.length > 0"
               class="select"
             >
               <select
@@ -169,13 +169,13 @@
                   'select-input': true,
                   'is-disabled': isCurrentlyOnTake
                 }"
-                @change="(event) => DCCClient.setCamera(event.target.value)"
+                @change="(event) => DCCClients[port].setCamera(event.target.value)"
               >
                 <option
-                  v-for="camera in DCCClient.cameras"
+                  v-for="camera in DCCClients[port].cameras"
                   :key="`${camera}`"
                   :value="camera"
-                  :selected="camera === DCCClient.cameraSelected"
+                  :selected="camera === DCCClients[port].cameraSelected"
                 >
                   {{ camera }}
                 </option>
@@ -183,7 +183,7 @@
             </span>
 
             <span
-              v-if="DCCClient.renderers.length > 0"
+              v-if="DCCClients[port].renderers.length > 0"
               class="select"
             >
               <select
@@ -191,13 +191,13 @@
                   'select-input': true,
                   'is-disabled': isCurrentlyOnTake
                 }"
-                @change="(event) => DCCClient.setRenderer(event.target.value)"
+                @change="(event) => DCCClients[port].setRenderer(event.target.value)"
               >
                 <option
-                  v-for="renderer in DCCClient.renderers"
+                  v-for="renderer in DCCClients[port].renderers"
                   :key="`${renderer[1]}`"
                   :value="renderer[1]"
-                  :selected="renderer[1] === DCCClient.rendererSelected"
+                  :selected="renderer[1] === DCCClients[port].rendererSelected"
                 >
                   {{ renderer[0] }}
                 </option>
@@ -207,10 +207,10 @@
             <button
               :class="{
                 button: true,
-                'is-loading': DCCClient.isCurrentlyOnTakeScreenshot,
+                'is-loading': DCCClients[port].isCurrentlyOnTakeScreenshot,
                 'is-disabled': isCurrentlyOnTake
               }"
-              @click="onTake(DCCClient, false)"
+              @click="onTake(DCCClients[port], false)"
             >
               {{ $t('tasks.take_screenshot') }}
             </button>
@@ -218,10 +218,10 @@
             <button
               :class="{
                 button: true,
-                'is-loading': DCCClient.isCurrentlyOnTakeAnimation,
+                'is-loading': DCCClients[port].isCurrentlyOnTakeAnimation,
                 'is-disabled': isCurrentlyOnTake
               }"
-              @click="onTake(DCCClient, true)"
+              @click="onTake(DCCClients[port], true)"
             >
               {{ $t('tasks.take_animation') }}
             </button>
@@ -361,7 +361,7 @@ export default {
     ...mapActions([]),
 
     refreshConnectedDCCClients() {
-      this.DCCClients = []
+      this.DCCClients = {}
       for (let port = 10000; port <= 10099; port++) {
         let newClient = new DCCClient(port)
         newClient
@@ -371,8 +371,7 @@ export default {
               newClient.getRenderers().then(() => {
                 newClient.getExtensions(true).then(() => {
                   newClient.getExtensions(false).then(() => {
-                    this.DCCClients.push(newClient)
-                    this.DCCClients.sort((a,b) => a.port - b.port)
+                    this.DCCClients[port] = newClient
                   })
                 })
               })
