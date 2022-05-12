@@ -36,6 +36,8 @@ function HTTPDaemon(parent) {
     this.disabled = false
   }
 
+  this.lock = false
+
   this.routes = {}
 
   this.add_route = function (route, methods, afunction) {
@@ -112,6 +114,8 @@ function HTTPDaemon(parent) {
       if (this.socket.state() == QAbstractSocket.UnconnectedState) {
         this.socket.deleteLater()
       }
+
+      this.lock = false
     }
   }
 
@@ -119,12 +123,33 @@ function HTTPDaemon(parent) {
     this.socket.deleteLater()
   }
 
+  this.setTimeout = function(fc) {
+    timer = new QTimer()
+    timer.interval = 300
+    timer.singleShot = true
+    timer.timeout.connect(this, function(){
+        fc.call()
+    })
+    timer.start()
+  }
+
+  this.waitForLock = function() {
+    if (this.lock === true) {
+      this.setTimeout(this.waitForLock)
+    }
+    return
+  }
+
   this.incomingConnection = function (socket) {
     if (this.disabled) {
       return
     }
 
-    this.socket = new QTcpSocket(this) // TODO : WARNING : this is not safe for managing multiple connections
+    if (this.lock === true) {
+      this.waitForLock()
+    } 
+    this.lock = true
+    this.socket = new QTcpSocket(this)
     this.socket.readyRead.connect(this, 'readClient')
     this.socket.disconnected.connect(this, 'discardClient')
     this.socket.setSocketDescriptor(socket)
