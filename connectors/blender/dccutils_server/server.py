@@ -9,7 +9,7 @@ from .api import app
 def find_free_port(port_range=range(10000, 10100)):
     for port in port_range:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if s.connect_ex(("localhost", port)) != 0:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
                 return port
     return False
 
@@ -17,7 +17,7 @@ def find_free_port(port_range=range(10000, 10100)):
 def server_start(port_range=range(10000, 10100)):
     port = find_free_port(port_range)
     if port:
-        uvicorn.run(app, host="0.0.0.0", port=port)
+        uvicorn.run(app, host="127.0.0.1", port=port)
     else:
         print(
             "Cannot find a free port in the range [%i...%i]"
