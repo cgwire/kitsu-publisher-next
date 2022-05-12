@@ -9,7 +9,7 @@ from .api import app
 def find_free_port(port_range=range(10000, 10100)):
     for port in port_range:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            if s.connect_ex(("localhost", port)) != 0:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
                 return port
     return False
 

@@ -26,7 +26,7 @@ Work in progress:
 
 #### Pre-requisites
 
-You need to download (or to build if you want to : see [Development Environment](#development-environment)) your preferred installer/package/portable for the app corresponding to your OS in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest).
+You need to download (or to build if you want to: see [Development Environment](#development-environment)) your preferred installer/package/portable for the app corresponding to your OS in the [releases](https://github.com/cgwire/kitsu-publisher-next/releases/latest).
 
 All comands have the keyword {version} in the filenames, you need to replace the version with the current version of the Kitsu Publisher.
 
@@ -110,13 +110,13 @@ All comands have the keyword {version} in the filenames, you need to replace the
 
 #### On macOS
 
-- DMG installer :
+- DMG installer:
   
   - Double-click on the installer (Kitsu-publisher-{version}.dmg), a window should open.
 
   - Drag and drop the Kitsu logo on the "Applications" folder and it will install directly the app.
 
-- PKG installer : 
+- PKG installer:
 
   - To install the package (you can also install the package by double-clicking on it and following the instructions):
 
@@ -124,7 +124,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
     sudo installer -package Kitsu-publisher-{version}.pkg -target /
     ```
 
-- Zip portable application : 
+- Zip portable application:
 
   - Double-click on the zip (Kitsu-publisher-{version}-mac.zip) to expand the zip.
  
@@ -172,7 +172,7 @@ You need to download the connectors-{version}.zip archive in the [releases](http
 
 - On macOS:
 
-  - If Blender is installed with a dmg image or Homebrew :
+  - If Blender is installed with a dmg image or Homebrew:
 
     ```console
     bash ./install.sh --dmg
