@@ -79,12 +79,16 @@ function Installer {
         if (Test-Path $blender_executable) 
         {
             Write-Output "Found installer installation of Blender in $InstallLocation."
-            $blender_version = (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')[0] 
-            $blender_version = ($blender_version -split ' ')[1] -split '\.'
-            $blender_version = $blender_version[0] + "." + $blender_version[1]
-            $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($InstallLocation, $blender_version, "python", "bin", "python*.exe"))).FullName
-            Install-Pip
-            Install
+            foreach ($line in (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')) {
+                if ($line -match 'Blender [0-9]+\.[0-9]+\.[0-9]+') {
+                    $blender_version = ($line -split ' ')[1] -split '\.'
+                    $blender_version = $blender_version[0] + "." + $blender_version[1]
+                    $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($InstallLocation, $blender_version, "python", "bin", "python*.exe"))).FullName
+                    Install-Pip
+                    Install
+                    break
+                }
+            }
         }
     }
 }
