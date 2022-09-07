@@ -61,14 +61,20 @@ case $1 in
             exit 1
         fi
         BLENDER_EXECUTABLE=blender
-        BLENDER_VERSION=$(blender -v | head -n 1 | cut -d' ' -f2 | cut -d'.' -f1-2)
-        BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
-        if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
-            echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
-            exit 1
-        fi
-        PYTHON_EXECUTABLE=python3
-        Do_Install
+        REGEX_MATCH_VERSION="^Blender [0-9]+\.[0-9]+\.[0-9]+$"
+        "$BLENDER_EXECUTABLE" -v | while read line
+        do
+            if [[ $line =~ $REGEX_MATCH_VERSION ]]; then
+                BLENDER_VERSION=$(echo "$line" | cut -d' ' -f2 | cut -d'.' -f1-2)
+                BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
+                if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
+                    echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
+                    exit 1
+                fi
+                PYTHON_EXECUTABLE=python3
+                Do_Install
+            fi
+        done
     ;;
 
     --snap)
@@ -82,15 +88,20 @@ case $1 in
             echo "Blender could not be found as a snap installation at $BLENDER_SNAP_LOCATION."
             exit 1
         fi
-        BLENDER_VERSION=$("$BLENDER_EXECUTABLE" -v | head -n 1 | cut -d' ' -f2 | cut -d'.' -f1-2)
-        BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
-        if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
-            echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
-            exit 1
-        fi
-        PYTHON_EXECUTABLE=$(ls $BLENDER_SNAP_LOCATION/$BLENDER_VERSION/python/bin/python*)
-        Install_Pip
-        Do_Install
+        REGEX_MATCH_VERSION="^Blender [0-9]+\.[0-9]+\.[0-9]+$"
+        "$BLENDER_EXECUTABLE" -v | while read line
+        do
+            if [[ $line =~ $REGEX_MATCH_VERSION ]]; then
+                BLENDER_VERSION=$(echo "$line" | cut -d' ' -f2 | cut -d'.' -f1-2)
+                BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
+                if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
+                    echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
+                    exit 1
+                fi
+                PYTHON_EXECUTABLE=$(ls $BLENDER_SNAP_LOCATION/$BLENDER_VERSION/python/bin/python*)
+                Do_Install
+            fi
+        done
     ;;
 
     --dmg)
@@ -104,15 +115,20 @@ case $1 in
             echo "Blender could not be found as a dmg installation at $BLENDER_DMG_LOCATION."
             exit 1
         fi
-        BLENDER_VERSION=$("$BLENDER_EXECUTABLE" -v | head -n 1 | cut -d' ' -f2 | cut -d'.' -f1-2)
-        BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
-        if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
-            echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
-            exit 1
-        fi
-        PYTHON_EXECUTABLE=$(ls $BLENDER_DMG_LOCATION/../Resources/$BLENDER_VERSION/python/bin/python*)
-        Install_Pip
-        Do_Install
+        REGEX_MATCH_VERSION="^Blender [0-9]+\.[0-9]+\.[0-9]+$"
+        "$BLENDER_EXECUTABLE" -v | while read line
+        do
+            if [[ $line =~ $REGEX_MATCH_VERSION ]]; then
+                BLENDER_VERSION=$(echo "$line" | cut -d' ' -f2 | cut -d'.' -f1-2)
+                BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
+                if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
+                    echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
+                    exit 1
+                fi
+                PYTHON_EXECUTABLE=$(ls $BLENDER_DMG_LOCATION/../Resources/$BLENDER_VERSION/python/bin/python*)
+                Do_Install
+            fi
+        done
     ;;
 
     --unpacked-directory=*)
@@ -122,15 +138,20 @@ case $1 in
             echo "Blender could not be found as a unpacked directory at $UNPACKED_DIRECTORY."
             exit 1
         fi
-        BLENDER_VERSION=$("$BLENDER_EXECUTABLE" -v | head -n 1 | cut -d' ' -f2 | cut -d'.' -f1-2)
-        BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
-        if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
-            echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
-            exit 1
-        fi
-        PYTHON_EXECUTABLE=$(ls $UNPACKED_DIRECTORY/$BLENDER_VERSION/python/bin/python*)
-        Install_Pip
-        Do_Install
+        REGEX_MATCH_VERSION="^Blender [0-9]+\.[0-9]+\.[0-9]+$"
+        "$BLENDER_EXECUTABLE" -v | while read line
+        do
+            if [[ $line =~ $REGEX_MATCH_VERSION ]]; then
+                BLENDER_VERSION=$(echo "$line" | cut -d' ' -f2 | cut -d'.' -f1-2)
+                BLENDER_VERSION_SPLIT=(${BLENDER_VERSION//./ })
+                if [ ${BLENDER_VERSION_SPLIT[0]} -lt 2 ] || ([ ${BLENDER_VERSION_SPLIT[0]} -eq 2 ] && [ ${BLENDER_VERSION_SPLIT[1]} -lt 80 ]); then
+                    echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
+                    exit 1
+                fi
+                PYTHON_EXECUTABLE=$(ls $BLENDER_DMG_LOCATION/../Resources/$BLENDER_VERSION/python/bin/python*)
+                Do_Install
+            fi
+        done
     ;;
 
     -h|--help)
