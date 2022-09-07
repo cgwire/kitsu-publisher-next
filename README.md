@@ -1,4 +1,4 @@
-[![Kitsu](https://www.cg-wire.com/en/images/kitsu.png)](https://kitsu.cg-wire.com)
+[![Kitsu](https://zou.cg-wire.com/kitsu.png)](https://kitsu.cg-wire.com)
 
 # Kitsu Publisher, send your files right from your DCC
 
@@ -15,10 +15,14 @@ badge](https://travis-ci.com/cgwire/kitsu-publisher-next.svg?branch=master)](htt
 
 ## DCC integrations status:
 
-Work in progress:
+Available:
 
 - Blender
 - Toon Boom Harmony
+
+Work in progress:
+
+ - Unreal Engine 5
 
 ## Installation
 
