@@ -148,7 +148,7 @@ case $1 in
                     echo "Blender plugin for the Kitsu Publisher cannot be installed on Blender < 2.80."
                     exit 1
                 fi
-                PYTHON_EXECUTABLE=$(ls $BLENDER_DMG_LOCATION/../Resources/$BLENDER_VERSION/python/bin/python*)
+                PYTHON_EXECUTABLE=$(ls $UNPACKED_DIRECTORY/$BLENDER_VERSION/python/bin/python*)
                 Do_Install
             fi
         done
