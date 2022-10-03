@@ -1,0 +1,28 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "Kitsu Publisher",
+	"Description": "Unreal Editor plugin for the desktop publisher for Kitsu",
+	"Category": "Other",
+	"CreatedBy": "CGWire",
+	"CreatedByURL": "https://www.cg-wire.com/",
+	"DocsURL": "https://kitsu.cg-wire.com/publisher/",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/cgwire/kitsu-publisher-next",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"EnabledByDefault": true,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Plugins": [
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "SequencerScripting",
+			"Enabled": true
+		}
+	]
+}

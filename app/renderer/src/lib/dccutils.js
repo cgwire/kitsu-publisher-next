@@ -12,6 +12,8 @@ class DCCClient {
     this.currentProject = ''
     this.cameras = []
     this.cameraSelected = ''
+    this.sequences = []
+    this.sequenceSelected = ''
     this.renderers = []
     this.rendererSelected = ''
     this.videoExtensions = []
@@ -46,9 +48,18 @@ class DCCClient {
   getCameras() {
     return this.get('get-cameras').then((data) => {
       this.cameras = data
-
       if (this.cameras.length > 0) {
-        this.cameraSelected = this.cameras[0]
+        this.setCamera(this.cameras[0]).then()
+      }
+      return Promise.resolve(data)
+    })
+  }
+
+  getSequences() {
+    return this.get('get-sequences').then((data) => {
+      this.sequences = data
+      if (this.sequences.length > 0) {
+        this.setSequence(this.sequences[0]).then()
       }
       return Promise.resolve(data)
     })
@@ -57,6 +68,12 @@ class DCCClient {
   setCamera(camera) {
     return this.get('set-camera', { camera: camera }).then(() => {
       this.cameraSelected = camera
+    })
+  }
+
+  setSequence(sequence) {
+    return this.get('set-sequence', { sequence: sequence }).then(() => {
+      this.sequenceSelected = sequence
     })
   }
 

@@ -204,6 +204,28 @@
               </select>
             </span>
 
+            <span
+              v-if="DCCClients[port].sequences.length > 0"
+              class="select"
+            >
+              <select
+                :class="{
+                  'select-input': true,
+                  'is-disabled': isCurrentlyOnTake
+                }"
+                @change="(event) => DCCClients[port].setSequence(event.target.value)"
+              >
+                <option
+                  v-for="sequence in DCCClients[port].sequences"
+                  :key="`${sequence}`"
+                  :value="sequence"
+                  :selected="sequence === DCCClients[port].sequenceSelected"
+                >
+                  {{ sequence }}
+                </option>
+              </select>
+            </span>
+
             <button
               :class="{
                 button: true,
@@ -371,7 +393,9 @@ export default {
               newClient.getRenderers().then(() => {
                 newClient.getExtensions(true).then(() => {
                   newClient.getExtensions(false).then(() => {
-                    this.DCCClients[port] = newClient
+                    newClient.getSequences().then().catch().finally(() => {
+                      this.DCCClients[port] = newClient
+                    })
                   })
                 })
               })
