@@ -1,9 +1,9 @@
  param (
-    [switch]$help = $false,
-    [switch]$installer = $false,
-    [switch]$portable = $false,
-    [string]$portable_path = "",
-    [switch]$noprompt = $false
+    [switch]$Help = $false,
+    [switch]$Installer = $false,
+    [switch]$Portable = $false,
+    [string]$PortablePath = "",
+    [switch]$NoPrompt = $false
  )
 
 function ConvertTo-Boolean {
@@ -34,28 +34,28 @@ function Get-Help {
     Write-Output "  Install the plugin for an installer installation."
     Write-Output "-portable PATH"
     Write-Output "  Install the plugin for a portable directory installation. You need to specify the path to this directory."
-    Write-Output "-noprompt"
+    Write-Output "-NoPrompt"
     Write-Output "  Disable the ending prompt."
 }
 
 function Install-Pip {
     Write-Output "Installation of pip."
-    & $python_executable -m ensurepip --upgrade
+    & $PythonExecutable -m ensurepip --upgrade
     Write-Output "Pip installed."
 }
 
-function Install {
+function Install-Plugin {
     Write-Output "Installation of the plugin."
-    $blender_addons_path = [IO.Path]::Combine($env:APPDATA, "Blender Foundation", "Blender", $blender_version, "scripts", "addons")
-    & $python_executable -m pip install $PSScriptRoot -t ([IO.Path]::Combine($blender_addons_path, "modules")) -U
-    Copy-Item -Path ([IO.Path]::Combine($PSScriptRoot, "kitsu-publisher.py")) ([IO.Path]::Combine($blender_addons_path)) -force
-    Write-Output "Plugin for blender installed in $blender_addons_path"
+    $BlenderAddonsPath = [IO.Path]::Combine($env:APPDATA, "Blender Foundation", "Blender", $BlenderVersion, "scripts", "addons")
+    & $PythonExecutable -m pip install dccutils_server -t ([IO.Path]::Combine($BlenderAddonsPath, "modules")) -U
+    Copy-Item -Path ([IO.Path]::Combine($PSScriptRoot, "kitsu-publisher.py")) ([IO.Path]::Combine($BlenderAddonsPath)) -force
+    Write-Output "Plugin for blender installed in $BlenderAddonsPath"
     Write-Output "Enabling the plugin in Blender."
-    & $blender_executable -b -P ([IO.Path]::Combine($PSScriptRoot, "auto-enable.py"))
+    & $BlenderExecutable -b -P ([IO.Path]::Combine($PSScriptRoot, "auto-enable.py"))
     Write-Output "Plugin enabled."
 }
 
-function Installer {
+function Installer-Installation {
     $UninstallKeys = @('HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall',
                     'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall',
                     'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall'
@@ -64,8 +64,8 @@ function Installer {
     $InstallLocationsBlender = [System.Collections.ArrayList]::new()
     foreach ($key in (Get-ChildItem $UninstallKeys)) {
         if ($key.getValue("DisplayName") -eq "blender" ) {
-            $display_version = $key.getValue("DisplayVersion") -split '\.'
-            if (([int]$display_version[0] -ge 3) -or (([int]$display_version[0] -ge 2) -and [int]$display_version[1] -ge 80)) {
+            $DisplayVersion = $key.getValue("DisplayVersion") -split '\.'
+            if (([int]$DisplayVersion[0] -ge 3) -or (([int]$DisplayVersion[0] -ge 2) -and [int]$DisplayVersion[1] -ge 80)) {
                 [void]$InstallLocationsBlender.Add($key.getValue("InstallLocation"))
             }
         }
@@ -75,17 +75,17 @@ function Installer {
         throw "Blender is not installed on this computer." 
     }
     foreach ($InstallLocation in $InstallLocationsBlender) {
-        $blender_executable = [IO.Path]::Combine($InstallLocation, "blender.exe")
-        if (Test-Path $blender_executable) 
+        $BlenderExecutable = [IO.Path]::Combine($InstallLocation, "blender.exe")
+        if (Test-Path $BlenderExecutable) 
         {
             Write-Output "Found installer installation of Blender in $InstallLocation."
-            foreach ($line in (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')) {
-                if ($line -match 'Blender [0-9]+\.[0-9]+\.[0-9]+') {
-                    $blender_version = ($line -split ' ')[1] -split '\.'
-                    $blender_version = $blender_version[0] + "." + $blender_version[1]
-                    $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($InstallLocation, $blender_version, "python", "bin", "python*.exe"))).FullName
+            foreach ($Line in (((cmd.exe /c $BlenderExecutable -v) | Out-String) -split '\n')) {
+                if ($Line -match 'Blender [0-9]+\.[0-9]+\.[0-9]+') {
+                    $BlenderVersion = ($Line -split ' ')[1] -split '\.'
+                    $BlenderVersion = $BlenderVersion[0] + "." + $BlenderVersion[1]
+                    $PythonExecutable = (Get-ChildItem -Path ([IO.Path]::Combine($InstallLocation, $BlenderVersion, "python", "bin", "python*.exe"))).FullName
                     Install-Pip
-                    Install
+                    Install-Plugin
                     break
                 }
             }
@@ -93,46 +93,46 @@ function Installer {
     }
 }
 
-function Portable {
-    if ($portable_path -eq "") {
-        if (!$noprompt) {
-            $portable_path = Read-Host -Prompt "Type the path to your portable Blender "
+function Portable-Installation {
+    if ($PortablePath -eq "") {
+        if (!$NoPrompt) {
+            $PortablePath = Read-Host -Prompt "Type the path to your portable Blender "
         }
         else {
             throw "You need to give the path to your portable Blender (-help for help)."
         }
     }
-    $blender_executable = [IO.Path]::Combine($portable_path, "blender.exe")
-    if (-not (Test-Path $blender_executable)) 
+    $BlenderExecutable = [IO.Path]::Combine($PortablePath, "blender.exe")
+    if (-not (Test-Path $BlenderExecutable)) 
     {
-        throw [System.IO.FileNotFoundException] "Blender could not be found as a portable directory at $portable_path."
+        throw [System.IO.FileNotFoundException] "Blender could not be found as a portable directory at $PortablePath."
     }
-    $blender_version = (((cmd.exe /c $blender_executable -v) | Out-String) -split '\n')[0] 
-    $blender_version = ($blender_version -split ' ')[1] -split '\.'
-    $blender_version = $blender_version[0] + "." + $blender_version[1]
-    $python_executable = (Get-ChildItem -Path ([IO.Path]::Combine($portable_path, $blender_version, "python", "bin", "python*.exe"))).FullName
+    $BlenderVersion = (((cmd.exe /c $BlenderExecutable -v) | Out-String) -split '\n')[0] 
+    $BlenderVersion = ($BlenderVersion -split ' ')[1] -split '\.'
+    $BlenderVersion = $BlenderVersion[0] + "." + $BlenderVersion[1]
+    $PythonExecutable = (Get-ChildItem -Path ([IO.Path]::Combine($PortablePath, $BlenderVersion, "python", "bin", "python*.exe"))).FullName
     Install-Pip
-    Install
+    Install-Plugin
 }
 
 try {
-    if($help)
+    if($Help)
     {
         Get-Help
-    } elseif ($installer)
+    } elseif ($Installer)
     {
-        Installer
-    } elseif ($portable)
+        Installer-Installation
+    } elseif ($Portable)
     {
-        Portable
+        Portable-Installation
     } else 
     {
-        if (! $noprompt) {
+        if (! $NoPrompt) {
             if (ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Blender plugin for the Kitsu Publisher for Blender installer installation? (Y/N)")) {
-                Installer
+                Installer-Installation
             }
             elseif (ConvertTo-Boolean -Variable (Read-Host -Prompt "Do you want to install the Blender plugin for the Kitsu Publisher for Blender portable? (Y/N)")) {
-                Portable
+                Portable-Installation
             }
             else {
                 throw "Installation aborted."
@@ -145,7 +145,7 @@ try {
 } catch {
     Write-Host -Foreground Red -Background Black ($_)
 } finally {
-    if (! $noprompt) {
+    if (! $NoPrompt) {
         Read-Host -Prompt "Press enter to finish"
     }
 }

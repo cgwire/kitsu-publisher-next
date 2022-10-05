@@ -37,7 +37,7 @@ Do_Install()
         BLENDER_ADDONS_PATH=~/.config/blender/$BLENDER_VERSION/scripts/addons
     fi
 
-    "$PYTHON_EXECUTABLE" -m pip install "$SCRIPT_PATH" -t "$BLENDER_ADDONS_PATH/modules" -U
+    "$PYTHON_EXECUTABLE" -m pip install dccutils_server -t "$BLENDER_ADDONS_PATH/modules" -U
     cp -f "$SCRIPT_PATH/kitsu-publisher.py" "$BLENDER_ADDONS_PATH"
     echo "Plugin for blender installed in $BLENDER_ADDONS_PATH"
     echo "Enabling the plugin in Blender."
@@ -164,6 +164,3 @@ case $1 in
     exit 1
     ;;
 esac
-
-# To run blender with the server launched :
-# blender yourproject.blend --python $SCRIPT_PATH/test.py
