@@ -19,10 +19,12 @@ Available:
 
 - Blender
 - Toon Boom Harmony
+- Unreal Engine
 
 Work in progress:
 
- - Unreal Engine 5
+  - Maya
+  - Adobe Photoshop
 
 ## Installation
 
@@ -195,6 +197,28 @@ You need to download the connectors-{version}.zip archive in the [releases](http
     ```console
     .\install.ps1 -help
     ```
+
+- On macOS:
+
+  - coming soon
+
+#### Unreal Editor (version>=5)
+
+- You need to go inside the connectors/unreal directory.
+
+- On Windows (with PowerShell):
+
+  - If you want to be guided through the installation of the plugin, you have to right-click on the script install.ps1 and select "Run with PowerShell" to run the script in prompt mode. If you have multiple installations from installer of Unreal Editor it will install the plugin for all the installations.
+
+  - If you want to run the script with PowerShell command line it's possible, look at the help with:
+
+    ```console
+    .\install.ps1 -help
+    ```
+
+- On Linux:
+
+  - coming soon
 
 - On macOS:
 
