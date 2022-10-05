@@ -47,7 +47,7 @@ function Install-Pip {
 function Install-Plugin {
     Write-Output "Installation of the plugin."
     $BlenderAddonsPath = [IO.Path]::Combine($env:APPDATA, "Blender Foundation", "Blender", $BlenderVersion, "scripts", "addons")
-    & $PythonExecutable -m pip install dccutils_server -t ([IO.Path]::Combine($BlenderAddonsPath, "modules")) -U
+    & $PythonExecutable -m pip install -r ([IO.Path]::Combine($PSScriptRoot, "..", "requirements_python_connector.txt")) -t ([IO.Path]::Combine($BlenderAddonsPath, "modules")) -U
     Copy-Item -Path ([IO.Path]::Combine($PSScriptRoot, "kitsu-publisher.py")) ([IO.Path]::Combine($BlenderAddonsPath)) -force
     Write-Output "Plugin for blender installed in $BlenderAddonsPath"
     Write-Output "Enabling the plugin in Blender."

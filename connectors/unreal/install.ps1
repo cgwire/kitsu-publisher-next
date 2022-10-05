@@ -43,7 +43,7 @@ function Install-Pip {
 function Install-Plugin {
     Write-Output "Installation of the plugin."
     $PluginPath = [IO.Path]::Combine($PSScriptRoot, "KitsuPublisher")
-    & $PythonExecutable -m pip install dccutils_server -t ([IO.Path]::Combine($PluginPath, "Content/Python/Lib/site-packages")) -U
+    & $PythonExecutable -m pip install -r ([IO.Path]::Combine($PSScriptRoot, "..", "requirements_python_connector.txt")) -t ([IO.Path]::Combine($PluginPath, "Content/Python/Lib/site-packages")) -U
     $UnrealPluginPath = [IO.Path]::Combine($InstallLocationUnreal, "Engine/Plugins")
     $PublisherUnrealPluginPath = [IO.Path]::Combine($UnrealPluginPath, "KitsuPublisher")
     if (Test-Path $PublisherUnrealPluginPath) {
