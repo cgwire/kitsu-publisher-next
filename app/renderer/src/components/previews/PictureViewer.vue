@@ -96,6 +96,24 @@ export default {
     }
   },
 
+  mounted() {
+    this.container.style.height = this.defaultHeight + 'px'
+    this.isLoading = true
+    if (this.picture.complete) {
+      this.isLoading = false
+      this.onWindowResize()
+    }
+    this.picture.addEventListener('load', this.endLoading)
+    this.pictureBig.addEventListener('load', this.endLoading)
+    this.pictureGif.addEventListener('load', this.endLoading)
+    window.addEventListener('resize', this.onWindowResize)
+    this.setPicturePath()
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.onWindowResize)
+  },
+
   computed: {
     // Elements
 
@@ -157,72 +175,6 @@ export default {
         return null
       }
     }
-  },
-
-  watch: {
-    fullScreen() {
-      if (this.fullScreen) {
-        this.isLoading = true
-        this.setPictureDlPath()
-        if (this.pictureBig.complete) this.isLoading = false
-      } else {
-        this.setPicturePath()
-      }
-    },
-
-    isLoading() {
-      if (!this.isLoading) {
-        setTimeout(this.resetPicture, 100)
-      }
-    },
-
-    light() {
-      this.onWindowResize()
-    },
-
-    isComparing() {
-      setTimeout(() => {
-        this.resetPicture()
-      }, 20)
-    },
-
-    preview() {
-      this.isLoading = true
-      this.setPicturePath()
-      this.setPictureDlPath()
-      if (this.currentIndex > 1) {
-        this.currentIndex = 1
-      }
-      if (this.fullScreen) {
-        if (this.pictureBig.complete) {
-          this.resetPicture()
-          this.isLoading = false
-        }
-      } else {
-        if (this.picture.complete) {
-          this.isLoading = false
-        }
-        this.$nextTick(this.resetPicture)
-      }
-    }
-  },
-
-  mounted() {
-    this.container.style.height = this.defaultHeight + 'px'
-    this.isLoading = true
-    if (this.picture.complete) {
-      this.isLoading = false
-      this.onWindowResize()
-    }
-    this.picture.addEventListener('load', this.endLoading)
-    this.pictureBig.addEventListener('load', this.endLoading)
-    this.pictureGif.addEventListener('load', this.endLoading)
-    window.addEventListener('resize', this.onWindowResize)
-    this.setPicturePath()
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('resize', this.onWindowResize)
   },
 
   methods: {
@@ -358,6 +310,54 @@ export default {
       const bgX = Math.min(ratioW * zx - 150, naturalDimensions.width - 300)
       const bgY = Math.min(ratioW * zy - 150, naturalDimensions.height - 300)
       this.$refs.loupe.style['background-position'] = `-${bgX}px -${bgY}px`
+    }
+  },
+
+  watch: {
+    fullScreen() {
+      if (this.fullScreen) {
+        this.isLoading = true
+        this.setPictureDlPath()
+        if (this.pictureBig.complete) this.isLoading = false
+      } else {
+        this.setPicturePath()
+      }
+    },
+
+    isLoading() {
+      if (!this.isLoading) {
+        setTimeout(this.resetPicture, 100)
+      }
+    },
+
+    light() {
+      this.onWindowResize()
+    },
+
+    isComparing() {
+      setTimeout(() => {
+        this.resetPicture()
+      }, 20)
+    },
+
+    preview() {
+      this.isLoading = true
+      this.setPicturePath()
+      this.setPictureDlPath()
+      if (this.currentIndex > 1) {
+        this.currentIndex = 1
+      }
+      if (this.fullScreen) {
+        if (this.pictureBig.complete) {
+          this.resetPicture()
+          this.isLoading = false
+        }
+      } else {
+        if (this.picture.complete) {
+          this.isLoading = false
+        }
+        this.$nextTick(this.resetPicture)
+      }
     }
   }
 }

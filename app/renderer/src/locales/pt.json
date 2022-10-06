@@ -338,14 +338,6 @@
       "team": "Time",
       "title": "Pessoas",
       "unactive": "Inativo",
-      "csv": {
-        "import_file": "Importar arquivo .csv",
-        "export_file": "Baixar como .csv",
-        "import_title": "Importar dados de um arquivo CSV",
-        "required_fields": "Seu arquivo CSV precisa das seguintes colunas:",
-        "select_file": "Por favor selecione um arquivo da sua pasta:",
-        "error_upload": "Um erro ocorreu no upload do arquivo CSV."
-      },
       "fields": {
         "first_name": "Primeiro nome",
         "last_name": "Último nome",
@@ -367,7 +359,8 @@
       "role": {
         "admin": "Gerente de Estúdio",
         "client": "Cliente",
-        "manager": "Supervisor",
+        "manager": "Production manager",
+        "supervisor": "Supervisor",
         "user": "Artista",
         "undefined": "desconhecido",
         "vendor": "Fornecedor"
@@ -505,6 +498,10 @@
       "notifications_enabled": "Notificações de email habilitadas",
       "notifications_slack_enabled": "Notificações do Slack habilitadas",
       "notifications_slack_user": "Nome de usuário do Slack",
+      "notifications_mattermost_enabled": "Notificações do Mattermost habilitadas",
+      "notifications_mattermost_user": "Nome de usuário do Mattermost",
+      "notifications_discord_enabled": "Notificações do Discord habilitadas",
+      "notifications_discord_user": "Nome de usuário do Discord",
       "password_title": "Alterar senha",
       "timezone": "Timezone",
       "title": "Seu Perfil",
@@ -530,10 +527,13 @@
       "no_logo": "Sem logo definida.",
       "set_logo": "Escolher logo do estúdio",
       "title": "Configurações",
+      "webhook_error": "Une erreur est survenue en postant le webhook",
       "fields": {
         "name": "Nome do estúdio",
         "hours_by_day": "Horas por dia",
         "slack_token": "Slack Token (Opcional)",
+        "mattermost_webhook": "Mattermost Webhook (Opcionnal)",
+        "discord_token": "Discord Token (Opcional)",
         "use_original_name": "Usar nome original dos arquivos para download"
       },
       "production": {
@@ -556,8 +556,8 @@
         "color": "Cor",
         "is_artist_allowed": "Artista é permitido",
         "is_client_allowed": "O cliente é permitido",
+        "is_default": "Is default",
         "is_done": "Está feito",
-        "is_reviewable": "É revisável",
         "is_retake": "Tem valor de retomada",
         "name": "Nome",
         "short_name": "Nome do curta"

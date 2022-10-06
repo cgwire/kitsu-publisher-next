@@ -20,13 +20,19 @@
     >
       <input
         ref="input"
-        :class="'input flexrow-item' + inputClass"
+        :class="
+          errored
+            ? 'input flexrow-item errored' + inputClass
+            : 'input flexrow-item' + inputClass
+        "
         :placeholder="placeholder"
         :type="type"
         :value="modelValue"
         :disabled="disabled"
         :maxlength="maxlength"
         min="0"
+        :max="max || undefined"
+        :step="step || undefined"
         @input="updateValue()"
         @keyup.enter="emitEnter()"
       >
@@ -75,11 +81,21 @@ export default {
       default: '',
       type: String
     },
+    max: {
+      type: Number
+    },
     maxlength: {
       default: 524288,
       type: Number
     },
+    step: {
+      type: Number
+    },
     isInline: {
+      default: false,
+      type: Boolean
+    },
+    errored: {
       default: false,
       type: Boolean
     },
@@ -131,6 +147,7 @@ export default {
 
 input.input {
   font-size: 1.2em;
+  border-radius: 10px;
 }
 input.input.thin {
   height: 2.4em;
@@ -142,6 +159,10 @@ input.input.thin {
 
 button {
   font-size: 1.2em;
+}
+
+.input.errored {
+  border-color: $red;
 }
 
 input[type='number']::-webkit-outer-spin-button,

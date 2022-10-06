@@ -12,11 +12,18 @@ export const descriptorMixin = {
   beforeUnmount() {},
 
   computed: {
-    ...mapGetters(['selectedAssets', 'selectedShots']),
+    ...mapGetters(['selectedAssets', 'selectedShots', 'selectedEdits']),
     descriptorLength() {
-      return this.shotMetadataDescriptors
-        ? this.shotMetadataDescriptors.length
-        : this.assetMetadataDescriptors.length
+      if (this.shotMetadataDescriptors.length !== undefined) {
+        return this.shotMetadataDescriptors.length
+      }
+      if (this.assetMetadataDescriptors.length !== undefined) {
+        return this.assetMetadataDescriptors.length
+      }
+      if (this.editMetadataDescriptors.length !== undefined) {
+        return this.editMetadataDescriptors.length
+      }
+      return 0
     }
   },
 
@@ -35,18 +42,33 @@ export const descriptorMixin = {
 
     onMetadataFieldChanged(entry, descriptor, event) {
       if (this.selectedShots.has(entry.id)) {
-        // if the line is selected, also modify the cells of the other selected lines
+        // if the line is selected, also modify the cells of the other selected
+        // lines.
         this.selectedShots.forEach((shot, _) => {
           this.emitMetadataChanged(shot, descriptor, event.target.value)
         })
       } else if (this.selectedAssets.has(entry.id)) {
-        // if the line is selected, also modify the cells of the other selected lines
+        // if the line is selected, also modify the cells of the other selected
+        // lines.
         this.selectedAssets.forEach((asset, _) => {
           this.emitMetadataChanged(asset, descriptor, event.target.value)
+        })
+      } else if (this.selectedEdits.has(entry.id)) {
+        // if the line is selected, also modify the cells of the other selected
+        // lines.
+        this.selectedEdits.forEach((edit, _) => {
+          this.emitMetadataChanged(edit, descriptor, event.target.value)
         })
       } else {
         this.emitMetadataChanged(entry, descriptor, event.target.value)
       }
+    },
+
+    onMetadataChecklistChanged(entry, descriptor, option, event) {
+      var values = this.getMetadataChecklistValues(descriptor, entry)
+      values[option] = event.target.checked
+      event.target.value = JSON.stringify(values)
+      this.onMetadataFieldChanged(entry, descriptor, event)
     },
 
     onSortByMetadataClicked() {
@@ -80,8 +102,8 @@ export const descriptorMixin = {
         headerMenuEl.className = 'header-menu'
         const headerElement = event.srcElement.parentNode.parentNode
         const headerBox = headerElement.getBoundingClientRect()
-        const left = headerBox.left
-        const top = headerBox.bottom
+        const left = headerBox.left - 3
+        const top = headerBox.bottom + 11
         const width = Math.max(100, headerBox.width - 1)
         headerMenuEl.style.left = left + 'px'
         headerMenuEl.style.top = top + 'px'
@@ -96,7 +118,40 @@ export const descriptorMixin = {
     },
 
     getMetadataFieldValue(descriptor, entity) {
-      return entity.data ? entity.data[descriptor.field_name] || '' : ''
+      if (entity.data) {
+        return entity.data[descriptor.field_name] || ''
+      } else if (entity.entity_data) {
+        return entity.entity_data[descriptor.field_name] || ''
+      } else {
+        return ''
+      }
+    },
+
+    getDescriptorChecklistValues(descriptor) {
+      const values = descriptor.choices.reduce((result, choice) => {
+        if (choice && choice.startsWith('[x] ')) {
+          result.push({ text: choice.slice(4), checked: true })
+        } else if (choice && choice.startsWith('[ ] ')) {
+          result.push({ text: choice.slice(4), checked: false })
+        }
+        return result
+      }, [])
+      return values.length === descriptor.choices.length ? values : []
+    },
+
+    getMetadataChecklistValues(descriptor, entity) {
+      var values = {}
+      try {
+        values = JSON.parse(this.getMetadataFieldValue(descriptor, entity))
+      } catch {
+        values = {}
+      }
+      this.getDescriptorChecklistValues(descriptor).forEach(function (option) {
+        if (!(option.text in values)) {
+          values[option.text] = option.checked
+        }
+      })
+      return values
     },
 
     /*
@@ -122,8 +177,10 @@ export const descriptorMixin = {
         return
       }
       const ref = `editor-${i}-${j}`
-      const input = this.$refs[ref][0]
-      input.focus()
+      if (this.$refs[ref][0]) {
+        const input = this.$refs[ref][0]
+        input.focus()
+      }
     }
   }
 }

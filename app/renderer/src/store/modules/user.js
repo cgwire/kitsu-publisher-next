@@ -37,6 +37,7 @@ import {
   SET_TIME_SPENT,
   UPLOAD_AVATAR_END,
   CHANGE_AVATAR_FILE,
+  CLEAR_AVATAR,
   EDIT_PEOPLE_END,
   NEW_TASK_COMMENT_END,
   SET_TODO_LIST_SCROLL_POSITION,
@@ -49,6 +50,7 @@ import {
   LOAD_TASK_TYPES_END,
   LOAD_PEOPLE_END,
   LOAD_CUSTOM_ACTIONS_END,
+  LOAD_STATUS_AUTOMATIONS_END,
   LOAD_ASSET_TYPES_END,
   SET_NOTIFICATION_COUNT,
   LOAD_OPEN_PRODUCTIONS_END,
@@ -60,6 +62,12 @@ const helpers = {
   getTaskStatus(taskStatusId) {
     return taskStatusStore.state.taskStatusMap.get(taskStatusId)
   }
+}
+
+const cache = {
+  doneIndex: {},
+  doneTasks: [],
+  todosIndex: {}
 }
 
 const initialState = {
@@ -82,7 +90,6 @@ const initialState = {
   todos: [],
   displayedTodos: [],
   displayedDoneTasks: [],
-  todosIndex: {},
   todosSearchText: '',
   todoSelectionGrid: {},
   todoSearchQueries: [],
@@ -107,6 +114,8 @@ const getters = {
   isCurrentUserArtist: (state) => {
     return state.user && ['user', 'vendor'].includes(state.user.role)
   },
+  isCurrentUserSupervisor: (state) =>
+    state.user && state.user.role === 'supervisor',
   isCurrentUserClient: (state) => state.user && state.user.role === 'client',
   isCurrentUserVendor: (state) => state.user && state.user.role === 'vendor',
   isSaveProfileLoading: (state) => state.isSaveProfileLoading,
@@ -211,6 +220,11 @@ const actions = {
     })
   },
 
+  clearAvatar({ commit, state }) {
+    commit(CLEAR_AVATAR)
+    return peopleApi.clearAvatar()
+  },
+
   setTodosSearch({ commit, state }, searchText) {
     commit(SET_TODOS_SEARCH, searchText)
   },
@@ -279,6 +293,7 @@ const actions = {
         userFilters: rootGetters.userFilters
       })
       commit(LOAD_CUSTOM_ACTIONS_END, context.custom_actions)
+      commit(LOAD_STATUS_AUTOMATIONS_END, context.status_automations)
       commit(LOAD_ASSET_TYPES_END, context.asset_types)
       commit(SET_NOTIFICATION_COUNT, context.notification_count)
       commit(LOAD_OPEN_PRODUCTIONS_END, context.projects)
@@ -382,9 +397,9 @@ const mutations = {
     })
     state.todoSelectionGrid = buildSelectionGrid(tasks.length, 1)
     state.todos = sortTasks(tasks, taskTypeMap)
-    state.todosIndex = buildTaskIndex(tasks)
+    cache.todosIndex = buildTaskIndex(tasks)
     const keywords = getKeyWords(state.todosSearchText)
-    const searchResult = indexSearch(state.todosIndex, keywords)
+    const searchResult = indexSearch(cache.todosIndex, keywords)
     state.displayedTodos = searchResult || state.todos
     if (userFilters.todos && userFilters.todos.all) {
       state.todoSearchQueries = userFilters.todos.all
@@ -399,12 +414,13 @@ const mutations = {
       const taskStatus = helpers.getTaskStatus(task.task_status_id)
       task.taskStatus = taskStatus
     })
+    cache.doneIndex = buildTaskIndex(tasks)
+    cache.doneTasks = tasks
     state.displayedDoneTasks = tasks
   },
 
   [USER_LOAD_TODOS_ERROR](state, tasks) {
     state.isTodosLoadingError = true
-    state.isTodosLoading = false
   },
 
   [CHANGE_AVATAR_FILE](state, formData) {
@@ -433,15 +449,18 @@ const mutations = {
         task_status_color: taskStatus.color,
         last_comment: comment
       })
-      state.todosIndex = buildTaskIndex(state.todos)
+      cache.todosIndex = buildTaskIndex(state.todos)
+      cache.doneIndex = buildTaskIndex(cache.doneTasks)
     }
   },
 
   [SET_TODOS_SEARCH](state, searchText) {
     const keywords = getKeyWords(searchText)
-    const searchResult = indexSearch(state.todosIndex, keywords)
+    let searchResult = indexSearch(cache.todosIndex, keywords)
     state.todosSearchText = searchText
     state.displayedTodos = searchResult || state.todos
+    searchResult = indexSearch(cache.doneIndex, keywords)
+    state.displayedDoneTasks = searchResult || cache.doneTasks
   },
 
   [SAVE_TODO_SEARCH_END](state, { searchQuery }) {
@@ -551,8 +570,15 @@ const mutations = {
 
   [REMOVE_ASSET_SEARCH_END](state) {},
 
+  [CLEAR_AVATAR](state) {
+    state.user.has_avatar = false
+  },
+
   [RESET_ALL](state) {
     Object.assign(state, { ...initialState })
+    cache.doneIndex = {}
+    cache.todosIndex = {}
+    cache.doneTasks = []
   }
 }
 

@@ -378,14 +378,6 @@
       "team": "Equipo",
       "title": "Gente",
       "unactive": "Inactivo",
-      "csv": {
-        "import_file": "Importar un archivo.csv",
-        "export_file": "Descargar como archivo.csv",
-        "import_title": "Importar datos de un archivo CSV",
-        "required_fields": "Su archivo CSV requiere las siguientes columnas",
-        "select_file": "Por favor, seleccione un archivo de una de sus carpetas:",
-        "error_upload": "Se ha producido un error al cargar el archivo CSV."
-      },
       "fields": {
         "first_name": "Nombre de pila",
         "last_name": "Apellido",
@@ -409,7 +401,8 @@
       "role": {
         "admin": "Director del estudio",
         "client": "Mandante",
-        "manager": "Supervisor",
+        "manager": "Production manager",
+        "supervisor": "Supervisor",
         "user": "Artista CG",
         "undefined": "sin definir",
         "vendor": "Proveedor"
@@ -630,6 +623,10 @@
       "notifications_enabled": "Notificaciones de correo electrónico habilitadas",
       "notifications_slack_enabled": "Notificaciones de Slack activadas",
       "notifications_slack_user": "Slack ID",
+      "notifications_mattermost_enabled": "Notificationes de Mattermost activadas",
+      "notifications_mattermost_user": "Mattermost ID",
+      "notifications_discord_enabled": "Notificationes de Discord activadas",
+      "notifications_discord_user": "Discord ID",
       "password_title": "Cambiar contraseña",
       "timezone": "Zona horaria",
       "title": "Su perfil",
@@ -655,10 +652,13 @@
       "no_logo": "No hay conjunto de logotipos.",
       "set_logo": "Logotipo de estudio",
       "title": "Ajustes",
+      "webhook_error": "An error occurred while posting webhook",
       "fields": {
         "name": "Nombre del estudio",
         "hours_by_day": "Horas por día",
         "slack_token": "Slack token (opcional)",
+        "mattermost_webhook": "Mattermost Webhook (Optional)",
+        "discord_token": "Discord token (opcional)",
         "use_original_name": "Usar el nombre del archivo original para las descargas",
         "timesheets_locked": ""
       },
@@ -683,8 +683,8 @@
         "is_artist_allowed": "Se permite al artista",
         "is_client_allowed": "Se permite al cliente",
         "is_done": "Se hace",
-        "is_reviewable": "Es revisable",
         "is_retake": "Tiene valor de retake",
+        "is_default": "Is default",
         "name": "Nombre",
         "short_name": "Denominación breve"
       },

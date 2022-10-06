@@ -9,7 +9,7 @@
           </h1>
         </div>
         <form>
-          <div class="field mt1">
+          <div class="field mt2">
             <p class="control has-icon">
               <input
                 v-model="server"
@@ -169,6 +169,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.dark {
+  .login-header img {
+  }
+}
+
 .box {
   border-radius: 1em;
 
@@ -183,6 +188,13 @@ export default {
     color: #4a4a4a;
     margin-bottom: 1em;
   }
+}
+
+.login-header img {
+  border-radius: 20%;
+  padding: 1em;
+  margin: 2.5em 0;
+  width: 200px;
 }
 
 .field {
@@ -205,6 +217,12 @@ export default {
 
 .icon {
   padding: 0.25em;
+}
+
+@media (max-width: 1600px) {
+  .box {
+    margin-top: 4em;
+  }
 }
 
 @media (min-width: 500px) {

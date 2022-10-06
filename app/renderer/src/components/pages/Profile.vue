@@ -5,8 +5,8 @@
         <div class="profile-header-content has-text-centered">
           <people-avatar
             ref="avatar"
-            :no-cache="true"
             :is-link="false"
+            :no-cache="true"
             :person="user"
             :size="150"
             :font-size="60"
@@ -18,6 +18,14 @@
               @click="showAvatarModal"
             >
               {{ $t('profile.change_avatar') }}
+            </button>
+          </p>
+          <p>
+            <button
+              class="button is-link clear-avatar-button"
+              @click="removeAvatar"
+            >
+              {{ $t('profile.clear_avatar') }}
             </button>
           </p>
           <h1>
@@ -107,6 +115,32 @@
           v-if="form.notifications_slack_enabled === 'true'"
           v-model="form.notifications_slack_userid"
           :label="$t('profile.notifications_slack_user')"
+        />
+
+        <div class="field">
+          <combobox-boolean
+            v-model="form.notifications_mattermost_enabled"
+            :label="$t('profile.notifications_mattermost_enabled')"
+          />
+        </div>
+
+        <text-field
+          v-if="form.notifications_mattermost_enabled === 'true'"
+          v-model="form.notifications_mattermost_userid"
+          :label="$t('profile.notifications_mattermost_user')"
+        />
+
+        <div class="field">
+          <combobox-boolean
+            v-model="form.notifications_discord_enabled"
+            :label="$t('profile.notifications_discord_enabled')"
+          />
+        </div>
+
+        <text-field
+          v-if="form.notifications_discord_enabled === 'true'"
+          v-model="form.notifications_discord_userid"
+          :label="$t('profile.notifications_discord_user')"
         />
 
         <button
@@ -232,6 +266,10 @@ export default {
         notifications_enabled: 'false',
         notifications_slack_enabled: 'false',
         notifications_slack_userid: '',
+        notifications_mattermost_enabled: 'false',
+        notifications_mattermost_userid: '',
+        notifications_discord_enabled: 'false',
+        notifications_discord_userid: '',
         email: '',
         phone: '',
         timezone: 'Europe/Paris',
@@ -280,7 +318,8 @@ export default {
     ...mapActions([
       'saveProfile',
       'checkNewPasswordValidityAndSave',
-      'uploadAvatar'
+      'uploadAvatar',
+      'clearAvatar'
     ]),
 
     localeChanged() {
@@ -330,6 +369,10 @@ export default {
 
     showAvatarModal() {
       this.changeAvatar.isModalShown = true
+    },
+
+    removeAvatar() {
+      this.clearAvatar()
     }
   },
 
@@ -340,6 +383,14 @@ export default {
       : 'false'
     this.form.notifications_slack_enabled = this.form
       .notifications_slack_enabled
+      ? 'true'
+      : 'false'
+    this.form.notifications_mattermost_enabled = this.form
+      .notifications_mattermost_enabled
+      ? 'true'
+      : 'false'
+    this.form.notifications_discord_enabled = this.form
+      .notifications_discord_enabled
       ? 'true'
       : 'false'
   },
@@ -417,7 +468,7 @@ span.select {
 
 .profile-header h1 {
   font-size: 2em;
-  margin-top: 0.5em;
+  margin-top: 0em;
 }
 
 .profile-header,
@@ -426,13 +477,6 @@ span.select {
 }
 
 .profile-header .column {
-}
-
-h2 {
-  border-bottom: 1px solid #ddd;
-  font-size: 1.5em;
-  margin-top: 2em;
-  margin-bottom: 1em;
 }
 
 h2:first-child {
@@ -471,6 +515,12 @@ h2:first-child {
 
 .change-password-message {
   margin-top: 1em;
+}
+
+.clear-avatar-button {
+  color: white;
+  font-size: 0.7em;
+  text-transform: lowercase;
 }
 
 select {

@@ -24,19 +24,19 @@
           class="icon"
         />
       </span>
-      <!--textarea-autosize
-      type="text"
-      class="checklist-text flexrow-item"
-      :ref="`checklist-entry-${index}`"
-      rows="1"
-      :placeholder="$t('comments.task_placeholder')"
-      @keypress.enter.prevent.native="addChecklistEntry(index, $event)"
-      @keyup.backspace.native="removeChecklistEntry(index)"
-      @keyup.up.native="focusPrevious(index)"
-      @keyup.down.native="focusNext(index)"
-      :disabled="disabled"
-      v-model="entry.text"
-    /-->
+      <textarea
+        :ref="`checklist-entry-${index}`"
+        v-model="entry.text"
+        type="text"
+        class="checklist-text flexrow-item"
+        rows="1"
+        :placeholder="$t('comments.task_placeholder')"
+        :disabled="entry.text.length !== 0 && disabled"
+        @keypress.enter.prevent="addChecklistEntry(index, $event)"
+        @keyup.backspace="removeChecklistEntry(index)"
+        @keyup.up="focusPrevious(index)"
+        @keyup.down="focusNext(index)"
+      />
     </div>
   </div>
 </template>
@@ -90,7 +90,7 @@ export default {
         if (index === 0) index = this.checklist.length
         index--
         const entryRef = `checklist-entry-${index}`
-        this.$refs[entryRef][0].$el.focus()
+        this.$refs[entryRef][0].focus()
       }
     },
 
@@ -99,7 +99,7 @@ export default {
         if (index === this.checklist.length - 1) index = -1
         index++
         const entryRef = `checklist-entry-${index}`
-        this.$refs[entryRef][0].$el.focus()
+        this.$refs[entryRef][0].focus()
       }
     },
 

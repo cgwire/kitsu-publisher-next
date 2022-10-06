@@ -66,13 +66,13 @@ import TextField from '@/components/widgets/TextField'
 
 export default {
   name: 'EditMilestoneModal',
+  mixins: [modalMixin],
 
   components: {
     ButtonSimple,
     ModalFooter,
     TextField
   },
-  mixins: [modalMixin],
 
   props: {
     active: {

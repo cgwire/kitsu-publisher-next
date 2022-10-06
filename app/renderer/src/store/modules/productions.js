@@ -37,6 +37,8 @@ import {
   PRODUCTION_REMOVE_TASK_TYPE,
   PRODUCTION_ADD_TASK_STATUS,
   PRODUCTION_REMOVE_TASK_STATUS,
+  PRODUCTION_ADD_STATUS_AUTOMATION,
+  PRODUCTION_REMOVE_STATUS_AUTOMATION,
   ASSIGN_TASKS,
   ADD_METADATA_DESCRIPTOR_END,
   UPDATE_METADATA_DESCRIPTOR_END,
@@ -62,6 +64,7 @@ const initialState = {
   assetsPath: { name: 'open-productions' },
   assetTypesPath: { name: 'open-productions' },
   shotsPath: { name: 'open-productions' },
+  editsPath: { name: 'open-productions' },
   sequencesPath: { name: 'open-productions' },
   episodesPath: { name: 'open-productions' },
   breakdownPath: { name: 'open-productions' },
@@ -90,7 +93,7 @@ const helpers = {
         }
       }
     }
-    if (['assets', 'shots'].includes(routeName)) {
+    if (['assets', 'shots', 'edits'].includes(routeName)) {
       route.query = { search: '' }
     }
     return route
@@ -117,6 +120,7 @@ const getters = {
   assetsPath: (state) => state.assetsPath,
   assetTypesPath: (state) => state.assetTypesPath,
   shotsPath: (state) => state.shotsPath,
+  editsPath: (state) => state.editsPath,
   sequencesPath: (state) => state.sequencesPath,
   episodesPath: (state) => state.episodesPath,
   breakdownPath: (state) => state.breakdownPath,
@@ -124,6 +128,7 @@ const getters = {
   teamPath: (state) => state.teamPath,
 
   productionAssetTypes: (state, getters, rootState) => {
+    if (!state.currentProduction) return []
     if (helpers.isEmptyArray(state.currentProduction, 'asset_types')) {
       return rootState.assetTypes.assetTypes
     } else {
@@ -160,6 +165,24 @@ const getters = {
     }
   },
 
+  productionStatusAutomations: (state, getters, rootState) => {
+    if (helpers.isEmptyArray(state.currentProduction, 'status_automations')) {
+      return []
+    } else {
+      return state.currentProduction.status_automations.map((id) =>
+        rootState.statusAutomations.statusAutomationMap.get(id)
+      )
+    }
+  },
+
+  remainingStatusAutomations: (state, getters, rootState, rootGetters) => {
+    return rootState.statusAutomations.statusAutomations.filter(
+      (s) =>
+        !state.currentProduction.status_automations.includes(s.id) &&
+        !rootGetters.isStatusAutomationDisabled(s)
+    )
+  },
+
   productionTaskTypes: (state, getters, rootState) => {
     if (helpers.isEmptyArray(state.currentProduction, 'task_types')) {
       return rootState.taskTypes.taskTypes
@@ -174,22 +197,38 @@ const getters = {
 
   productionAssetTaskTypeIds: (state, getters) => {
     return getters.productionTaskTypes
-      .filter((taskType) => !taskType.for_shots)
+      .filter((taskType) => taskType.for_entity === 'Asset')
       .map((taskType) => taskType.id)
   },
 
   productionShotTaskTypeIds: (state, getters) => {
     return getters.productionTaskTypes
-      .filter((taskType) => taskType.for_shots)
+      .filter((taskType) => taskType.for_entity === 'Shot')
+      .map((taskType) => taskType.id)
+  },
+
+  productionEditTaskTypeIds: (state, getters) => {
+    return getters.productionTaskTypes
+      .filter((taskType) => taskType.for_entity === 'Edit')
       .map((taskType) => taskType.id)
   },
 
   productionAssetTaskTypes: (state, getters) => {
-    return getters.productionTaskTypes.filter((taskType) => !taskType.for_shots)
+    return getters.productionTaskTypes.filter(
+      (taskType) => taskType.for_entity === 'Asset'
+    )
   },
 
   productionShotTaskTypes: (state, getters) => {
-    return getters.productionTaskTypes.filter((taskType) => taskType.for_shots)
+    return getters.productionTaskTypes.filter(
+      (taskType) => taskType.for_entity === 'Shot'
+    )
+  },
+
+  productionEditTaskTypes: (state, getters) => {
+    return getters.productionTaskTypes.filter(
+      (taskType) => taskType.for_entity === 'Edit'
+    )
   },
 
   currentProduction: (state) => {
@@ -226,6 +265,18 @@ const getters = {
       return sortByName(
         state.currentProduction.descriptors.filter(
           (d) => d.entity_type === 'Shot'
+        )
+      )
+    }
+  },
+
+  editMetadataDescriptors: (state) => {
+    if (!state.currentProduction || !state.currentProduction.descriptors) {
+      return []
+    } else {
+      return sortByName(
+        state.currentProduction.descriptors.filter(
+          (d) => d.entity_type === 'Edit'
         )
       )
     }
@@ -297,6 +348,7 @@ const actions = {
     commit(EDIT_PRODUCTION_START, data)
     return productionsApi.newProduction(data).then((production) => {
       commit(EDIT_PRODUCTION_END, production)
+      return Promise.resolve(production)
     })
   },
 
@@ -409,6 +461,22 @@ const actions = {
     return productionsApi.removeTaskStatusFromProduction(
       state.currentProduction.id,
       taskStatusId
+    )
+  },
+
+  addStatusAutomationToProduction({ commit, state }, statusAutomationId) {
+    commit(PRODUCTION_ADD_STATUS_AUTOMATION, statusAutomationId)
+    return productionsApi.addStatusAutomationToProduction(
+      state.currentProduction.id,
+      statusAutomationId
+    )
+  },
+
+  removeStatusAutomationFromProduction({ commit, state }, statusAutomationId) {
+    commit(PRODUCTION_REMOVE_STATUS_AUTOMATION, statusAutomationId)
+    return productionsApi.removeStatusAutomationFromProduction(
+      state.currentProduction.id,
+      statusAutomationId
     )
   },
 
@@ -594,6 +662,7 @@ const mutations = {
       newProduction.task_statuses = []
       newProduction.asset_types = []
       newProduction.task_types = []
+      newProduction.status_automations = []
       state.productions.push(newProduction)
       state.productionMap.set(newProduction.id, newProduction)
       if (!openProduction) {
@@ -688,6 +757,11 @@ const mutations = {
       productionId,
       episodeId
     )
+    state.editsPath = helpers.getProductionComponentPath(
+      'edits',
+      productionId,
+      episodeId
+    )
     state.sequencesPath = helpers.getProductionComponentPath(
       'sequences',
       productionId,
@@ -740,6 +814,22 @@ const mutations = {
 
   [PRODUCTION_REMOVE_TASK_TYPE](state, taskTypeId) {
     removeFromIdList(state.currentProduction, 'task_types', taskTypeId)
+  },
+
+  [PRODUCTION_ADD_STATUS_AUTOMATION](state, statusAutomationId) {
+    addToIdList(
+      state.currentProduction,
+      'status_automations',
+      statusAutomationId
+    )
+  },
+
+  [PRODUCTION_REMOVE_STATUS_AUTOMATION](state, statusAutomationId) {
+    removeFromIdList(
+      state.currentProduction,
+      'status_automations',
+      statusAutomationId
+    )
   },
 
   [ADD_METADATA_DESCRIPTOR_END](state, { production, descriptor }) {

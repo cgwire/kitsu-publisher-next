@@ -23,7 +23,7 @@ export const getTaskTypeStyle = (task) => {
 }
 
 export const renderComment = (input, mentions, personMap, className = '') => {
-  let compiled = marked(input || '')
+  let compiled = marked.parse(input || '')
   if (mentions) {
     mentions.forEach((personId) => {
       const person = personMap.get(personId)
@@ -52,7 +52,7 @@ export const renderComment = (input, mentions, personMap, className = '') => {
 }
 
 export const renderMarkdown = (input) => {
-  const compiled = marked(input || '')
+  const compiled = marked.parse(input || '')
   return sanitize(compiled)
 }
 
@@ -65,7 +65,7 @@ export const replaceTimeWithTimecode = (
   if (comment) {
     const frameDuration = Math.round((1 / fps) * 10000) / 10000
     const frameNumber = Math.floor(currentTimeRaw / frameDuration)
-    const frame = formatFrame(frameNumber)
+    const frame = formatFrame(frameNumber + 1)
     const formatedTime = formatTime(currentTimeRaw)
     return comment.replaceAll(
       '@frame',
@@ -74,4 +74,18 @@ export const replaceTimeWithTimecode = (
   } else {
     return ''
   }
+}
+
+export const renderFileSize = (size) => {
+  let renderedSize = ''
+  if (size > 1000000000) {
+    renderedSize = (size / 1000000000).toFixed(1) + 'G'
+  } else if (size > 1000000) {
+    renderedSize = (size / 1000000).toFixed(1) + 'M'
+  } else if (size > 1000) {
+    renderedSize = (size / 1000).toFixed(0) + 'K'
+  } else {
+    renderedSize = size + ''
+  }
+  return renderedSize
 }

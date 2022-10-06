@@ -1,5 +1,10 @@
 import Papa from 'papaparse'
-import { getDayRange, getMonthRange, getWeekRange } from '@/lib/time'
+import {
+  getDayRange,
+  getMonthRange,
+  getWeekRange,
+  hoursToDays
+} from '@/lib/time'
 import { getPercentage } from '@/lib/stats'
 
 const csv = {
@@ -7,6 +12,8 @@ const csv = {
     name,
     timesheet,
     people,
+    unit,
+    organisation,
     detailLevel,
     year,
     month,
@@ -24,6 +31,8 @@ const csv = {
       currentWeek
     )
     const entries = csv.getTimesheetEntries(
+      organisation,
+      unit,
       detailLevel,
       headers,
       people,
@@ -54,19 +63,28 @@ const csv = {
     } else if (detailLevel === 'day') {
       range = getDayRange(year, month, currentYear, currentMonth)
     }
-    for (const unit in range) headers.push(unit)
+    for (const unit in range) headers.push(parseInt(unit) + 1)
     return headers
   },
 
-  getTimesheetEntries(detailLevel, headers, people, timesheet) {
+  getTimesheetEntries(
+    organisation,
+    unit,
+    detailLevel,
+    headers,
+    people,
+    timesheet
+  ) {
     const entries = [headers]
     people.forEach((person) => {
       const line = [person.full_name]
       if (detailLevel === 'year') {
         headers.forEach((h, index) => {
           if (index > 0) {
-            if (timesheet[h]) {
-              line.push(timesheet[h][person.id] / 60)
+            if (timesheet[h] && timesheet[h][person.id]) {
+              let value = timesheet[h][person.id] / 60
+              if (unit !== 'hour') value = hoursToDays(organisation, value)
+              line.push(value)
             } else {
               line.push('-')
             }
@@ -75,9 +93,10 @@ const csv = {
       } else {
         headers.forEach((h, index) => {
           if (index > 0) {
-            index--
             if (timesheet && timesheet[index] && timesheet[index][person.id]) {
-              line.push(timesheet[index][person.id] / 60)
+              let value = timesheet[index][person.id] / 60
+              if (unit !== 'hour') value = hoursToDays(organisation, value)
+              line.push(value)
             } else {
               line.push('-')
             }
@@ -104,10 +123,10 @@ const csv = {
 
   buildCsvFile(name, entries) {
     const csvContent = csv.turnEntriesToCsvString(entries)
-    const result = 'data:text/csv;charset=utf-8,' + csvContent
-    const encodedUri = encodeURI(result)
+    const result =
+      'data:text/csv;charset=utf-8,' + encodeURIComponent(csvContent)
     const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
+    link.setAttribute('href', result)
     link.setAttribute('download', `${name}.csv`)
     document.body.appendChild(link)
     link.click()
@@ -304,24 +323,81 @@ const csv = {
         }
       })
 
-      /*
-      const takeLines = []
-      if (entryId !== 'all') {
-        taskTypeIds.forEach(taskTypeId => {
-          if (taskTypeId !== 'all') {
-            const takeNumbers = Object.keys(
-              mainStats[entryId][taskTypeId].evolution)
-            takeNumbers.forEach(takeNumber => {
-              console.log(takeNumber)
-            })
-          }
-        })
-      }
-      */
-
       entries = entries.concat(Object.values(lineMap))
-      // entries = entries.concat(takeLines)
       entries.push([''])
+    })
+    return entries
+  },
+
+  generateQuotas(
+    name,
+    quotas,
+    people,
+    countMode,
+    detailLevel,
+    todayYear,
+    todayMonth,
+    year,
+    month,
+    week
+  ) {
+    const headers = csv.getTimesheetHeaders(
+      {},
+      detailLevel,
+      todayYear,
+      todayMonth,
+      year,
+      month,
+      week
+    )
+    const entries = csv.getQuotaEntries(
+      quotas,
+      people,
+      countMode,
+      detailLevel,
+      headers,
+      year,
+      month,
+      week
+    )
+    csv.buildCsvFile(name, entries)
+  },
+
+  getQuotaEntries(
+    quotas,
+    people,
+    countMode,
+    detailLevel,
+    headers,
+    year,
+    month,
+    week
+  ) {
+    const entries = [headers]
+    people.forEach((person) => {
+      const line = [person.full_name]
+      headers.forEach((h, index) => {
+        if (index > 0) {
+          let key = year
+          if (detailLevel === 'day') {
+            key = `${year}-${(month + '').padStart(2, '0')}-${(
+              index + ''
+            ).padStart(2, '0')}`
+          } else {
+            key = `${year}-${('' + index).padStart(2, '0')}`
+          }
+          if (
+            quotas &&
+            quotas[person.id] &&
+            quotas[person.id][detailLevel][countMode][key]
+          ) {
+            line.push(quotas[person.id][detailLevel][countMode][key])
+          } else {
+            line.push('-')
+          }
+        }
+      })
+      entries.push(line)
     })
     return entries
   },

@@ -4,10 +4,11 @@
       <span class="value flexrow-item">
         {{ value }}
       </span>
-      <slider
+      <vue-slider
+        ref="slider"
         v-model="value"
-        v-bind="sliderConfiguration"
         class="flexrow-item slider"
+        v-bind="options"
       />
       <button
         class="button flexrow-item"
@@ -33,14 +34,39 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import Slider from '@vueform/slider'
-import '@vueform/slider/themes/default.css'
+import VueSlider from 'vue-slider-component'
+import 'vue-slider-component/theme/default.css'
 
 export default {
   name: 'TimeSliderCell',
 
+  data() {
+    return {
+      value: this.duration,
+      options: {
+        show: true,
+        width: 400,
+        min: 0,
+        max: 10,
+        interval: 0.25,
+        lazy: true,
+        marks: true,
+        hideLabel: true,
+        piecewise: true,
+        tooltip: 'focus',
+        tooltipPlacement: 'bottom',
+        processStyle: {
+          'background-color': '#8F91EB'
+        },
+        railStyle: {
+          background: '#CCC'
+        }
+      }
+    }
+  },
+
   components: {
-    Slider
+    VueSlider
   },
 
   props: {
@@ -51,21 +77,6 @@ export default {
     duration: {
       type: Number,
       default: 0
-    }
-  },
-
-  data() {
-    return {
-      value: this.duration,
-      sliderConfiguration: {
-        min: 0,
-        max: 10,
-        step: 0.25,
-        lazy: true,
-        tooltipPosition: 'bottom',
-        showTooltip: 'drag',
-        format: (value) => `${value}`
-      }
     }
   },
 
@@ -100,7 +111,7 @@ export default {
 }
 
 .slider {
+  cursor: pointer;
   z-index: 0;
-  width: 400px;
 }
 </style>

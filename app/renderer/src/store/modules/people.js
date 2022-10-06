@@ -99,7 +99,10 @@ const helpers = {
 }
 
 const cache = {
-  peopleIndex: {}
+  peopleIndex: {},
+  personDoneTasksIndex: {},
+  personDoneTasks: [],
+  personTasksIndex: {}
 }
 
 const initialState = {
@@ -137,7 +140,6 @@ const initialState = {
   personTasks: [],
   displayedPersonTasks: [],
   displayedPersonDoneTasks: [],
-  personTasksIndex: {},
   personTasksSearchText: '',
   personTaskSelectionGrid: {},
   personTaskSearchQueries: [],
@@ -524,6 +526,24 @@ const actions = {
       commit(REMOVE_PEOPLE_SEARCH_END, { searchQuery })
       return Promise.resolve()
     })
+  },
+
+  getPersonQuotaShots(
+    { commit, state, rootGetters },
+    { taskTypeId, detailLevel, personId, year, month, week, day, computeMode }
+  ) {
+    const production = rootGetters.currentProduction
+    return peopleApi.getPersonQuotaShots(
+      production.id,
+      taskTypeId,
+      personId,
+      detailLevel,
+      year,
+      month,
+      week,
+      day,
+      computeMode
+    )
   }
 }
 
@@ -659,9 +679,9 @@ const mutations = {
     state.personTaskSelectionGrid = personTaskSelectionGrid
     state.personTasks = sortTasks(tasks, taskTypeMap)
 
-    state.personTasksIndex = buildTaskIndex(tasks)
+    cache.personTasksIndex = buildTaskIndex(tasks)
     const keywords = getKeyWords(state.personTasksSearchText)
-    const searchResult = indexSearch(state.personTasksIndex, keywords)
+    const searchResult = indexSearch(cache.personTasksIndex, keywords)
 
     state.displayedPersonTasks = searchResult || state.personTasks
     if (userFilters.persontasks && userFilters.persontasks.all) {
@@ -674,14 +694,18 @@ const mutations = {
   [LOAD_PERSON_DONE_TASKS_END](state, tasks) {
     tasks.forEach(populateTask)
     state.displayedPersonDoneTasks = tasks
+    cache.personDoneTasksIndex = buildTaskIndex(tasks)
   },
 
   [SET_PERSON_TASKS_SEARCH](state, searchText) {
     state.displayedPersonTasks = []
     const keywords = getKeyWords(searchText)
-    const searchResult = indexSearch(state.personTasksIndex, keywords)
+    let searchResult = indexSearch(cache.personTasksIndex, keywords)
     state.personTasksSearchText = searchText
     state.displayedPersonTasks = searchResult || state.personTasks
+
+    searchResult = indexSearch(cache.personDoneTasksIndex, keywords)
+    state.displayedPersonDoneTasks = searchResult || cache.personDoneTasks
   },
 
   [SAVE_PERSON_TASKS_SEARCH_END](state, { searchQuery }) {
@@ -711,7 +735,8 @@ const mutations = {
         task_status_color: taskStatus.color
       })
 
-      state.personTasksIndex = buildTaskIndex(state.personTasks)
+      cache.personTasksIndex = buildTaskIndex(state.personTasks)
+      cache.personDoneTasksIndex = buildTaskIndex(cache.personDoneTasks)
     }
   },
 
@@ -801,8 +826,11 @@ const mutations = {
   },
 
   [RESET_ALL](state, people) {
-    cache.peopleIndex = {}
     Object.assign(state, { ...initialState })
+    cache.peopleIndex = {}
+    cache.personTasksIndex = {}
+    cache.personDoneTasksIndex = {}
+    cache.personDoneTasks = []
   },
 
   [SAVE_PEOPLE_SEARCH_END](state, { searchQuery }) {

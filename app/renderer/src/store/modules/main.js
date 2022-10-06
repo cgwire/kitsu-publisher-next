@@ -6,6 +6,8 @@ import {
   TOGGLE_USER_MENU,
   SET_LAST_PRODUCTION_SCREEN,
   SET_CURRENT_PRODUCTION,
+  SHOW_PREVIEW_FILE,
+  HIDE_PREVIEW_FILE,
   RESET_ALL
 } from '@/store/mutation-types'
 
@@ -15,18 +17,20 @@ const initialState = {
   isSidebarHidden: true,
   isUserMenuHidden: true,
   lastProductionScreen: 'assets',
-  lastProductionViewed: null
+  lastProductionViewed: null,
+  previewFileIdToShow: ''
 }
 
 const state = { ...initialState }
 
 const getters = {
+  currentProductionScreen: (state) => state.currentProductionScreen,
   isDarkTheme: (state) => state.isDarkTheme,
   isSidebarHidden: (state) => state.isSidebarHidden,
   isUserMenuHidden: (state) => state.isUserMenuHidden,
   lastProductionScreen: (state) => state.lastProductionScreen,
   lastProductionViewed: (state) => state.lastProductionViewed,
-  currentProductionScreen: (state) => state.currentProductionScreen
+  previewFileIdToShow: (state) => state.previewFileIdToShow
 }
 
 const actions = {
@@ -49,6 +53,10 @@ const actions = {
 
   loadEvents({ commit, state }, { after, before }) {
     return client.getEvents(after, before)
+  },
+
+  searchData(_, { query }) {
+    return client.searchData(query)
   }
 }
 
@@ -80,8 +88,18 @@ const mutations = {
     }
   },
 
+  [SHOW_PREVIEW_FILE](state, previewFileId) {
+    state.previewFileIdToShow = previewFileId
+  },
+
+  [HIDE_PREVIEW_FILE](state) {
+    state.previewFileIdToShow = ''
+  },
+
   [RESET_ALL](state) {
+    const isDarkTheme = state.isDarkTheme
     Object.assign(state, { ...initialState })
+    state.isDarkTheme = isDarkTheme
   }
 }
 

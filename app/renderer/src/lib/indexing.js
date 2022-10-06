@@ -7,9 +7,9 @@ export const buildNameIndex = (entries, split = true) => {
   entries.forEach((entry) => {
     if (entry) {
       let words
-      if (entry.name) {
+      if (entry.name || entry.full_name) {
         if (split) {
-          words = entry.name.split(' ')
+          words = entry.name.toLowerCase().split(' ')
         } else {
           words = [entry.name]
         }
@@ -57,6 +57,7 @@ export const buildTaskIndex = (tasks) => {
       .replace(/_/g, ' ')
       .replace(/-/g, ' ')
     const words = stringToIndex
+      .toLowerCase()
       .split(' ')
       .concat([
         task.task_type_name,
@@ -79,7 +80,10 @@ export const buildSupervisorTaskIndex = (tasks, personMap, taskStatusMap) => {
   tasks.forEach((task) => {
     const stringToIndex = task.entity_name.replace(/_/g, ' ').replace(/-/g, ' ')
     const taskStatus = taskStatusMap.get(task.task_status_id)
-    const words = stringToIndex.split(' ').concat([taskStatus.short_name])
+    const words = stringToIndex
+      .toLowerCase()
+      .split(' ')
+      .concat([taskStatus.short_name])
     task.assignees.forEach((personId) => {
       const person = personMap.get(personId)
       if (person) words.push(person.first_name, person.last_name)
@@ -99,11 +103,13 @@ export const buildAssetIndex = (entries) => {
   const assetIndex = Object.create(null)
   entries.forEach((asset) => {
     const stringToIndex = asset.name.replace(/_/g, ' ').replace(/-/g, ' ')
-    const assetTypeWords = asset.asset_type_name.split(' ')
-    const words = stringToIndex
-      .split(' ')
-      .concat(assetTypeWords)
-      .concat([asset.name])
+    const assetTypeWords = asset.asset_type_name.toLowerCase().split(' ')
+    const nameWords = stringToIndex.toLowerCase().split(' ')
+    let words = []
+    nameWords.forEach((nameWord) => {
+      words = words.concat(nameWord.toLowerCase().split(/(?=[A-Z])/))
+    })
+    words = words.concat(assetTypeWords).concat([asset.name])
     indexWords(index, assetIndex, asset, words)
   })
   return index
@@ -120,6 +126,21 @@ export const buildShotIndex = (shots) => {
   shots.forEach((shot) => {
     const words = [shot.name, shot.sequence_name, shot.episode_name]
     indexWords(index, shotIndex, shot, words)
+  })
+  return index
+}
+
+/*
+ * Generate an index to find edit easily. Search will be based on the episode
+ * and edit names at the same time.
+ * Results are arrays of edits.
+ */
+export const buildEditIndex = (edits) => {
+  const index = Object.create(null)
+  const editIndex = Object.create(null)
+  edits.forEach((edit) => {
+    const words = [edit.name, edit.episode_name]
+    indexWords(index, editIndex, edit, words)
   })
   return index
 }

@@ -6,7 +6,10 @@ import assetTypes from '@/store/modules/assettypes'
 import assets from '@/store/modules/assets'
 import breakdown from '@/store/modules/breakdown'
 import customActions from '@/store/modules/customactions'
+import statusAutomations from '@/store/modules/statusautomation'
 import departments from '@/store/modules/departments'
+import edits from '@/store/modules/edits'
+import entities from '@/store/modules/entities'
 import login from '@/store/modules/login'
 import main from '@/store/modules/main'
 import news from '@/store/modules/news'
@@ -27,7 +30,10 @@ const modules = {
   assets,
   breakdown,
   customActions,
+  statusAutomations,
   departments,
+  edits,
+  entities,
   login,
   main,
   people,

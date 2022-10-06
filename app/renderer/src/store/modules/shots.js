@@ -27,7 +27,6 @@ import {
   removeModelFromList
 } from '@/lib/models'
 import { computeStats } from '@/lib/stats'
-import { frameToSeconds } from '@/lib/video'
 import { minutesToDays } from '@/lib/time'
 import {
   buildShotIndex,
@@ -42,6 +41,8 @@ import {
   LOAD_SHOTS_START,
   LOAD_SHOTS_ERROR,
   LOAD_SHOTS_END,
+  LOAD_EPISODES_START,
+  LOAD_EPISODES_ERROR,
   LOAD_EPISODES_END,
   LOAD_SEQUENCES_END,
   SORT_VALIDATION_COLUMNS,
@@ -105,10 +106,6 @@ import {
   SET_SHOT_SELECTION
 } from '@/store/mutation-types'
 import async from 'async'
-
-const AVERAGE = 'average'
-const COUNT = 'count'
-const TOTAL = 'total'
 
 const cache = {
   shots: [],
@@ -231,23 +228,6 @@ const helpers = {
     return endDateString
   },
 
-  initQuota(quotas, personId, endDateString, period) {
-    if (!quotas[personId]) quotas[personId] = {}
-    const personQuotas = quotas[personId]
-
-    if (!personQuotas[endDateString]) personQuotas[endDateString] = 0
-    if (!personQuotas[AVERAGE]) personQuotas[AVERAGE] = {}
-    if (!personQuotas[AVERAGE][period]) personQuotas[AVERAGE][period] = 0
-    if (!personQuotas[COUNT]) personQuotas[COUNT] = {}
-    if (!personQuotas[COUNT][period]) {
-      personQuotas[COUNT][period] = 0
-    }
-    if (!personQuotas[TOTAL]) personQuotas[TOTAL] = {}
-    if (!personQuotas[TOTAL][period]) personQuotas[TOTAL][period] = 0
-
-    return personQuotas
-  },
-
   buildResult(
     state,
     {
@@ -331,6 +311,8 @@ const initialState = {
   isFrames: false,
   isFrameIn: false,
   isFrameOut: false,
+  isMaxRetakes: false,
+  isResolution: false,
   isShotDescription: false,
   isShotEstimation: false,
   isShotTime: false,
@@ -352,6 +334,9 @@ const initialState = {
   shotCreated: '',
   shotSelectionGrid: {},
   sequenceSelectionGrid: {},
+
+  isEpisodesLoading: false,
+  isEpisodesLoadingError: false,
 
   isShotsLoading: false,
   isShotsLoadingError: false,
@@ -392,6 +377,8 @@ const getters = {
   isFrames: (state) => state.isFrames,
   isFrameIn: (state) => state.isFrameIn,
   isFrameOut: (state) => state.isFrameOut,
+  isMaxRetakes: (state) => state.isMaxRetakes,
+  isResolution: (state) => state.isResolution,
   isShotDescription: (state) => state.isShotDescription,
   isShotEstimation: (state) => state.isShotEstimation,
   isShotTime: (state) => state.isShotTime,
@@ -417,6 +404,8 @@ const getters = {
     return groupEntitiesByParents(state.displayedShots, 'sequence_name')
   },
 
+  isEpisodesLoading: (state) => state.isEpisodesLoading,
+  isEpisodesLoadingError: (state) => state.isEpisodesLoadingError,
   isShotsLoading: (state) => state.isShotsLoading,
   isShotsLoadingError: (state) => state.isShotsLoadingError,
   shotCreated: (state) => state.shotCreated,
@@ -520,18 +509,20 @@ const actions = {
     let episode = isTVShow ? rootGetters.currentEpisode : null
 
     if (episode && ['all', 'main'].includes(episode.id)) {
+      // If it's a wide episode, we just store it. There isn't anything to
+      // load because we don't have episode defined.
+      commit(SET_CURRENT_EPISODE, episode.id)
+      return callback()
+    } else if (isTVShow && !episode) {
+      // If it's tv show and if we don't have any episode set, we use the first
+      // one.
       episode = state.episodes.length > 0 ? state.episodes[0] : null
-      if (episode.project_id !== production.id) return
+      if (!episode) return callback()
       commit(SET_CURRENT_EPISODE, episode.id)
     }
 
     if (isTVShow && !episode && state.episodes.length === 0) {
       return callback()
-    }
-
-    if (isTVShow && !episode) {
-      episode = state.episodes.length > 0 ? state.episodes[0] : null
-      commit(SET_CURRENT_EPISODE, episode.id)
     }
 
     if (!isTVShow && episode) {
@@ -591,6 +582,16 @@ const actions = {
       .catch(console.error)
   },
 
+  loadSequences({ commit, state, _, rootGetters }) {
+    const production = rootGetters.currentProduction
+    const isTVShow = rootGetters.isTVShow
+    const episode = isTVShow ? rootGetters.currentEpisode : null
+    shotsApi.getSequences(production, episode, (err, sequences) => {
+      if (err) console.error(err)
+      commit(LOAD_SEQUENCES_END, sequences)
+    })
+  },
+
   /*
    * Function useds mainly to reload shot data after an update or creation
    * event. If the shot was updated a few times ago, it is not reloaded.
@@ -609,6 +610,9 @@ const actions = {
         if (state.shotMap.get(shot.id)) {
           commit(UPDATE_SHOT, shot)
         } else {
+          shot.tasks.forEach((task) => {
+            commit(NEW_TASK_END, task)
+          })
           commit(ADD_SHOT, {
             shot,
             taskTypeMap,
@@ -969,6 +973,8 @@ const actions = {
       if (state.isFrameIn) shotLine.push(shot.data.frame_in)
       if (state.isFrameOut) shotLine.push(shot.data.frame_out)
       if (state.isFps) shotLine.push(shot.data.fps)
+      if (state.isResolution) shotLine.push(shot.data.resolution)
+      if (state.isMaxRetakes) shotLine.push(shot.data.max_retakes)
       state.shotValidationColumns.forEach((validationColumn) => {
         const task = rootGetters.taskMap.get(
           shot.validations.get(validationColumn)
@@ -994,86 +1000,15 @@ const actions = {
 
   computeQuota(
     { commit, state, rootGetters },
-    { taskTypeId, detailLevel, countMode }
+    { taskTypeId, detailLevel, countMode, computeMode }
   ) {
-    const taskMap = rootGetters.taskMap
-    const taskStatusMap = rootGetters.taskStatusMap
     const production = rootGetters.currentProduction
-    const quotas = {}
-
-    cache.shots.forEach((shot) => {
-      const task = taskMap.get(shot.validations.get(taskTypeId))
-      const isTaskFinished =
-        task && taskStatusMap.get(task.task_status_id).is_done
-      if (isTaskFinished) {
-        const period = helpers.getPeriod(task, detailLevel)
-        const endDateString = helpers.getTaskEndDate(task, detailLevel)
-
-        task.assignees.forEach((personId) => {
-          const personQuotas = helpers.initQuota(
-            quotas,
-            personId,
-            endDateString,
-            period
-          )
-          if (shot.nb_frames) {
-            let quota = shot.nb_frames
-            if (countMode === 'seconds') {
-              quota = frameToSeconds(shot.nb_frames, production, shot)
-            }
-            const isNewQuotaDay = personQuotas[endDateString] === 0
-            if (isNewQuotaDay) personQuotas[COUNT][period]++
-            personQuotas[endDateString] += quota
-            personQuotas[TOTAL][period] += quota
-            if (countMode === 'seconds') {
-              personQuotas[TOTAL][period] =
-                Math.round(personQuotas[TOTAL][period] * 100) / 100
-              personQuotas[endDateString] =
-                Math.round(personQuotas[endDateString] * 100) / 100
-            }
-            personQuotas[AVERAGE][period] =
-              personQuotas[TOTAL][period] / personQuotas[COUNT][period]
-          }
-        })
-      }
-    })
-    return Promise.resolve(quotas)
-  },
-
-  getPersonShots(
-    { commit, state, rootGetters },
-    { taskTypeId, detailLevel, personId, year, month, week, day }
-  ) {
-    const taskStatusMap = rootGetters.taskStatusMap
-    const dateString = helpers.getDateFromParameters({
+    return shotsApi.getQuotas(
+      production.id,
+      taskTypeId,
       detailLevel,
-      year,
-      month,
-      week,
-      day
-    })
-
-    const shots = cache.shots
-      .filter((shot) => {
-        const task = rootGetters.taskMap.get(shot.validations.get(taskTypeId))
-        if (task) {
-          const taskStatus = taskStatusMap.get(task.task_status_id)
-          const endDateString = helpers.getTaskEndDate(task, detailLevel)
-          return (
-            task &&
-            taskStatus.is_done &&
-            task.assignees.includes(personId) &&
-            endDateString === dateString
-          )
-        } else {
-          return false
-        }
-      })
-      .map((shot) => ({
-        ...shot,
-        full_name: helpers.getShotName(shot)
-      }))
-    return Promise.resolve(shots)
+      computeMode
+    )
   },
 
   changeShotSort({ commit, rootGetters }, sortInfo) {
@@ -1143,6 +1078,30 @@ const actions = {
 }
 
 const mutations = {
+  [LOAD_EPISODES_START](state) {
+    cache.episodes = []
+    cache.result = []
+    cache.episodeIndex = {}
+    state.episodeMap = new Map()
+    state.episodeValidationColumns = []
+
+    state.isEpisodesLoading = true
+    state.isEpisodesLoadingError = false
+
+    state.displayedepisodes = []
+    state.displayedepisodesLength = 0
+    state.episodeSearchQueries = []
+    state.displayedEpisodes = []
+    state.displayedEpisodesLength = 0
+
+    state.selectedepisodes = new Map()
+  },
+
+  [LOAD_EPISODES_ERROR](state) {
+    state.isEpisodesLoading = false
+    state.isEpisodesLoadingError = true
+  },
+
   [CLEAR_SHOTS](state) {
     cache.shots = []
     cache.result = []
@@ -1207,6 +1166,8 @@ const mutations = {
     let isDescription = false
     let isTime = false
     let isEstimation = false
+    let isMaxRetakes = false
+    let isResolution = false
     state.shotMap = new Map()
     shots.forEach((shot) => {
       const taskIds = []
@@ -1252,6 +1213,8 @@ const mutations = {
       if (!isTime && shot.timeSpent > 0) isTime = true
       if (!isEstimation && shot.estimation > 0) isEstimation = true
       if (!isDescription && shot.description) isDescription = true
+      if (!isResolution && shot.data.resolution) isResolution = true
+      if (!isMaxRetakes && shot.data.max_retakes) isMaxRetakes = true
 
       state.shotMap.set(shot.id, shot)
     })
@@ -1275,6 +1238,8 @@ const mutations = {
     state.isFrameIn = isFrameIn
     state.isFrameOut = isFrameOut
     state.isShotTime = isTime
+    state.isMaxRetakes = isMaxRetakes
+    state.isResolution = isResolution
     state.isShotEstimation = isEstimation
     state.isShotDescription = isDescription
 
@@ -1362,6 +1327,7 @@ const mutations = {
     state.displayedEpisodes = state.episodes.slice(0, PAGE_SIZE)
     state.displayedEpisodesLength = state.episodes.length
 
+    // Set currentEpisode
     if (state.episodes.length > 0) {
       if (!routeEpisodeId || routeEpisodeId === 'all') {
         state.currentEpisode = { id: 'all' }
@@ -1405,19 +1371,16 @@ const mutations = {
     if (sequence) newShot.sequence_name = sequence.name
 
     if (shot) {
-      Object.assign(shot, newShot)
+      const copyNewShot = { ...newShot }
+      copyNewShot.data = { ...shot.data, ...newShot.data }
+      Object.assign(shot, copyNewShot)
     } else {
       cache.shots.push(newShot)
       cache.shots = sortShots(cache.shots)
       state.shotMap.set(newShot.id, newShot)
-
       const maxX = state.displayedShots.length
       const maxY = state.nbValidationColumns
       state.shotSelectionGrid = buildSelectionGrid(maxX, maxY)
-    }
-    state.editShot = {
-      isLoading: false,
-      isError: false
     }
     cache.shotIndex = buildShotIndex(cache.shots)
     state.shotCreated = newShot.name
@@ -1429,10 +1392,16 @@ const mutations = {
     }
 
     if (!newShot.data) newShot.data = {}
-    if (newShot.data.fps && !state.isFps) state.isFps = true
+    if (newShot.data.fps && !state.isFps) state.fps = true
     if (newShot.nb_frames && !state.isFrames) state.isFrames = true
     if (newShot.data.frame_in && !state.isFrameIn) state.isFrameIn = true
     if (newShot.data.frame_out && !state.isFrameOut) state.isFrameOut = true
+    if (newShot.data.resolution && !state.isResolution) {
+      state.isResolution = true
+    }
+    if (newShot.data.max_retakes && !state.isMaxRetakes) {
+      state.isMaxRetakes = true
+    }
     if (shot.description && !state.isShotDescription) {
       state.isShotDescription = true
     }
@@ -1527,6 +1496,8 @@ const mutations = {
     if (shot.nb_frames) state.isFrames = true
     if (shot.data.frame_in) state.isFrameIn = true
     if (shot.data.frame_out) state.isFrameOut = true
+    if (shot.data.resolution) state.isResolution = true
+    if (shot.data.max_retakes) state.isMaxRetakes = true
   },
 
   [NEW_SEQUENCE_END](state, sequence) {
@@ -1678,7 +1649,7 @@ const mutations = {
         state.shotFilledColumns[task.task_type_id] = true
       }
       // Push task and readds the whole map to activate the realtime display.
-      shot.tasks.push(task)
+      shot.tasks.push(task.id)
       if (!shot.validations) shot.validations = new Map()
       shot.validations.set(task.task_type_id, task.id)
       shot.validations = new Map(shot.validations)

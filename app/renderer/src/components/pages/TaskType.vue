@@ -16,14 +16,24 @@
             >
               <icon name="chevron-left" />
             </router-link>
+            <div class="flexrow-item" />
             <task-type-name
               class="flexrow-item"
+              style="font-size: 1.2em"
               :task-type="currentTaskType"
             />
             <div class="filler" />
             <div class="flexrow-item">
               <button-simple
-                v-if="!isActiveTab('schedule')"
+                v-if="!isActiveTab('schedule') && !isActiveTab('estimation')"
+                icon="upload"
+                :title="$t('main.csv.import_file')"
+                @click="showImportModal"
+              />
+            </div>
+            <div class="flexrow-item">
+              <button-simple
+                v-if="!isActiveTab('schedule') && !isActiveTab('estimation')"
                 icon="download"
                 :title="$t('main.csv.export_file')"
                 @click="onExportClick"
@@ -80,7 +90,7 @@
               class="flexrow-item field"
             >
               <date-field
-                v-model="schedule.selectedStartDate"
+                v-model="schedule.taskTypeStartDate"
                 class="flexrow-item"
                 :disabled-dates="startDisabledDates"
                 :with-margin="false"
@@ -93,7 +103,7 @@
               class="flexrow-item field"
             >
               <date-field
-                v-model="schedule.selectedEndDate"
+                v-model="schedule.taskTypeEndDate"
                 class="flexrow-item"
                 :disabled-dates="endDisabledDates"
                 :with-margin="false"
@@ -140,9 +150,10 @@
           v-if="isActiveTab('tasks')"
           ref="task-list"
           :tasks="tasks"
-          :is-assets="isAssets"
+          :entity-type="entityType"
           :is-loading="loading.entities"
           :is-error="errors.entities"
+          :disabled-dates="disabledDates"
           @task-selected="onTaskSelected"
         />
 
@@ -152,8 +163,8 @@
         >
           <schedule
             ref="schedule-widget"
-            :start-date="schedule.startDate"
-            :end-date="schedule.endDate"
+            :start-date="productionStartDate"
+            :end-date="productionEndDate"
             :hierarchy="schedule.scheduleItems"
             :zoom-level="schedule.zoomLevel"
             :height="schedule.scheduleHeight"
@@ -171,11 +182,39 @@
         >
           <estimation-helper
             ref="estimation-widget"
-            :is-assets="isAssets"
+            :entity-type="entityType"
             :tasks="tasks"
             @estimation-changed="updateEstimation"
           />
         </div>
+
+        <import-render-modal
+          :active="modals.isImportRenderDisplayed"
+          :is-loading="loading.importing"
+          :is-error="errors.importing"
+          :import-error="errors.importingError"
+          :parsed-csv="parsedCSV"
+          :form-data="importCsvFormData"
+          :columns="[...dataMatchers, ...optionalColumns]"
+          :dataMatchers="dataMatchers"
+          :database="{}"
+          :disable-update="true"
+          @reupload="resetImport"
+          @cancel="hideImportRenderModal"
+          @confirm="uploadImportFile"
+        />
+
+        <import-modal
+          ref="import-modal"
+          :active="modals.importing"
+          :is-loading="loading.importing"
+          :is-error="errors.importing"
+          :form-data="importCsvFormData"
+          :columns="dataMatchers"
+          :optional-columns="optionalColumns"
+          @cancel="hideImportModal"
+          @confirm="renderImport"
+        />
       </div>
     </div>
 
@@ -216,21 +255,24 @@ import {
 
 import { formatListMixin } from '@/components/mixins/format'
 
+import Icon from '@/components/widgets/Icon'
 import ButtonSimple from '@/components/widgets/ButtonSimple'
 import DateField from '@/components/widgets/DateField'
 import Combobox from '@/components/widgets/Combobox'
 import ComboboxNumber from '@/components/widgets/ComboboxNumber'
 import EstimationHelper from '@/components/pages/tasktype/EstimationHelper'
-import Icon from '@/components/widgets/Icon'
 import Schedule from '@/components/pages/schedule/Schedule'
 import SearchField from '@/components/widgets/SearchField'
 import SearchQueryList from '@/components/widgets/SearchQueryList'
 import TaskInfo from '@/components/sides/TaskInfo'
 import TaskList from '@/components/lists/TaskList'
 import TaskTypeName from '@/components/widgets/TaskTypeName'
+import ImportModal from '@/components/modals/ImportModal'
+import ImportRenderModal from '@/components/modals/ImportRenderModal'
 
 export default {
   name: 'TaskTypePage',
+  mixins: [formatListMixin, searchMixin],
   components: {
     ButtonSimple,
     Icon,
@@ -241,11 +283,12 @@ export default {
     Schedule,
     SearchField,
     SearchQueryList,
+    ImportModal,
+    ImportRenderModal,
     TaskList,
     TaskInfo,
     TaskTypeName
   },
-  mixins: [formatListMixin, searchMixin],
 
   entityListCache: [],
 
@@ -255,22 +298,25 @@ export default {
       currentSort: 'entity_name',
       currentScheduleItem: null,
       currentTask: null,
-      isAssets: true,
+      entityType: 'Asset',
       tasks: [],
       selection: {},
       errors: {
-        entities: false
+        entities: false,
+        importing: false,
+        importingError: null
       },
       loading: {
-        entities: false
+        entities: false,
+        importing: false
       },
       schedule: {
         currentColor: 'status',
         endDate: moment().add(3, 'months'),
         scheduleItems: [],
         scheduleHeight: 800,
-        selectedEndDate: moment().add(3, 'months').toDate(),
-        selectedStartDate: moment().add(-1, 'months').toDate(),
+        taskTypeEndDate: moment().add(3, 'months').toDate(),
+        taskTypeStartDate: moment().add(-1, 'months').toDate(),
         startDate: moment().add(-1, 'months'),
         zoomLevel: 1,
         zoomOptions: [
@@ -283,13 +329,19 @@ export default {
           { label: 'Status', value: 'status' },
           { label: 'Late', value: 'late' }
         ]
-      }
+      },
+      modals: {
+        isImportRenderDisplayed: false,
+        importing: false
+      },
+      parsedCSV: [],
+      importCsvFormData: {},
+      optionalColumns: ['Estimation', 'Start date', 'Due date'],
+      dataMatchers: ['Parent', 'Entity']
     }
   },
 
   created() {
-    this.taskIndex = {}
-    this.savingBuffer = {}
     if (!this.currentProduction) {
       this.setProduction(this.$route.params.production_id)
     } else {
@@ -300,7 +352,9 @@ export default {
   },
 
   mounted() {
-    this.isAssets = this.$route.path.includes('assets')
+    const isAssets = this.$route.path.includes('assets')
+    const isShots = this.$route.path.includes('shots')
+    this.entityType = isAssets ? 'Asset' : isShots ? 'Shot' : 'Edit'
     this.updateActiveTab()
     setTimeout(() => {
       this.initData(false)
@@ -322,7 +376,10 @@ export default {
       'currentEpisode',
       'currentProduction',
       'currentTaskType',
+      'editsPath',
+      'editMap',
       'isCurrentUserManager',
+      'isCurrentUserSupervisor',
       'isTVShow',
       'nbSelectedTasks',
       'organisation',
@@ -338,21 +395,53 @@ export default {
       'user'
     ]),
 
+    isSupervisorInDepartment() {
+      const departments = this.user.departments || []
+      return (
+        this.isCurrentUserManager ||
+        (this.isCurrentUserSupervisor &&
+          departments.includes((this.currentTaskType || {}).department_id))
+      )
+    },
+
     entityMap() {
-      return this.isAssets ? this.assetMap : this.shotMap
+      if (this.entityType === 'Asset') {
+        return this.assetMap
+      } else if (this.entityType === 'Shot') {
+        return this.shotMap
+      } else if (this.entityType === 'Edit') {
+        return this.editMap
+      }
+      return this.assetMap
+    },
+
+    productionStartDate() {
+      return parseDate(this.currentProduction.start_date)
+    },
+
+    productionEndDate() {
+      return parseDate(this.currentProduction.end_date)
+    },
+
+    disabledDates() {
+      return {
+        to: parseDate(this.currentProduction.start_date).toDate(),
+        from: parseDate(this.currentProduction.end_date).toDate(),
+        days: [6, 0]
+      }
     },
 
     startDisabledDates() {
       return {
         to: parseDate(this.currentProduction.start_date).toDate(),
-        from: this.schedule.endDate.toDate(),
+        from: parseDate(this.currentProduction.end_date).toDate(),
         days: [6, 0]
       }
     },
 
     endDisabledDates() {
       return {
-        to: this.schedule.startDate.toDate(),
+        to: parseDate(this.currentProduction.start_date).toDate(),
         from: parseDate(this.currentProduction.end_date).toDate(),
         days: [6, 0]
       }
@@ -368,12 +457,20 @@ export default {
       return this.getTasks(Array.from(this.shotMap.values()))
     },
 
+    editTasks() {
+      return this.getTasks(Array.from(this.editMap.values()))
+    },
+
     title() {
       if (this.currentProduction) {
         if (this.isTVShow && this.currentEpisode) {
+          const episodeName =
+            this.currentEpisode.id === 'all'
+              ? this.$t('main.all_assets')
+              : this.currentEpisode.name
           return (
             `${this.currentProduction.name} / ` +
-            `${this.currentEpisode.name} / ` +
+            `${episodeName} / ` +
             `${this.currentTaskType.name}`
           )
         } else {
@@ -397,10 +494,14 @@ export default {
           query: { search: '' }
         }
       } else {
-        if (this.currentTaskType.for_shots) {
+        if (this.currentTaskType.for_entity === 'Shot') {
           route = this.shotsPath
-        } else {
+        }
+        if (this.currentTaskType.for_entity === 'Asset') {
           route = this.assetsPath
+        }
+        if (this.currentTaskType.for_entity === 'Edit') {
+          route = this.editsPath
         }
       }
       return {
@@ -439,11 +540,9 @@ export default {
     },
 
     searchQueries() {
-      if (this.isAssets) {
-        return this.taskSearchQueries.filter((t) => t.entity_type === 'Asset')
-      } else {
-        return this.taskSearchQueries
-      }
+      return this.taskSearchQueries.filter(
+        (t) => t.entity_type === this.entityType
+      )
     },
 
     scheduleTeam() {
@@ -474,13 +573,14 @@ export default {
       'setProduction',
       'subscribeToSequence',
       'updateTask',
-      'unsubscribeFromSequence'
+      'unsubscribeFromSequence',
+      'uploadTaskTypeEstimations'
     ]),
 
     initData(force) {
       this.resetTasks()
       this.focusSearchField()
-      if (this.tasks.length === 0) {
+      if (this.tasks.length < 2) {
         this.loading.entities = true
         this.errors.entities = false
         this.initTaskType(force)
@@ -495,6 +595,7 @@ export default {
             if (searchQuery) this.onSearchChange(searchQuery)
             setTimeout(() => {
               this.setSearchFromUrl()
+              this.resetTaskTypeDates()
             }, 200)
             if (this.isActiveTab('schedule')) {
               this.resetScheduleItems()
@@ -511,6 +612,7 @@ export default {
       } else {
         this.loading.entities = true
         this.setCurrentScheduleItem().then(() => {
+          this.resetTaskTypeDates()
           this.loading.entities = false
           if (this.isActiveTab('schedule')) {
             this.resetScheduleItems()
@@ -595,7 +697,7 @@ export default {
       if (query && query.length !== 1) {
         query = query.toLowerCase().trim()
         const descriptors = (this.currentProduction.descriptors || []).filter(
-          (d) => (d.entityType === this.isAssets ? 'Asset' : 'Shot')
+          (d) => d.entityType === this.entityType
         )
         const keywords = getKeyWords(query) || []
         const excludingKeyWords = getExcludingKeyWords(query) || []
@@ -631,7 +733,7 @@ export default {
     },
 
     saveSearchQuery(searchQuery) {
-      const entityType = this.isAssets ? 'Asset' : 'Shot'
+      const entityType = this.entityType
       this.saveTaskSearch({ searchQuery, entityType })
         .then(() => {})
         .catch((err) => {
@@ -655,8 +757,10 @@ export default {
 
     resetTasks() {
       let tasks = this.assetTasks
-      if (!this.isAssets) {
+      if (this.entityType === 'Shot') {
         tasks = this.shotTasks
+      } else if (this.entityType === 'Edit') {
+        tasks = this.editTasks
       }
       tasks = tasks.filter((task) => {
         const entity = this.entityMap.get(task.entity_id)
@@ -682,7 +786,7 @@ export default {
       const tasks = []
       entities.forEach((entity) => {
         entity.tasks.forEach((taskId) => {
-          const task = this.taskMap.get(taskId)
+          const task = this.taskMap.get(taskId.id || taskId)
           if (task) {
             // Hack to allow filtering on linked entity metadata.
             task.data = entity.data
@@ -801,7 +905,6 @@ export default {
           id: person.id,
           name: 'Unassigned',
           color: '#888',
-          for_shots: false,
           priority: 1,
           expanded: true,
           loading: false,
@@ -818,12 +921,18 @@ export default {
           id: person.id,
           name: person.full_name,
           color: person.color,
-          for_shots: false,
           priority: 1,
           expanded: true,
           loading: false,
           children: [],
-          editable: false
+          editable: false,
+          route: {
+            name: 'person-tab',
+            params: {
+              person_id: person.id,
+              tab: 'schedule'
+            }
+          }
         }
       }
 
@@ -885,7 +994,7 @@ export default {
           expanded: false,
           loading: false,
           man_days: estimation,
-          editable: this.isCurrentUserManager,
+          editable: this.isSupervisorInDepartment,
           unresizable: estimation > 0,
           parentElement: personElement,
           color: this.getTaskElementColor(task, endDate),
@@ -981,6 +1090,80 @@ export default {
           }
         }
       })
+    },
+
+    showImportModal() {
+      this.modals.importing = true
+    },
+
+    hideImportModal() {
+      this.modals.importing = false
+    },
+
+    showImportRenderModal() {
+      this.modals.isImportRenderDisplayed = true
+    },
+
+    hideImportRenderModal() {
+      this.modals.isImportRenderDisplayed = false
+    },
+
+    resetImport() {
+      this.errors.importing = false
+      this.errors.importingError = null
+      this.hideImportRenderModal()
+      this.importCsvFormData = undefined
+      this.$refs['import-modal'].reset()
+      this.showImportModal()
+    },
+
+    uploadImportFile(data) {
+      const formData = new FormData()
+      const filename = 'import.csv'
+      const file = new File([data.join('\n')], filename, { type: 'text/csv' })
+
+      formData.append('file', file)
+
+      this.loading.importing = true
+      this.errors.importing = false
+      this.errors.importingError = null
+      this.importCsvFormData = formData
+
+      this.uploadTaskTypeEstimations(this.importCsvFormData) // to change
+        .then(() => {
+          this.loading.importing = false
+          this.hideImportRenderModal()
+        })
+        .catch((err) => {
+          this.loading.importing = false
+          this.errors.importingError = err
+          this.errors.importing = true
+        })
+    },
+
+    renderImport(data, mode) {
+      this.loading.importing = true
+      this.errors.importing = false
+      if (mode === 'file') {
+        data = data.get('file')
+      }
+      csv.processCSV(data).then((results) => {
+        this.parsedCSV = results
+        this.hideImportModal()
+        this.loading.importing = false
+        this.showImportRenderModal()
+      })
+    },
+
+    resetTaskTypeDates() {
+      if (this.currentScheduleItem) {
+        this.schedule.taskTypeStartDate = parseDate(
+          this.currentScheduleItem.start_date
+        ).toDate()
+        this.schedule.taskTypeEndDate = parseDate(
+          this.currentScheduleItem.end_date
+        ).toDate()
+      }
     }
   },
 
@@ -1017,29 +1200,28 @@ export default {
 
     currentScheduleItem() {
       if (this.currentScheduleItem) {
-        this.schedule.startDate = parseDate(this.currentScheduleItem.start_date)
-        this.schedule.endDate = parseDate(this.currentScheduleItem.end_date)
-        this.schedule.selectedStartDate = this.schedule.startDate.toDate()
-        this.schedule.selectedEndDate = this.schedule.endDate.toDate()
+        this.resetTaskTypeDates()
       }
     },
 
-    'schedule.selectedStartDate'() {
-      const newDate = formatSimpleDate(this.schedule.selectedStartDate)
+    'schedule.taskTypeStartDate'() {
+      const newDate = formatSimpleDate(this.schedule.taskTypeStartDate)
       if (newDate !== this.currentScheduleItem.start_date) {
-        this.schedule.startDate = parseDate(newDate)
-        this.currentScheduleItem.startDate = this.schedule.startDate
-        this.currentScheduleItem.endDate = this.schedule.endDate
+        this.currentScheduleItem.startDate = moment(
+          this.schedule.taskTypeStartDate
+        )
+        this.currentScheduleItem.endDate = moment(this.schedule.taskTypeEndDate)
         this.saveScheduleItem(this.currentScheduleItem)
       }
     },
 
-    'schedule.selectedEndDate'() {
-      const newDate = formatSimpleDate(this.schedule.selectedEndDate)
+    'schedule.taskTypeEndDate'() {
+      const newDate = formatSimpleDate(this.schedule.taskTypeEndDate)
       if (newDate !== this.currentScheduleItem.end_date) {
-        this.schedule.endDate = parseDate(newDate)
-        this.currentScheduleItem.startDate = this.schedule.startDate
-        this.currentScheduleItem.endDate = this.schedule.endDate
+        this.currentScheduleItem.startDate = moment(
+          this.schedule.taskTypeStartDate
+        )
+        this.currentScheduleItem.endDate = moment(this.schedule.taskTypeEndDate)
         this.saveScheduleItem(this.currentScheduleItem)
       }
     }
@@ -1083,23 +1265,6 @@ export default {
   margin-right: 5px;
 }
 
-.supervisor-asset-type,
-.supervisor-sequence {
-  text-transform: uppercase;
-  color: $grey;
-  border-bottom: 1px solid $light-grey;
-  font-size: 1.2em;
-  margin-bottom: 1em;
-  padding-bottom: 0.5em;
-}
-
-.supervisor-asset-list,
-.supervisor-shot-list {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-}
-
 .task-type {
   display: flex;
   flex-direction: column;
@@ -1126,7 +1291,6 @@ export default {
 }
 
 .field {
-  margin: 0;
 }
 
 .query-list {

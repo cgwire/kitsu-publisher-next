@@ -95,6 +95,9 @@ const auth = {
           organisation.timesheets_locked = organisation.timesheets_locked
             ? 'true'
             : 'false'
+          organisation.hd_by_default = organisation.hd_by_default
+            ? 'true'
+            : 'false'
           store.commit(SET_ORGANISATION, organisation)
           store.commit(USER_LOGIN, user)
           callback(null, isLdap)

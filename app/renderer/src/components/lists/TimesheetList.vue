@@ -16,6 +16,7 @@
       </div>
       <div class="filler" />
       <button-simple
+        v-if="!hideDayOff"
         class="flexrow-item"
         :text="$t('timesheets.day_off')"
         :active="personIsDayOff"
@@ -27,7 +28,7 @@
       ref="body"
       class="datatable-wrapper"
     >
-      <table class="datatable">
+      <table class="datatable multi-section">
         <thead class="datatable-head">
           <tr>
             <th
@@ -76,6 +77,7 @@
               <production-name-cell
                 :entry="productionMap.get(task.project_id)"
                 :only-avatar="true"
+                :is-link="false"
               />
             </th>
             <task-type-cell
@@ -95,6 +97,7 @@
                     :empty-width="60"
                     :empty-height="40"
                     :entity="{ preview_file_id: task.entity_preview_file_id }"
+                    :with-link="false"
                   />
                   <span>
                     {{ task.full_entity_name }}
@@ -143,6 +146,7 @@
               <production-name-cell
                 :entry="productionMap.get(task.project_id)"
                 :only-avatar="true"
+                :is-link="false"
               />
             </th>
             <task-type-cell
@@ -151,7 +155,10 @@
               :task-type="{
                 id: task.task_type_id,
                 name: task.task_type_name,
-                color: task.task_type_color
+                color: task.task_type_color,
+                for_entity: ['Shot', 'Edit'].includes(task.entity_type_name)
+                  ? task.entity_type_name
+                  : 'Asset'
               }"
               :style="{ left: colTypePosX }"
             />
@@ -185,7 +192,7 @@
 
     <p
       v-if="!isLoading"
-      class="has-text-centered footer-info mt1"
+      class="has-text-centered footer-info"
     >
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
@@ -193,7 +200,10 @@
     <delete-modal
       :text="$t('timesheets.confirm_day_off')"
       :active="modals.dayOff"
-      @confirm=";(modals.dayOff = false), $emit('set-day-off')"
+      @confirm="
+        ;modals.dayOff = false
+        ;$emit('set-day-off')
+      "
       @cancel="modals.dayOff = false"
     />
   </div>
@@ -261,6 +271,10 @@ export default {
     hideDone: {
       default: false,
       type: Boolean
+    },
+    hideDayOff: {
+      default: true,
+      type: Boolean
     }
   },
 
@@ -297,6 +311,7 @@ export default {
   computed: {
     ...mapGetters([
       'isCurrentUserArtist',
+      'isCurrentUserAdmin',
       'nbSelectedTasks',
       'organisation',
       'personIsDayOff',

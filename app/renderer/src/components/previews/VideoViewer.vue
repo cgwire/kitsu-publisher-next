@@ -38,11 +38,11 @@ import { domMixin } from '@/components/mixins/dom'
 
 export default {
   name: 'VideoViewer',
+  mixins: [domMixin],
 
   components: {
     Spinner
   },
-  mixins: [domMixin],
 
   props: {
     name: {
@@ -105,13 +105,10 @@ export default {
     }
   },
 
-  created() {
-    this.running = false
-    this.currentTimeCalls = []
-  },
-
   mounted() {
     if (!this.container) return
+    this.currentTimeCalls = []
+
     this.container.style.height = this.defaultHeight + 'px'
     this.isLoading = true
     if (this.isMuted) {
@@ -166,7 +163,7 @@ export default {
     },
 
     fps() {
-      return parseInt(this.currentProduction.fps || '24')
+      return parseFloat(this.currentProduction.fps || '24')
     },
 
     frameDuration() {

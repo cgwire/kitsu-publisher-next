@@ -18,38 +18,59 @@ export const getTaskPath = (
     route.params.episode_id = task.episode_id || episode.id
   }
   const taskType = taskTypeMap.get(task.task_type_id)
-  route.params.type = taskType.for_shots ? 'shots' : 'assets'
+  if (taskType.for_entity === 'Shot') {
+    route.params.type = 'shots'
+  }
+  if (taskType.for_entity === 'Asset') {
+    route.params.type = 'assets'
+  }
+  if (taskType.for_entity === 'Edit') {
+    route.params.type = 'edits'
+  }
   return route
 }
 
 export const getTaskEntityPath = (task, episodeId) => {
   if (task) {
-    const type = task.entity_type_name
+    let type = task.entity_type_name
+    if (type !== 'Shot' && type !== 'Edit') {
+      type = 'Asset'
+    }
     const entityId = task.entity ? task.entity.id : task.entity_id
     const route = {
-      name: type === 'Shot' ? 'shot' : 'asset',
+      name: type.toLowerCase(),
       params: {
         production_id: task.project_id
       }
     }
-
-    if (type === 'Shot') {
-      route.params.shot_id = entityId
-    } else {
-      route.params.asset_id = entityId
-    }
+    route.params[`${route.name}_id`] = entityId
 
     if (episodeId) {
       route.name = `episode-${route.name}`
       route.params.episode_id = episodeId
     }
-
     return route
   } else {
     return {
       name: 'open-productions'
     }
   }
+}
+
+export const getEntitiesPath = (productionId, type, episodeId) => {
+  const route = {
+    name: type,
+    params: {
+      production_id: productionId
+    }
+  }
+
+  if (episodeId) {
+    route.name = `episode-${type}`
+    route.params.episode_id = episodeId
+  }
+
+  return route
 }
 
 export const getEntityPath = (entityId, productionId, section, episodeId) => {
@@ -69,6 +90,8 @@ export const getEntityPath = (entityId, productionId, section, episodeId) => {
     route.params.shot_id = entityId
   } else if (section === 'asset') {
     route.params.asset_id = entityId
+  } else if (section === 'edit') {
+    route.params.edit_id = entityId
   }
 
   return route
@@ -105,7 +128,7 @@ export const getProductionPath = (
     route = episodifyRoute(route, episodeId || 'all')
   }
 
-  if (['assets', 'shots'].includes(section)) {
+  if (['assets', 'shots', 'edits', 'breakdown'].includes(section)) {
     route.query = { search: '' }
   }
 
@@ -143,10 +166,25 @@ export const getTaskTypeSchedulePath = (
 ) => {
   const route = getContextRoute('task-type-schedule', productionId, episodeId)
   route.params.task_type_id = taskTypeId
-  route.params.type = type
+  if (type === 'shot') {
+    route.params.type = 'shots'
+  } else if (type === 'asset') {
+    route.params.type = 'assets'
+  } else if (type === 'edit') {
+    route.params.type = 'edits'
+  }
   return route
 }
 
 export const getProductionSchedulePath = (productionId) => {
   return getProductionRoute('schedule', productionId)
+}
+
+export const getPersonPath = (personId) => {
+  return {
+    name: 'person',
+    params: {
+      person_id: personId
+    }
+  }
 }

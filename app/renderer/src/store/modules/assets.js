@@ -63,6 +63,7 @@ import {
   SET_ASSET_TYPE_SEARCH,
   COMPUTE_ASSET_TYPE_STATS,
   UPDATE_METADATA_DESCRIPTOR_END,
+  SET_CURRENT_EPISODE,
   CHANGE_ASSET_SORT,
   LOCK_ASSET,
   UNLOCK_ASSET,
@@ -336,14 +337,22 @@ const getters = {
 const actions = {
   loadAssets({ commit, state, rootGetters }, all = false) {
     const production = rootGetters.currentProduction
-    const userFilters = rootGetters.userFilters
-    const personMap = rootGetters.personMap
     let episode = rootGetters.currentEpisode
     const isTVShow = rootGetters.isTVShow
+    const userFilters = rootGetters.userFilters
+    const personMap = rootGetters.personMap
     const taskTypeMap = rootGetters.taskTypeMap
     const taskMap = rootGetters.taskMap
 
     if (isTVShow && !episode) {
+      // If it's tv show and if we don't have any episode set,
+      // we use the first one.
+      episode = rootGetters.episodes.length > 0 ? rootGetters.episodes[0] : null
+      if (!episode) return Promise.resolve([])
+      commit(SET_CURRENT_EPISODE, episode.id)
+    }
+
+    if (isTVShow && !episode && !all) {
       return Promise.resolve([])
     }
 
@@ -376,6 +385,10 @@ const actions = {
       })
   },
 
+  getAsset({ commit, state, rootGetters }, assetId) {
+    return assetsApi.getAsset(assetId)
+  },
+
   /*
    * Function used mainly to reload asset information when a remote change
    * occurs.
@@ -394,6 +407,9 @@ const actions = {
         if (state.assetMap.get(asset.id)) {
           commit(UPDATE_ASSET, asset)
         } else {
+          asset.tasks.forEach((task) => {
+            commit(NEW_TASK_END, task)
+          })
           commit(ADD_ASSET, {
             asset,
             taskTypeMap,
@@ -402,6 +418,7 @@ const actions = {
             production
           })
         }
+        return Promise.resolve(asset)
       })
       .catch(console.error)
   },
@@ -412,24 +429,32 @@ const actions = {
     }
     return assetsApi.newAsset(data).then((asset) => {
       const assetTypeMap = rootGetters.assetTypeMap
-      commit(EDIT_ASSET_END, { newAsset: asset, assetTypeMap })
+      const assetType = assetTypeMap.get(asset.entity_type_id)
+      const workflow = assetType ? asset.task_types || [] : []
+      let taskTypeIds = rootGetters.productionAssetTaskTypeIds
       const sortInfo =
         state.assetSorting && state.assetSorting.length > 0
           ? state.assetSorting[0]
           : []
+      // Add asset to the list
+      commit(EDIT_ASSET_END, { newAsset: asset, assetTypeMap })
+      // Sort list
       dispatch('changeAssetSort', sortInfo)
-      const taskTypeIds = rootGetters.productionAssetTaskTypeIds
-      const createTaskPromises = taskTypeIds.map((taskTypeId) =>
-        dispatch('createTask', {
+      // Creates tasks related to the asset type workflow
+      if (workflow.length > 0) {
+        taskTypeIds = taskTypeIds.filter((taskTypeId) => {
+          return workflow.includes(taskTypeId)
+        })
+      }
+      const createTaskPromises = taskTypeIds.map((taskTypeId) => {
+        return dispatch('createTask', {
           entityId: asset.id,
           projectId: asset.project_id,
           taskTypeId: taskTypeId,
           type: 'assets'
         })
-      )
-      return Promise.all(createTaskPromises).then(() => {
-        return Promise.resolve(asset)
       })
+      return Promise.all(createTaskPromises).then(() => Promise.resolve(asset))
     })
   },
 
@@ -576,6 +601,7 @@ const actions = {
     const episodeMap = rootGetters.episodeMap
     const organisation = rootGetters.organisation
     const personMap = rootGetters.personMap
+    const taskTypeMap = rootGetters.taskTypeMap
     let assets = cache.assets
     if (cache.result && cache.result.length > 0) {
       assets = cache.result
@@ -590,7 +616,8 @@ const actions = {
       assetLine = assetLine.concat([
         asset.asset_type_name,
         asset.name,
-        asset.description
+        asset.description,
+        asset.ready_for !== 'None' ? taskTypeMap.get(asset.ready_for).name : ''
       ])
       sortByName([...production.descriptors])
         .filter((d) => d.entity_type === 'Asset')
@@ -870,7 +897,9 @@ const mutations = {
     if (asset) {
       newAsset.episode_id = newAsset.source_id
       delete newAsset.tasks
-      Object.assign(asset, newAsset)
+      const copyNewAsset = { ...newAsset }
+      copyNewAsset.data = { ...asset.data, ...newAsset.data }
+      Object.assign(asset, copyNewAsset)
     } else {
       newAsset.validations = new Map()
       newAsset.production_id = newAsset.project_id

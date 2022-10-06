@@ -81,9 +81,7 @@ export const groupEntitiesByParents = (entities, parentNameField) => {
 }
 
 export const addToIdList = (production, field, id) => {
-  if (!production[field]) {
-    production[field] = []
-  }
+  if (!production[field]) production[field] = []
   if (!production[field].find((mid) => mid === id)) {
     production[field].push(id)
   }

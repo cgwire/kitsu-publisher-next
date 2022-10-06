@@ -10,7 +10,6 @@
       class="modal-background"
       @click="$emit('cancel')"
     />
-
     <div class="modal-content">
       <div class="box">
         <p class="text">
@@ -31,7 +30,7 @@
             }"
             @click="$emit('confirm')"
           >
-            {{ $t('main.confirmation') }}
+            {{ deleteButtonText || $t('main.confirmation') }}
           </a>
           <button
             class="button is-link"
@@ -72,6 +71,10 @@ export default {
     errorText: {
       default: '',
       type: String
+    },
+    deleteButtonText: {
+      default: '',
+      type: String
     }
   },
   computed: {
@@ -84,6 +87,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.modal-content .box {
+  padding: 2em;
+}
 .modal-content .box p.text {
   margin-bottom: 1em;
 }

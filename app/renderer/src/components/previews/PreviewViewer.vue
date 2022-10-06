@@ -55,7 +55,7 @@
     />
 
     <object-viewer
-      v-show="is3DModel"
+      v-if="is3DModel"
       class="model-viewer"
       :default-height="defaultHeight"
       :preview-url="originalPath"
@@ -68,7 +68,7 @@
       v-show="isSound"
       ref="sound-viewer"
       class="sound-viewer"
-      :preview-url="originalPath"
+      :preview-url="isSound ? originalPath : ''"
       :file-name="fileTitle"
       @play-ended="$emit('play-ended')"
     />
@@ -95,7 +95,10 @@
           name="download"
           class="icon"
         />
-        <span class="text">
+        <span
+          class="text"
+          :title="fileTitle"
+        >
           {{ $t('tasks.download_pdf_file', { extension }) }}
         </span>
       </a>
@@ -119,6 +122,7 @@ import VideoViewer from '@/components/previews/VideoViewer'
 
 export default {
   name: 'PreviewViewer',
+  mixins: [domMixin],
 
   components: {
     ObjectViewer,
@@ -129,7 +133,6 @@ export default {
     Spinner,
     VideoViewer
   },
-  mixins: [domMixin],
 
   props: {
     name: {

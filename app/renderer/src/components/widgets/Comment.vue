@@ -20,14 +20,16 @@
             :thin="!isChange"
           />
           <people-avatar
+            v-if="!isCurrentUserClient || isAuthorClient"
             class="flexrow-item"
-            :isLink="false"
             :size="25"
             :font-size="12"
+            :is-link="false"
             :person="comment.person"
           />
           <strong class="flexrow-item">
             <people-name
+              v-if="!isCurrentUserClient || isAuthorClient"
               class=""
               :person="comment.person"
             />
@@ -51,10 +53,12 @@
               :is-editable="editable"
               @pin-clicked="$emit('pin-comment', comment)"
               @edit-clicked="
-                $emit('edit-comment', comment), toggleCommentMenu()
+                ;$emit('edit-comment', comment)
+                ;toggleCommentMenu()
               "
               @delete-clicked="
-                $emit('delete-comment', comment), toggleCommentMenu()
+                ;$emit('delete-comment', comment)
+                ;toggleCommentMenu()
               "
             />
           </div>
@@ -62,7 +66,7 @@
         <div class="flexrow-item comment-content">
           <div class="content">
             <p
-              v-if="personMap.get(comment.person_id).role === 'client'"
+              v-if="isAuthorClient && !isCurrentUserClient"
               class="client-comment"
             >
               <span>
@@ -258,13 +262,13 @@
         </span>
       </div>
 
-      <div
-        v-if="isAddChecklistAllowed"
-        class="has-text-centered add-checklist"
-        @click="addChecklistEntry()"
-      >
-        {{ $t('comments.add_checklist') }}
-      </div>
+      <!--div
+      class="has-text-centered add-checklist"
+      @click="addChecklistEntry()"
+      v-if="isAddChecklistAllowed"
+    >
+      {{ $t('comments.add_checklist') }}
+    </div-->
     </article>
     <div
       v-else
@@ -279,7 +283,7 @@
         />
         <people-avatar
           class="flexrow-item"
-          :isLink="false"
+          :is-link="false"
           :person="comment.person"
           :size="25"
           :font-size="12"
@@ -306,9 +310,13 @@
             :is-editable="editable"
             :is-empty="true"
             @pin-clicked="$emit('pin-comment', comment)"
-            @edit-clicked="$emit('edit-comment', comment), toggleCommentMenu()"
+            @edit-clicked="
+              ;$emit('edit-comment', comment)
+              ;toggleCommentMenu()
+            "
             @delete-clicked="
-              $emit('delete-comment', comment), toggleCommentMenu()
+              ;$emit('delete-comment', comment)
+              ;toggleCommentMenu()
             "
           />
         </div>
@@ -327,12 +335,12 @@ import { formatDate, parseDate } from '@/lib/time'
 import colors from '@/lib/colors'
 import files from '@/lib/files'
 
-import ButtonSimple from '@/components/widgets/ButtonSimple'
-import Checklist from '@/components/widgets/Checklist'
-import CommentMenu from '@/components/widgets/CommentMenu.vue'
 import Icon from '@/components/widgets/Icon'
-import PeopleAvatar from '@/components/widgets/PeopleAvatar.vue'
-import PeopleName from '@/components/widgets/PeopleName.vue'
+import ButtonSimple from '@/components/widgets/ButtonSimple'
+import CommentMenu from '@/components/widgets/CommentMenu'
+import Checklist from '@/components/widgets/Checklist'
+import PeopleAvatar from '@/components/widgets/PeopleAvatar'
+import PeopleName from '@/components/widgets/PeopleName'
 import ValidationTag from '@/components/widgets/ValidationTag'
 
 export default {
@@ -345,6 +353,16 @@ export default {
     PeopleAvatar,
     PeopleName,
     ValidationTag
+  },
+
+  data() {
+    return {
+      checklist: [],
+      isReplyLoading: false,
+      replyText: '',
+      showReply: false,
+      uniqueClassName: (Math.random() + 1).toString(36).substring(2)
+    }
   },
 
   props: {
@@ -382,22 +400,9 @@ export default {
     }
   },
 
-  data() {
-    return {
-      checklist: [],
-      isReplyLoading: false,
-      replyText: '',
-      showReply: false,
-      uniqueClassName: (Math.random() + 1).toString(36).substring(2)
-    }
-  },
-
-  created() {
-    this.silent = true
-  },
-
   mounted() {
     if (this.comment.checklist) {
+      this.silent = true
       this.checklist = [...this.comment.checklist]
       this.$nextTick().then(() => {
         this.silent = false
@@ -422,6 +427,7 @@ export default {
     ...mapGetters([
       'currentProduction',
       'isCurrentUserAdmin',
+      'isCurrentUserClient',
       'isCurrentUserManager',
       'isDarkTheme',
       'user',
@@ -466,7 +472,7 @@ export default {
         route.params.episode_id = this.task.entity.episode_id
       }
       const taskType = this.taskTypeMap.get(this.task.task_type_id)
-      route.params.type = taskType.for_shots ? 'shots' : 'assets'
+      route.params.type = this.$tc(taskType.for_entity.toLowerCase(), 2)
       return route
     },
 
@@ -549,6 +555,10 @@ export default {
       } else {
         return color
       }
+    },
+
+    isAuthorClient() {
+      return this.personMap.get(this.comment.person_id).role === 'client'
     }
   },
 
@@ -569,10 +579,10 @@ export default {
 
     renderDate(date) {
       date = moment(date)
-      if (moment().diff(date, 'days') > 1) {
-        return date.tz(this.user.timezone).format('MM/DD')
-      } else {
+      if (moment().isSame(date, 'd')) {
         return date.tz(this.user.timezone).format('HH:mm')
+      } else {
+        return date.tz(this.user.timezone).format('MM/DD')
       }
     },
 
@@ -600,9 +610,13 @@ export default {
     },
 
     addChecklistEntry() {
+      this.silent = true
       this.checklist.push({
         text: '',
         checked: false
+      })
+      this.$nextTick().then(() => {
+        this.silent = false
       })
     },
 
@@ -727,7 +741,7 @@ export default {
 
 article.comment {
   background: white;
-  border-radius: 5px;
+  border-radius: 10px;
   padding: 0;
   margin: 1em 0;
   word-wrap: anywhere;
@@ -925,7 +939,7 @@ p {
   font-size: 0.8em;
   padding-right: 0.5em;
   text-align: right;
-  width: 50px;
+  width: 60px;
 }
 
 textarea.reply {

@@ -19,6 +19,7 @@
         <select
           ref="select"
           :class="{
+            combobox: true,
             thin: thin,
             'select-input': true,
             error: error
@@ -33,7 +34,7 @@
           <option
             v-for="(option, i) in options"
             :key="`${i}-${option.label}-${option.value}`"
-            :value="option.value || option.label"
+            :value="option.label || option.value"
             :selected="modelValue === option.value"
           >
             {{ getOptionLabel(option) }}
@@ -55,7 +56,7 @@ export default {
     },
     modelValue: {
       default: '',
-      type: [Object, String]
+      type: [Object, String, Boolean]
     },
     options: {
       default: () => [],
@@ -98,11 +99,23 @@ export default {
 
   methods: {
     updateValue() {
-      this.$emit('update:modelValue', this.$refs.select.value)
+      let value = this.$refs.select.value
+      this.options.forEach((option) => {
+        if (option.label === value) {
+          value = option.value
+        }
+      })
+      this.$emit('update:modelValue', value)
     },
 
     emitEnter() {
-      this.$emit('enter', this.$refs.select.value)
+      let value = this.$refs.select.value
+      this.options.forEach((option) => {
+        if (option.label === value) {
+          value = option.value
+        }
+      })
+      this.$emit('update:modelValue', value)
     },
 
     getOptionLabel(option) {

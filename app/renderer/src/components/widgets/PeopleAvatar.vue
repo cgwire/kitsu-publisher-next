@@ -1,6 +1,6 @@
 <template>
   <span
-    v-if="isLink && person"
+    v-if="isLink"
     class="avatar has-text-centered"
     :style="{
       background: person.color,
@@ -37,7 +37,7 @@
   </span>
 
   <span
-    v-else-if="person"
+    v-else
     class="avatar has-text-centered"
     :title="person.full_name"
     :style="{
@@ -66,6 +66,14 @@
 export default {
   name: 'PersonAvatar',
 
+  data() {
+    return {
+      avatarPath: '',
+      avatarKey: '',
+      initials: ''
+    }
+  },
+
   props: {
     person: {
       type: Object,
@@ -80,40 +88,28 @@ export default {
     'no-cache': { type: Boolean, default: false }
   },
 
-  data() {
-    return {
-      avatarPath: '',
-      avatarKey: '',
-      initials: ''
-    }
-  },
-
-  watch: {
-    person() {
-      if (this.person) {
-        this.reloadAvatar()
-      }
-    },
-
-    'person.uniqueHash'() {
-      if (this.person) {
-        this.reloadAvatar()
-      }
-    }
-  },
-
   created() {
     this.reloadAvatar()
-  },
-
-  mounted() {
-    this.initials = this.person.initials
   },
 
   methods: {
     reloadAvatar() {
       this.avatarPath = `${this.$store.state.login.server}${this.person.avatarPath}?unique=${this.person.uniqueHash}`
       this.avatarKey = this.person.id + '-' + this.person.uniqueHash
+    }
+  },
+
+  mounted() {
+    this.initials = this.person.initials
+  },
+
+  watch: {
+    person() {
+      this.reloadAvatar()
+    },
+
+    'person.uniqueHash'() {
+      this.reloadAvatar()
     }
   }
 }
@@ -139,7 +135,6 @@ export default {
 }
 
 .avatar a {
-  padding: 0;
   margin: 0;
   color: white;
 }

@@ -73,6 +73,20 @@
             type="number"
             @enter="runConfirmation"
           />
+          <text-field
+            ref="resolutionField"
+            v-model="form.resolution"
+            :label="$t('shots.fields.resolution')"
+            @enter="runConfirmation"
+          />
+          <text-field
+            ref="maxRetakesField"
+            v-model="form.max_retakes"
+            type="number"
+            :label="$t('shots.fields.max_retakes')"
+            @enter="runConfirmation"
+          />
+
           <div
             v-for="descriptor in shotMetadataDescriptors"
             :key="descriptor.id"
@@ -106,14 +120,16 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import { modalMixin } from './base_modal'
-import Combobox from '../widgets/Combobox'
+import { formatListMixin } from '@/components/mixins/format'
+import { modalMixin } from '@/components/modals/base_modal'
+import Combobox from '@/components/widgets/Combobox'
 import ModalFooter from '@/components/modals/ModalFooter'
-import TextField from '../widgets/TextField'
-import TextareaField from '../widgets/TextareaField'
+import TextField from '@/components/widgets/TextField'
+import TextareaField from '@/components/widgets/TextareaField'
 
 export default {
   name: 'EditShotModal',
+  mixins: [formatListMixin, modalMixin],
 
   components: {
     Combobox,
@@ -121,7 +137,6 @@ export default {
     TextField,
     TextareaField
   },
-  mixins: [modalMixin],
 
   props: [
     'onConfirmClicked',
@@ -143,6 +158,10 @@ export default {
       },
       shotSuccessText: ''
     }
+  },
+
+  mounted() {
+    this.resetForm()
   },
 
   computed: {
@@ -167,11 +186,21 @@ export default {
 
     fps() {
       return this.shotToEdit.data ? this.shotToEdit.data.fps : ''
+    },
+
+    resolution() {
+      return this.shotToEdit.data ? this.shotToEdit.data.resolution : ''
+    },
+
+    maxRetakes() {
+      return this.shotToEdit.data
+        ? parseInt(this.shotToEdit.data.max_retakes)
+        : ''
     }
   },
 
   methods: {
-    ...mapActions([]),
+    ...mapActions(['loadSequences']),
 
     runConfirmation() {
       if (this.isEditing()) {
@@ -223,6 +252,8 @@ export default {
           frameIn: this.frameIn,
           frameOut: this.frameOut,
           fps: this.fps,
+          max_retakes: this.maxRetakes,
+          resolution: this.resolution,
           data: { ...this.shotToEdit.data } || {}
         }
       }
@@ -233,10 +264,29 @@ export default {
     active() {
       this.shotSuccessText = ''
       this.resetForm()
+      if (this.sequences.length === 0) {
+        this.loadSequences()
+      }
       if (this.active) {
         setTimeout(() => {
           this.$refs.nameField.focus()
         }, 100)
+      }
+    },
+
+    'form.frameIn'() {
+      const frameIn = this.sanitizeInteger(this.form.frameIn)
+      const frameOut = this.sanitizeInteger(this.form.frameOut)
+      if (frameIn && frameOut && frameOut > frameIn) {
+        this.form.nb_frames = frameOut - frameIn
+      }
+    },
+
+    'form.frameOut'() {
+      const frameIn = this.sanitizeInteger(this.form.frameIn)
+      const frameOut = this.sanitizeInteger(this.form.frameOut)
+      if (frameIn && frameOut && frameOut > frameIn) {
+        this.form.nb_frames = frameOut - frameIn
       }
     },
 
@@ -255,10 +305,6 @@ export default {
         })
       }
     }
-  },
-
-  mounted() {
-    this.resetForm()
   }
 }
 </script>

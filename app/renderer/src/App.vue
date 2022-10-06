@@ -8,18 +8,25 @@
       <spinner class="mt2" />
     </div>
     <router-view v-else />
+
+    <preview-modal
+      :active="previewFileIdToShow.length > 0"
+      :preview-file-id="previewFileIdToShow"
+      @cancel="() => $store.commit('HIDE_PREVIEW_FILE')"
+    />
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import Spinner from '@/components/widgets/Spinner.vue'
-//import crisp from '@/lib/crisp'
+import PreviewModal from '@/components/modals/PreviewModal'
+import Spinner from '@/components/widgets/Spinner'
 
 export default {
   name: 'App',
 
   components: {
+    PreviewModal,
     Spinner
   },
 
@@ -32,10 +39,12 @@ export default {
       'episodeMap',
       'isCurrentUserAdmin',
       'isDataLoading',
+      'isPreviewFileDisplayed',
       'isDarkTheme',
       'isLoginLoading',
       'isSavingCommentPreview',
       'isTVShow',
+      'previewFileIdToShow',
       'route',
       'personMap',
       'productionMap',
@@ -356,6 +365,16 @@ export default {
         }
       },
 
+      'episode:casting-update'(eventData) {
+        const episode = this.episodeMap.get(eventData.episode_id)
+        if (episode) {
+          this.$store.commit('UPDATE_EPISODE', {
+            id: episode.id,
+            nb_entities_out: eventData.nb_entities_out
+          })
+        }
+      },
+
       'shot:casting-update'(eventData) {
         const shot = this.shotMap.get(eventData.shot_id)
         if (shot) {
@@ -601,6 +620,39 @@ body {
     background-color: #5e6169;
   }
 
+  .vdp-datepicker__calendar {
+    background-color: #36393f;
+    border-color: #25282e;
+
+    .prev,
+    .next,
+    .day__month_btn,
+    header span:hover {
+      background: #36393f;
+    }
+
+    header .prev::after,
+    header .prev::after {
+      border-right-color: #eee;
+    }
+
+    header .next::after,
+    header .next::after {
+      border-left-color: #eee;
+    }
+
+    header .next.disabled::after,
+    header .next.disabled::after {
+      border-left-color: #666;
+    }
+
+    .cell.year.disabled,
+    .cell.month.disabled,
+    .cell.day.disabled {
+      color: $grey;
+    }
+  }
+
   .hero .control .icon {
     color: #555;
   }
@@ -610,6 +662,10 @@ body {
     color: white;
   }
 } // End dark theme
+
+#app .router-link-active {
+  color: #00d1b2;
+}
 
 .loading-info {
   background: white;
@@ -651,6 +707,16 @@ td.actions {
 ul {
   list-style-type: disc;
   margin-left: 1em;
+}
+
+h2 {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.3em;
+  font-weight: 500;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  text-transform: uppercase;
 }
 
 .hero {
@@ -733,8 +799,14 @@ a:hover {
 }
 
 .canceled td:not(.actions),
-.canceled th {
+.canceled th,
+.canceled {
   text-decoration: line-through;
+  opacity: 0.7;
+
+  div span:first-child {
+    text-decoration: line-through;
+  }
 }
 
 .field {
@@ -781,10 +853,6 @@ a:hover {
   margin-left: 1em;
 }
 
-.mr1 {
-  margin-right: 1em;
-}
-
 .mb0 {
   margin-bottom: 0;
 }
@@ -805,17 +873,33 @@ a:hover {
   flex: 1;
 }
 
+.z300 {
+  z-index: 300000;
+}
+
 label.label {
   color: $grey;
   text-transform: uppercase;
   font-size: 0.8em;
+  letter-spacing: 1px;
   margin-left: 2px;
+}
+
+.subtitle {
+  color: $grey;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 texarea,
 input.input {
   padding: 1em;
   height: 3em;
+}
+
+.select select {
+  border-radius: 10px;
 }
 
 .select select:hover,
@@ -836,14 +920,11 @@ input.input:focus {
   padding: 0.5em;
   height: 2.3em;
   width: 100px;
+  border-radius: 10px;
 }
 
 .button:focus {
   box-shadow: none;
-}
-
-textarea.input:focus {
-  border-color: $green;
 }
 
 .button.is-primary {
@@ -869,6 +950,18 @@ textarea.input:focus {
 .big-button:hover {
   color: white;
   background: #67be4b;
+}
+
+input[type='checkbox'] {
+  cursor: pointer;
+}
+
+textarea.input {
+  border-radius: 10px;
+}
+
+textarea.input:focus {
+  border-color: $green;
 }
 
 .error {
@@ -925,13 +1018,19 @@ textarea.input:focus {
 }
 
 .modal-content {
+  max-height: calc(100vh - 140px);
   .box {
-    border-radius: 1em;
-    padding: 1.5em 1.5em 1.5em 1.5em;
+    border-radius: 0.5em;
+    padding: 2.8em 3em 3em 3em;
 
     h1.title {
-      font-weight: 300;
-      font-size: 2em;
+      font-family: Lato;
+      font-weight: 400;
+      font-size: 3em;
+      margin-top: 0;
+      padding-top: 0;
+      margin-bottom: 1em;
+      text-transform: capitalize;
       border: 0;
     }
 
@@ -1097,6 +1196,7 @@ textarea.input:focus {
   flex: 1;
   overflow: auto;
   min-height: 1px;
+  border-radius: 10px;
 }
 
 .table {
@@ -1201,11 +1301,23 @@ tbody:last-child .empty-line:last-child {
     position: sticky;
   }
 
+  th.number-cell,
+  td.number-cell {
+    text-align: right;
+    input {
+      text-align: right;
+    }
+  }
+
   .datatable-row {
     .thumbnail-wrapper,
     .thumbnail-picture,
     .thumbnail-picture.thumbnail-empty {
       margin: 0 0.35rem 0 0;
+    }
+    &:first-child {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
     }
 
     .thumbnail-wrapper {
@@ -1213,19 +1325,87 @@ tbody:last-child .empty-line:last-child {
         margin: 0;
       }
     }
+
+    td {
+      border-top: 1px solid var(--border);
+      border-left: 1px solid var(--border);
+    }
+
+    td.end-cell,
+    td.actions {
+      border-left: 1px solid transparent;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      td:first-child {
+        border-bottom-left-radius: 10px;
+      }
+      td:last-child {
+        border-bottom-right-radius: 10px;
+      }
+    }
+  }
+
+  &.no-header {
+    .datatable-row {
+      &:first-child {
+        td:first-child {
+          border-top-left-radius: 10px;
+        }
+        td:last-child {
+          border-top-right-radius: 10px;
+        }
+      }
+    }
+  }
+
+  &.multi-section {
+    .datatable-row {
+      &:nth-child(2) {
+        th:first-child {
+          border-top-left-radius: 10px;
+        }
+        td:first-child {
+          border-top-left-radius: 10px;
+        }
+        td:last-child {
+          border-top-right-radius: 10px;
+        }
+      }
+      &:last-child {
+        th:first-child {
+          border-bottom-left-radius: 10px;
+        }
+        td:last-child {
+          border-bottom-right-radius: 10px;
+        }
+      }
+    }
   }
 }
 
 .datatable-head {
   th {
-    top: 0;
+    background-color: var(--background);
+    border-bottom: 1px solid var(--border);
     padding: 0.5rem 0.75rem;
-    font-size: 0.9rem;
+    color: var(--text-alt);
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    top: 0;
     vertical-align: middle;
     z-index: 2;
-    background-color: var(--background);
-    color: var(--text);
-    border-bottom: 1px solid var(--border-alt);
+
+    a {
+      color: var(--text-alt);
+    }
+
+    span.dot {
+      margin-right: 7px;
+    }
 
     &:hover .header-icon {
       opacity: 1;
@@ -1274,8 +1454,8 @@ tbody:last-child .empty-line:last-child {
     background-color: var(--background);
   }
 
-  &:nth-child(2n),
-  &:nth-child(2n) .datatable-row-header {
+  &:nth-child(even),
+  &:nth-child(even) .datatable-row-header {
     background-color: var(--background-alt);
   }
 
@@ -1344,6 +1524,18 @@ tbody:last-child .empty-line:last-child {
     border-color: transparent;
     background-color: transparent;
     box-shadow: none;
+  }
+}
+
+.multi-section .datatable-row {
+  &:nth-child(odd),
+  &:nth-child(odd) .datatable-row-header {
+    background-color: var(--background-alt);
+  }
+
+  &:nth-child(even),
+  &:nth-child(even) .datatable-row-header {
+    background-color: var(--background);
   }
 }
 
@@ -1462,6 +1654,10 @@ tbody:last-child .empty-line:last-child {
   margin-right: 0;
 }
 
+.pointer {
+  cursor: pointer;
+}
+
 .side {
   padding: 1em;
 }
@@ -1484,12 +1680,27 @@ tbody:last-child .empty-line:last-child {
   border-color: #666;
 }
 
+.combobox {
+  border-radius: 10px;
+}
+
 .thumbnail-picture {
   border: 1px solid #ccc;
 }
 
-.modal-content .button {
-  margin-left: 0.5em;
+.modal-content {
+  .button {
+    margin-left: 0.5em;
+  }
+
+  h2 {
+    margin-bottom: 0;
+    border-bottom: 0;
+  }
+}
+
+.modal-content label.button {
+  margin-left: 0em;
 }
 
 .modal-content .box p.text {
@@ -1555,6 +1766,18 @@ tbody:last-child .empty-line:last-child {
   font-size: 1.5em;
 }
 
+.entity-thumbnail {
+  border-radius: 0.5em;
+  box-shadow: 0px 0px 6px var(--box-shadow);
+  cursor: pointer;
+  transition: transform ease 0.3s;
+  max-width: 90px;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
 th.validation-cell {
   &:hover {
     text-decoration: underline $light-grey;
@@ -1574,6 +1797,20 @@ th.validation-cell {
   }
 }
 
+.block {
+  background: var(--background-block);
+  border-radius: 1em;
+  box-shadow: 0px 0px 6px var(--box-shadow);
+  color: var(--text);
+  padding: 1.5em;
+
+  &.ready-for {
+    color: var(--text);
+    border-radius: 1em;
+    padding: 1em;
+  }
+}
+
 .asset .description-cell,
 .shot .description-cell,
 .description-cell .tooltip {
@@ -1590,6 +1827,10 @@ th.validation-cell {
   ul {
     margin-bottom: 1em;
   }
+}
+
+.date-input {
+  border-radius: 10px;
 }
 
 .project-dates .date-input {
@@ -1633,7 +1874,7 @@ th.validation-cell {
 
 .status-combo {
   padding: 0.3em;
-  border-radius: 3px;
+  border-radius: 10px;
 
   .selected-status-line,
   .status-line {
@@ -1685,8 +1926,48 @@ th.validation-cell {
   margin: 0px;
 }
 
-.slider {
-  cursor: pointer;
+.theme .datepicker .vdp-datepicker__calendar {
+  z-index: 2000;
+
+  .cell.year:not(.blank):not(.disabled):hover,
+  .cell.month:not(.blank):not(.disabled):hover,
+  .cell.day:not(.blank):not(.disabled):hover {
+    background: var(--background-selectable);
+    border: 1px solid transparent;
+  }
+
+  .cell.year.disabled:hover,
+  .cell.month.disabled:hover,
+  .cell.day.disabled:hover {
+    border: 1px solid transparent;
+  }
+
+  .cell.year.selected,
+  .cell.month.selected,
+  .cell.day.selected {
+    background: var(--background-selected);
+  }
+
+  .cell.year.selected:not(.blank):not(.disabled):hover,
+  .cell.month.selected:not(.blank):not(.disabled):hover,
+  .cell.day.selected:not(.blank):not(.disabled):hover {
+    border: 1px solid transparent;
+    background: var(--background-selected);
+  }
+
+  header span:not(.disabled):hover {
+    background: var(--background-selectable);
+  }
+}
+
+.theme .vue-slider-dot-tooltip-inner {
+  background: $purple-strong;
+  border-color: $purple-strong;
+}
+
+.dark .vue-slider-dot-tooltip-inner {
+  background: $dark-purple;
+  border-color: $dark-purple;
 }
 
 .c-mask {

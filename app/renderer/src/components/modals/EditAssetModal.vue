@@ -54,8 +54,65 @@
             v-for="descriptor in assetMetadataDescriptors"
             :key="descriptor.id"
           >
+            <div
+              v-if="
+                descriptor.choices.length > 0 &&
+                  getDescriptorChecklistValues(descriptor).length > 0
+              "
+              :key="`${descriptor.id}-checklist-wrapper`"
+              class="field"
+            >
+              <label
+                :key="`${descriptor.id}-${descriptor.name}`"
+                class="label"
+                v-html="descriptor.name"
+              />
+              <div
+                v-for="(option, i) in getDescriptorChecklistValues(descriptor)"
+                :key="`${descriptor.id}-${i}-${option.text}-wrapper`"
+                class="checkbox-wrapper"
+              >
+                <input
+                  :id="`${descriptor.id}-${i}-${option.text}-checkbox`"
+                  type="checkbox"
+                  :checked="
+                    getMetadataChecklistValues(descriptor, assetToEdit)[
+                      option.text
+                    ]
+                  "
+                  :disabled="
+                    !(
+                      isCurrentUserManager ||
+                      isSupervisorInDepartments(descriptor.departments)
+                    )
+                  "
+                  :style="[
+                    isCurrentUserManager ||
+                      isSupervisorInDepartments(descriptor.departments)
+                      ? { cursor: 'pointer' }
+                      : { cursor: 'auto' }
+                  ]"
+                  @change="
+                    (event) =>
+                      onMetadataCheckboxChanged(descriptor, option.text, event)
+                  "
+                >
+                <label
+                  class="checkbox-label"
+                  :for="`${descriptor.id}-${i}-${option.text}-checkbox`"
+                  :style="[
+                    isCurrentUserManager ||
+                      isSupervisorInDepartments(descriptor.departments)
+                      ? { cursor: 'pointer' }
+                      : { cursor: 'auto' }
+                  ]"
+                >
+                  <span>{{ option.text }}</span>
+                </label>
+              </div>
+            </div>
             <combobox
-              v-if="descriptor.choices.length > 0"
+              v-else-if="descriptor.choices.length > 0"
               v-model="form.data[descriptor.field_name]"
               :label="descriptor.name"
               :options="getDescriptorChoicesOptions(descriptor)"
@@ -128,13 +185,13 @@ import Combobox from '@/components/widgets/Combobox'
 
 export default {
   name: 'EditAssetModal',
+  mixins: [descriptorMixin, modalMixin],
 
   components: {
     TextField,
     TextareaField,
     Combobox
   },
-  mixins: [descriptorMixin, modalMixin],
 
   props: {
     active: {
@@ -192,9 +249,11 @@ export default {
       'currentProduction',
       'currentEpisode',
       'episodes',
+      'isCurrentUserManager',
+      'isTVShow',
+      'isSupervisorInDepartments',
       'productionAssetTypes',
       'productionAssetTypeOptions',
-      'isTVShow',
       'openProductions'
     ]),
 
@@ -220,6 +279,17 @@ export default {
 
   methods: {
     ...mapActions([]),
+
+    onMetadataCheckboxChanged(descriptor, option, event) {
+      var values = {}
+      try {
+        values = JSON.parse(this.form.data[descriptor.field_name])
+      } catch {
+        values = {}
+      }
+      values[option] = event.target.checked
+      this.form.data[descriptor.field_name] = JSON.stringify(values)
+    },
 
     runConfirmation() {
       if (this.form.name.length > 0) {
@@ -318,5 +388,20 @@ export default {
 
 .info-message {
   margin-top: 1em;
+}
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  position: relative;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  white-space: normal;
+  cursor: pointer;
 }
 </style>

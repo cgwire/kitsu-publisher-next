@@ -33,7 +33,6 @@ export const fullScreenMixin = {
     },
 
     documentExitFullScreen() {
-      if (!this.isFullScreen()) return
       if (document.exitFullscreen) {
         document.exitFullscreen()
       } else if (document.mozCancelFullScreen) {

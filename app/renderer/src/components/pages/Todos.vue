@@ -44,7 +44,6 @@
 
         <div class="flexrow">
           <search-field
-            v-if="!isTabActive('done')"
             ref="todos-search-field"
             :class="{
               'search-field': true,
@@ -116,9 +115,8 @@
           :is-error="isTodosLoadingError"
           :time-spent-map="timeSpentMap"
           :time-spent-total="timeSpentTotal"
-          :hide-done="
-            todosSearchText.length > 0 || loggableDoneTasks.length === 0
-          "
+          :hide-done="loggableDoneTasks.length === 0"
+          :hide-day-off="false"
           @date-changed="onDateChanged"
           @time-spent-change="onTimeSpentChange"
           @set-day-off="onSetDayOff"
@@ -175,6 +173,7 @@ export default {
         'entity_name',
         'priority',
         'task_status_short_name',
+        'start_date',
         'due_date',
         'estimation',
         'last_comment_date'
@@ -252,6 +251,7 @@ export default {
       const isName = this.currentSort === 'entity_name'
       const isPriority = this.currentSort === 'priority'
       const isDueDate = this.currentSort === 'due_date'
+      const isStartDate = this.currentSort === 'start_date'
       const tasks =
         this.currentFilter === 'all_tasks'
           ? [...this.displayedTodos]
@@ -283,6 +283,17 @@ export default {
             if (!a.due_date) return 1
             else if (!b.due_date) return -1
             else return a.due_date.localeCompare(b.due_date)
+          })
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
+        )
+      } else if (isStartDate) {
+        return tasks.sort(
+          firstBy((a, b) => {
+            if (!a.start_date) return 1
+            else if (!b.start_date) return -1
+            else return a.start_date.localeCompare(b.start_date)
           })
             .thenBy('project_name')
             .thenBy('task_type_name')

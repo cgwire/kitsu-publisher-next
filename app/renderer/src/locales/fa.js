@@ -361,14 +361,6 @@ export default {
     team: 'تیم',
     title: 'افراد',
     unactive: 'غیرفعال',
-    csv: {
-      import_file: 'وارد کردن فایل .csv',
-      export_file: 'دانلود به عنوان فایل .csv',
-      import_title: 'وارد کردن داده هااز فایل csv',
-      required_fields: 'فایل csv شما نیازمند ستون های ذیل است:',
-      select_file: 'لطفا فایل مرود نظر خود را انتخاب کنید:',
-      error_upload: 'به هنگام بارگذاری فایل خطایی رخ داده.'
-    },
     fields: {
       first_name: 'نام',
       last_name: 'نام خانوادگی',
@@ -390,7 +382,8 @@ export default {
     role: {
       admin: 'مدیر استودیو',
       client: 'مشتری',
-      manager: 'سوپروایزر',
+      manager: 'Production manager',
+      supervisor: 'Supervisor',
       user: 'هنرمند',
       undefined: '',
       vendor: 'فروشنده'
@@ -565,10 +558,13 @@ export default {
     no_logo: 'هیچ لوگوی تعیین نشده.',
     set_logo: 'تعیین لوگوی استودیو',
     title: 'تنظیمات',
+    webhook_error: 'An error occurred while posting webhook',
     fields: {
       name: 'نام استودیو',
       hours_by_day: 'ساعت در روز',
       slack_token: 'Slack Token (Optional)',
+      mattermost_webhook: 'Mattermost Webhook (Optional)',
+      discord_token: 'Discord Token (Optional)',
       use_original_name: 'استفاده از اسم اصلی فایل برای دانلود.'
     },
     save: {
@@ -588,9 +584,9 @@ export default {
     fields: {
       is_artist_allowed: 'این هنرمند اجازه دارد',
       is_client_allowed: 'این مشتری اجازه دارد',
+      is_default: 'Is default',
       color: 'رنگ',
       is_done: 'انجام شده',
-      is_reviewable: 'قابل بررسی',
       is_retake: 'بازنگری',
       name: 'نام',
       short_name: 'اسم کوتاه'

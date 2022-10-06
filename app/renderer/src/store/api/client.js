@@ -63,6 +63,27 @@ const client = {
     })
   },
 
+  ppostFile(path, data, callback) {
+    const request = superagent
+      .post(`${store.state.login.server}${path}`)
+      .send(data)
+      .on('progress', (e) => e)
+    return {
+      request,
+      promise: new Promise((resolve, reject) => {
+        request.end((err, res) => {
+          if (res.statusCode === 401) {
+            errors.backToLogin()
+            return reject(err)
+          } else {
+            if (err) return reject(err)
+            else return resolve(res.body)
+          }
+        })
+      })
+    }
+  },
+
   pput(path, data, callback) {
     return new Promise((resolve, reject) => {
       superagent
@@ -94,14 +115,20 @@ const client = {
     })
   },
 
-  getModel(modelName, modelId) {
-    const path = `/api/data/${modelName}/${modelId}`
+  getModel(modelName, modelId, relations = false) {
+    let path = `/api/data/${modelName}/${modelId}`
+    if (relations) path += '?relations=true'
     return client.pget(path)
   },
 
   getEvents(after, before) {
     const path = `/api/data/events/last?after=${after}&before=${before}&page_size=100000`
     return client.pget(path)
+  },
+
+  searchData(query) {
+    const path = '/api/data/search'
+    return client.ppost(path, { query })
   }
 }
 

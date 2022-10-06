@@ -25,7 +25,10 @@ const getters = {
 
   taskStatusForCurrentUser: (state, getters, rootState, rootGetters) => {
     const statuses = rootGetters.productionTaskStatuses
-    if (rootGetters.isCurrentUserManager) {
+    if (
+      rootGetters.isCurrentUserManager ||
+      rootGetters.isCurrentUserSupervisor
+    ) {
       return statuses
     } else if (rootGetters.isCurrentUserClient) {
       return statuses.filter((taskStatus) => {
@@ -41,7 +44,10 @@ const getters = {
   getTaskStatusForCurrentUser:
     (state, getters, rootState, rootGetters) => (projectId) => {
       const statuses = rootGetters.getProductionTaskStatuses(projectId)
-      if (rootGetters.isCurrentUserManager) {
+      if (
+        rootGetters.isCurrentUserManager ||
+        rootGetters.isCurrentUserSupervisor
+      ) {
         return statuses
       } else if (rootGetters.isCurrentUserClient) {
         return statuses.filter((taskStatus) => {
@@ -122,13 +128,22 @@ const mutations = {
   [EDIT_TASK_STATUS_END](state, newTaskStatus) {
     const taskStatus = state.taskStatusMap.get(newTaskStatus.id)
 
+    if (newTaskStatus.is_default) {
+      state.taskStatus.forEach((status) => {
+        if (status.is_default && status.id !== newTaskStatus.id)
+          status.is_default = false
+      })
+    }
+
     if (taskStatus && taskStatus.id) {
       Object.assign(taskStatus, newTaskStatus)
+      state.taskStatusMap.delete(taskStatus.id)
+      state.taskStatusMap.set(taskStatus.id, taskStatus)
     } else {
       state.taskStatus.push(newTaskStatus)
       state.taskStatus = sortByName(state.taskStatus)
+      state.taskStatusMap.set(newTaskStatus.id, newTaskStatus)
     }
-    state.taskStatusMap.set(newTaskStatus.id, newTaskStatus)
   },
 
   [DELETE_TASK_STATUS_END](state, taskStatusToDelete) {

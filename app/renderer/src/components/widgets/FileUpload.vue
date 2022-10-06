@@ -30,13 +30,13 @@
           >
         </label>
         <span
-          v-if="uploadedFiles.length > 1"
+          v-if="uploadedFiles.length > 1 && !hideFileNames"
           class="file-upload-status"
         >
           {{ uploadedFiles.length }} {{ $tc('main.files_selected') }}
         </span>
         <span
-          v-if="uploadedFiles.length === 1"
+          v-if="uploadedFiles.length === 1 && !hideFileNames"
           class="file-upload-status"
         >
           {{ uploadedFiles[0] }}
@@ -73,6 +73,10 @@ export default {
     disabled: {
       type: Boolean,
       default: false
+    },
+    hideFileNames: {
+      type: Boolean,
+      default: false
     }
   },
 
@@ -83,8 +87,6 @@ export default {
       uploadedFiles: []
     }
   },
-  computed: {},
-  watch: {},
   mounted() {
     this.reset()
     const events = [
@@ -103,6 +105,7 @@ export default {
       })
     })
   },
+  computed: {},
   methods: {
     filesChange(name, files) {
       const forms = []
@@ -145,7 +148,8 @@ export default {
         this.filesChange('file', event.dataTransfer.files)
       }
     }
-  }
+  },
+  watch: {}
 }
 </script>
 
@@ -159,5 +163,8 @@ export default {
 .file-upload-status {
   margin-left: 0.5rem;
   font-style: italic;
+}
+label.button.is-primary {
+  border-radius: 5px;
 }
 </style>

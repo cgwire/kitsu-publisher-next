@@ -364,14 +364,6 @@ export default {
     team: 'Team',
     title: 'Menschen',
     unactive: 'Inaktiv',
-    csv: {
-      import_file: 'Importieren einer.csv-Datei',
-      export_file: 'Als.csv-Datei herunterladen',
-      import_title: 'Daten aus einer CSV-Datei importieren',
-      required_fields: 'Ihre CSV-Datei benötigt die folgenden Spalten',
-      select_file: 'Bitte wählen Sie eine Datei aus einem Ihrer Ordner aus:',
-      error_upload: 'Beim Hochladen Ihrer CSV-Datei ist ein Fehler aufgetreten.'
-    },
     fields: {
       first_name: 'Vorname',
       last_name: 'Nachname',
@@ -393,7 +385,8 @@ export default {
     role: {
       admin: 'Studio-Manager',
       client: 'Client',
-      manager: 'Vorgesetzter',
+      manager: 'Production manager',
+      supervisor: 'Supervisor',
       undefined: '',
       user: 'CG Artist',
       vendor: 'Anbieter'
@@ -548,6 +541,10 @@ export default {
     notifications_enabled: 'E-Mail-Benachrichtigungen aktiviert',
     notifications_slack_enabled: 'Slack-Benachrichtigungen aktiviert',
     notifications_slack_user: 'Slack-Benutzername',
+    notifications_mattermost_enabled: 'Mattermost-Benachrichtigungen aktiviert',
+    notifications_mattermost_user: 'Mattermost-Benutzername',
+    notifications_discord_enabled: 'Discord-Benachrichtigungen aktiviert',
+    notifications_discord_user: 'Discord-Benutzername',
     password_title: 'Passwort ändern',
     timezone: 'Zeitzone',
     title: 'Dein Profil',
@@ -594,10 +591,13 @@ export default {
     no_logo: 'Es gibt kein Logo-Set.',
     set_logo: 'Logo Studio-Set',
     title: 'Einstellungen',
+    webhook_error: 'An error occurred while posting webhook',
     fields: {
       name: 'Studio-Name',
       hours_by_day: 'Stunden am Tag',
       slack_token: 'Slack Token (Optional)',
+      mattermost_webhook: 'Mattermost Webhook (Optional)',
+      discord_token: 'Discord Token (Optional)',
       use_original_name: 'Original-Dateinamen für Downloads verwenden'
     },
     production: {
@@ -625,8 +625,8 @@ export default {
       is_client_allowed: 'Ist der Kunde erlaubt',
       color: 'Farbe',
       is_done: 'Ist erledigt',
-      is_reviewable: 'Ist überprüfbar',
       is_retake: 'Hat Wiederholungswert',
+      is_default: 'Is default',
       name: 'Name',
       short_name: 'Kurzname'
     }

@@ -7,7 +7,7 @@ import { DATA_LOADING_START, DATA_LOADING_END } from '@/store/mutation-types'
  */
 const init = (callback) => {
   store.commit(DATA_LOADING_START)
-  store
+  return store
     .dispatch('loadContext')
     .then(() => {
       // We run login success mutation when done because init

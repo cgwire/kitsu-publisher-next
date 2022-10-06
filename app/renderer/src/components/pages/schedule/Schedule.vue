@@ -187,7 +187,7 @@
                     v-else
                     class="man-days-unit flexrow-item"
                   >
-                    {{ childElement.man_days }}
+                    {{ formatDuration(childElement.man_days) }}
                     {{ $t('schedule.md') }}
                   </span>
                 </div>
@@ -238,7 +238,7 @@
 
             <div
               :class="{
-                'with-milestones': withMilestones,
+                'with-milestones': withMilestones && isCurrentUserManager,
                 'date-widget': true
               }"
             >
@@ -366,8 +366,7 @@
                   >
                     <div
                       :class="{
-                        'timebar-left-hand':
-                          rootElement.editable && isCurrentUserManager
+                        'timebar-left-hand': rootElement.editable
                       }"
                       @mousedown="moveTimebarLeftSide(rootElement, $event)"
                     />
@@ -377,8 +376,7 @@
                     />
                     <div
                       :class="{
-                        'timebar-right-hand':
-                          rootElement.editable && isCurrentUserManager
+                        'timebar-right-hand': rootElement.editable
                       }"
                       @mousedown="moveTimebarRightSide(rootElement, $event)"
                     />
@@ -422,9 +420,7 @@
                     <div
                       :class="{
                         'timebar-left-hand':
-                          childElement.editable &&
-                          !childElement.unresizable &&
-                          isCurrentUserManager
+                          childElement.editable && !childElement.unresizable
                       }"
                       @mousedown="moveTimebarLeftSide(childElement, $event)"
                     />
@@ -435,9 +431,7 @@
                     <div
                       :class="{
                         'timebar-right-hand':
-                          childElement.editable &&
-                          !childElement.unresizable &&
-                          isCurrentUserManager
+                          childElement.editable && !childElement.unresizable
                       }"
                       @mousedown="moveTimebarRightSide(childElement, $event)"
                     />
@@ -482,6 +476,7 @@ import Spinner from '@/components/widgets/Spinner'
 
 export default {
   name: 'Schedule',
+  mixins: [formatListMixin],
   components: {
     EditMilestoneModal,
     Icon,
@@ -489,7 +484,27 @@ export default {
     ProductionName,
     Spinner
   },
-  mixins: [formatListMixin],
+
+  data() {
+    return {
+      isBrowsingX: false,
+      isBrowsingY: false,
+      isChangeSize: false,
+      milestoneToEdit: {
+        date: moment()
+      },
+      timelineDisplayedDaysIndex: {},
+      errors: {
+        edit: false
+      },
+      modals: {
+        edit: false
+      },
+      loading: {
+        edit: false
+      }
+    }
+  },
 
   props: {
     endDate: {
@@ -535,27 +550,6 @@ export default {
     zoomLevel: {
       type: Number,
       default: 2
-    }
-  },
-
-  data() {
-    return {
-      isBrowsingX: false,
-      isBrowsingY: false,
-      isChangeSize: false,
-      milestoneToEdit: {
-        date: moment()
-      },
-      timelineDisplayedDaysIndex: {},
-      errors: {
-        edit: false
-      },
-      modals: {
-        edit: false
-      },
-      loading: {
-        edit: false
-      }
     }
   },
 
@@ -1035,8 +1029,7 @@ export default {
       if (
         !this.isChangeStartDate &&
         !this.isChangeEndDate &&
-        timeElement.editable &&
-        this.isCurrentUserManager
+        timeElement.editable
       ) {
         this.isChangeDates = true
         this.isChangeStartDate = false
@@ -1053,8 +1046,7 @@ export default {
       if (
         !this.isChangeDates &&
         !this.isChangeEndDate &&
-        timeElement.editable &&
-        this.isCurrentUserManager
+        timeElement.editable
       ) {
         this.isChangeDates = false
         this.isChangeStartDate = true
@@ -1074,8 +1066,7 @@ export default {
       if (
         !this.isChangeDates &&
         !this.isChangeStartDate &&
-        timeElement.editable &&
-        this.isCurrentUserManager
+        timeElement.editable
       ) {
         this.isChangeDates = false
         this.isChangeStartDate = false
@@ -1292,7 +1283,7 @@ export default {
       const isOdd = index % 2 === 0
       const level = isOdd ? 0.7 : 0.9
       return {
-        background: colors.lightenColor(rootElement.color, level)
+        background: colors.fadeColor(rootElement.color, level)
       }
     },
 
@@ -1305,12 +1296,14 @@ export default {
     // Milestones
 
     showEditMilestoneModal(day, milestone) {
-      this.modals.edit = true
-      if (milestone) {
-        milestone.date = parseDate(milestone.date)
-        this.milestoneToEdit = milestone
-      } else {
-        this.milestoneToEdit = { date: day }
+      if (this.isCurrentUserManager) {
+        this.modals.edit = true
+        if (milestone) {
+          milestone.date = parseDate(milestone.date)
+          this.milestoneToEdit = milestone
+        } else {
+          this.milestoneToEdit = { date: day }
+        }
       }
     },
 
@@ -1620,15 +1613,14 @@ export default {
 
       .month-name {
         border-left: 2px solid black;
+        bottom: 0;
+        color: black;
         font-size: 0.9em;
-        position: absolute;
-        padding-bottom: 12px;
+        padding-bottom: 24px;
         padding-left: 1em;
         top: 10px;
-        bottom: 0;
         text-transform: uppercase;
-        color: black;
-        z-index: -300;
+        position: absolute;
       }
     }
   }

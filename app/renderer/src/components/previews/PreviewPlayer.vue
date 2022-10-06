@@ -63,21 +63,23 @@
           </div>
         </div>
 
-        <!--task-info
-        name="task-info"
-        ref="task-info-player"
-        :class="{
-          'flexrow-item': true,
-          'task-info-column': true,
-          'hidden': isCommentsHidden
-        }"
-        :task="task"
-        :is-preview="false"
-        :current-time-raw="currentTimeRaw"
-        :current-parent-preview="currentPreview"
-        @comment-added="$emit('comment-added')"
-        @time-code-clicked="timeCodeClicked"
-      /-->
+        <!--
+        <task-info
+          ref="task-info-player"
+          name="task-info"
+          :class="{
+            'flexrow-item': true,
+            'task-info-column': true,
+            hidden: isCommentsHidden
+          }"
+          :task="task"
+          :is-preview="false"
+          :current-time-raw="currentTimeRaw"
+          :current-parent-preview="currentPreview"
+          @comment-added="$emit('comment-added')"
+          @time-code-clicked="timeCodeClicked"
+        />
+        -->
       </div>
     </div>
     <div
@@ -92,6 +94,8 @@
         :frame-duration="frameDuration"
         :nb-frames="nbFrames"
         :width="width"
+        :handle-in="-1"
+        :handle-out="-1"
         @start-scrub="$refs['button-bar'].classList.add('unselectable')"
         @end-scrub="$refs['button-bar'].classList.remove('unselectable')"
         @progress-changed="onProgressChanged"
@@ -110,14 +114,14 @@
             class="flexrow-item"
             :title="$t('playlists.actions.play')"
             icon="play"
-            @mouseup="onPlayPauseClicked"
+            @click="onPlayPauseClicked"
           />
           <button-simple
             v-else
             class="flexrow-item"
             :title="$t('playlists.actions.pause')"
             icon="pause"
-            @mouseup="onPlayPauseClicked"
+            @click="onPlayPauseClicked"
           />
         </div>
 
@@ -165,12 +169,12 @@
             {{ maxDuration }}
           </span>
 
-          <span
+          <div
             class="flexrow-item time-indicator mr1"
             :title="$t('playlists.actions.frame_number')"
           >
-            ({{ currentFrame }})
-          </span>
+            ({{ currentFrame }} / {{ (nbFrames + '').padStart(3, '0') }})
+          </div>
         </div>
 
         <div class="flexrow flexrow-item">
@@ -399,7 +403,7 @@
             v-if="isFullScreenEnabled"
             class="flexrow-item"
             :title="$t('playlists.actions.fullscreen')"
-            icon="fullscreen"
+            icon="maximize"
             @click="onFullscreenClicked"
           />
         </div>
@@ -431,6 +435,10 @@
       id="annotation-snapshot"
       ref="annotation-snapshot"
     />
+    <canvas
+      id="resize-annotation-canvas"
+      ref="resize-annotation-canvas"
+    />
     <!-- end -->
   </div>
 </template>
@@ -459,10 +467,11 @@ import PencilPicker from '@/components/widgets/PencilPicker'
 import PreviewViewer from '@/components/previews/PreviewViewer'
 import RevisionPreview from '@/components/previews/RevisionPreview'
 import VideoProgress from '@/components/previews/VideoProgress'
-// const TaskInfo = () => import('@/components/sides/TaskInfo')
+const TaskInfo = () => import('@/components/sides/TaskInfo')
 
 export default {
   name: 'PreviewPlayer',
+  mixins: [annotationMixin, domMixin, fullScreenMixin],
 
   components: {
     ButtonSimple,
@@ -473,10 +482,9 @@ export default {
     PencilPicker,
     PreviewViewer,
     RevisionPreview,
-    // TaskInfo,
+    //TaskInfo
     VideoProgress
   },
-  mixins: [annotationMixin, domMixin, fullScreenMixin],
 
   props: {
     big: {
@@ -553,13 +561,6 @@ export default {
     }
   },
 
-  created() {
-    this.loupe = false
-    this.scrubbing = false
-    this.scrubStartX = 0
-    this.scrubStartTime = 0
-  },
-
   mounted() {
     if (!this.container) return
     this.configureEvents()
@@ -579,7 +580,12 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['currentProduction', 'organisation', 'user']),
+    ...mapGetters([
+      'currentProduction',
+      'isCurrentUserArtist',
+      'organisation',
+      'user'
+    ]),
 
     // Elements
 
@@ -651,7 +657,7 @@ export default {
 
     fps() {
       return this.currentProduction.fps
-        ? parseInt(this.currentProduction.fps)
+        ? parseFloat(this.currentProduction.fps)
         : 24
     },
 
@@ -844,7 +850,6 @@ export default {
     },
 
     getCurrentTime() {
-      if (!this.previewView) return 0
       const currentTimeRaw = this.previewViewer.getCurrentTimeRaw()
       return roundToFrame(currentTimeRaw, this.fps) || 0
     },
@@ -854,6 +859,10 @@ export default {
       this.isDrawing = false
       if (this.previewViewer) {
         this.clearCanvas()
+        if (this.currentFrame >= this.nbFrames - 1) {
+          this.previewViewer.setCurrentFrame(1)
+          this.syncComparisonViewer()
+        }
         this.previewViewer.play()
         if (this.comparisonViewer && this.isComparing) {
           this.comparisonViewer.play()
@@ -1035,17 +1044,17 @@ export default {
     onFullScreenChange() {
       if (this.fullScreen && !this.isFullScreen()) {
         this.isComparing = false
-        this.isCommentsHidden = true
         this.fullScreen = false
+        this.isCommentsHidden = true
         this.endAnnotationSaving()
         this.$nextTick(() => {
-          if (this.previewViewer) {
-            this.previewViewer.resetVideo()
-            this.previewViewer.resetPicture()
-          }
+          this.previewViewer.resetVideo()
+          this.previewViewer.resetPicture()
           this.fixCanvasSize(this.getCurrentPreviewDimensions())
-          this.reloadAnnotations()
-          this.loadAnnotation()
+          this.clearFocus()
+          this.$nextTick(() => {
+            this.loadAnnotation()
+          })
         })
       }
     },
@@ -1178,7 +1187,7 @@ export default {
 
     saveAnnotations() {
       let currentTime = 0
-      if (this.isMovie && this.previewViewer) {
+      if (this.isMovie) {
         const currentTimeRaw = this.previewViewer.getCurrentTimeRaw()
         currentTime = roundToFrame(currentTimeRaw, this.fps) || 0
       }
@@ -1247,10 +1256,12 @@ export default {
     extractVideoFrame(canvas, frameNumber) {
       return new Promise((resolve) => {
         this.setCurrentFrame(frameNumber)
-        setTimeout(() => {
-          this.previewViewer.extractFrame(canvas, frameNumber)
-          resolve()
-        }, 100)
+        this.$nextTick(() => {
+          setTimeout(() => {
+            this.previewViewer.extractFrame(canvas, frameNumber)
+            resolve()
+          }, 500)
+        })
       })
     },
 
@@ -1260,9 +1271,31 @@ export default {
         this.loadSingleAnnotation(annotation)
         setTimeout(() => {
           const context = canvas.getContext('2d')
-          const source = document.getElementById('annotation-canvas')
-          context.drawImage(source, 0, 0, canvas.width, canvas.height)
-          return resolve()
+          const scaleRatio = canvas.width / this.fabricCanvas.width
+          const tmpSource = document.getElementById('resize-annotation-canvas')
+          const tmpCanvas = new fabric.Canvas('resize-annotation-canvas', {
+            width: canvas.width,
+            height: canvas.height
+          })
+          this.fabricCanvas.getObjects().find((obj) => {
+            if (obj._objects) {
+              obj._objects.forEach((obj) => {
+                tmpCanvas.add(obj)
+                obj.strokeWidth = 8 / scaleRatio
+              })
+            } else {
+              tmpCanvas.add(obj)
+              obj.strokeWidth = 8 / scaleRatio
+            }
+          })
+          tmpCanvas.setZoom(scaleRatio)
+          setTimeout(() => {
+            context.drawImage(tmpSource, 0, 0, canvas.width, canvas.height)
+            setTimeout(() => {
+              tmpCanvas.dispose()
+            }, 100)
+            return resolve()
+          }, 100)
         }, 100)
       })
     },
@@ -1283,7 +1316,10 @@ export default {
         files.push(file)
         index++
       }
-      this.previewViewer.setCurrentFrame(currentFrame)
+      this.previewViewer.setCurrentFrame(currentFrame - 1)
+      this.$nextTick(() => {
+        this.clearCanvas()
+      })
       return files
     },
 
@@ -1291,7 +1327,7 @@ export default {
 
     onKeyDown(event) {
       if (!['INPUT', 'TEXTAREA'].includes(event.target.tagName)) {
-        if (event.keyCode === 46) {
+        if (event.keyCode === 46 || event.keyCode === 8) {
           this.deleteSelection()
         } else if (event.keyCode === 37) {
           // arrow left
@@ -1301,12 +1337,14 @@ export default {
           this.goNextFrame()
         } else if (event.keyCode === 32) {
           // space
-          this.onPlayPauseClicked()
-          this.pauseEvent(event)
+          let styles
+          const playlistModal = document.getElementById('temp-playlist-modal')
+          if (playlistModal) styles = window.getComputedStyle(playlistModal)
+          if (styles && styles.display === 'none') {
+            this.onPlayPauseClicked()
+            this.pauseEvent(event)
+          }
           return false
-        } else if (event.ctrlKey && event.altKey && event.keyCode === 68) {
-          // ctrl + alt + d
-          this.onPencileAnnotateClicked()
         } else if (event.keyCode === 68) {
           // d
           this.container.focus()
@@ -1349,11 +1387,8 @@ export default {
         if (this.$refs['task-info-player']) {
           this.$refs['task-info-player'].focusCommentTextarea()
         }
-        // this.resetHeight()
-        if (this.previewViewer) {
-          this.previewViewer.resetVideo()
-          this.previewViewer.resetPicture()
-        }
+        this.previewViewer.resetVideo()
+        this.previewViewer.resetPicture()
         this.fixCanvasSize(this.getCurrentPreviewDimensions())
         this.endAnnotationSaving()
         this.$nextTick(() => {
@@ -1457,9 +1492,7 @@ export default {
       if (this.isPicture && this.loupe) {
         const width = this.canvasWrapper.style.width
         const height = this.canvasWrapper.style.height
-        if (this.previewViewer) {
-          this.previewViewer.updateLoupePosition(event, { width, height })
-        }
+        this.previewViewer.updateLoupePosition(event, { width, height })
       } else if (this.isMovie && this.scrubbing) {
         const x = event.e.clientX
         if (x - this.scrubStartX < 0) {
@@ -1489,7 +1522,7 @@ export default {
     onCanvasReleased(event) {
       if (this.isPicture && this.loupe) {
         this.previewViewer.hideLoupe()
-        this.options.loupe = false
+        this.loupe = false
       } else if (this.isMovie && this.scrubbing) {
         this.scrubbing = false
       }
@@ -1504,32 +1537,6 @@ export default {
         this.syncComparisonViewer()
         setTimeout(this.syncComparisonViewer(), this.frameDuration)
       }
-    },
-
-    onProgressClicked(e) {
-      let left = this.progress.offsetLeft
-      if (left === 0 && !this.fullScreen) {
-        left = this.progress.parentElement.offsetParent.offsetLeft
-      }
-      const pos = (e.pageX - left) / this.progress.offsetWidth
-      const currentTime = roundToFrame(pos * this.videoDuration, this.fps)
-      this.clearCanvas()
-      this.setCurrentTime(currentTime)
-    },
-
-    setCurrentTime(time) {
-      const currentTime = roundToFrame(this.currentTimeRaw, this.fps)
-      if (time !== currentTime) {
-        if (this.comparisonViewer) this.comparisonViewer.setCurrentTimeRaw(time)
-        if (this.previewViewer) this.previewViewer.setCurrentTime(time)
-      }
-    },
-
-    updateProgressBar(currentTime) {
-      if (!this.progress.getAttribute('max')) {
-        this.progress.setAttribute('max', this.videoDuration - this.frameFactor)
-      }
-      this.progress.value = currentTime
     },
 
     // Revision previews
@@ -1550,6 +1557,15 @@ export default {
       this.$nextTick(() => {
         this.currentIndex = newIndex + 1
       })
+    },
+
+    isValidPreviewModification(previewId, updatedAt) {
+      return (
+        !this.notSaved &&
+        this.currentPreview &&
+        previewId === this.currentPreview.id &&
+        !this.isWriting(updatedAt)
+      )
     }
   },
 
@@ -1627,7 +1643,7 @@ export default {
 
     extraWide() {
       this.endAnnotationSaving()
-      if (this.previewViewer) this.previewViewer.resize()
+      this.previewViewer.resize()
       this.$nextTick(() => {
         this.fixCanvasSize(this.getCurrentPreviewDimensions())
       })
@@ -1641,10 +1657,8 @@ export default {
     isOrdering() {
       this.$nextTick(() => {
         this.fixCanvasSize(this.getCurrentPreviewDimensions())
-        if (this.previewViewer) {
-          this.previewViewer.resetVideo()
-          this.previewViewer.resetPicture()
-        }
+        this.previewViewer.resetVideo()
+        this.previewViewer.resetPicture()
       })
     },
 
@@ -1662,30 +1676,6 @@ export default {
       this.$nextTick(() => {
         this.fixCanvasSize(this.getCurrentPreviewDimensions())
       })
-    }
-  },
-
-  socket: {
-    events: {
-      'preview-file:annotation-update'(eventData) {
-        if (
-          !this.notSaved &&
-          this.currentPreview &&
-          eventData.preview_file_id === this.currentPreview.id &&
-          !this.isWriting(eventData.updated_at)
-        ) {
-          this.refreshPreview({
-            previewId: this.currentPreview.id,
-            taskId: this.currentPreview.task_id
-          }).then((preview) => {
-            if (!this.notSaved) {
-              this.reloadAnnotations()
-              if (this.isPicture) this.loadAnnotation(this.getAnnotation(0))
-              else this.loadAnnotation()
-            }
-          })
-        }
-      }
     }
   }
 }
@@ -1900,6 +1890,7 @@ export default {
   display: flex;
 }
 
+#resize-annotation-canvas,
 #annotation-snapshot {
   display: none;
 }

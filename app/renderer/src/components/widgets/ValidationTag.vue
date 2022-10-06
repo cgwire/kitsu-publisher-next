@@ -40,7 +40,6 @@
       <span
         v-else
         class="tag"
-        :style="cursor"
       > &nbsp; </span>
     </span>
   </span>
@@ -116,7 +115,8 @@ export default {
     },
 
     color() {
-      if (this.taskStatus.short_name !== 'todo' || this.isDarkTheme) {
+      const isTodo = this.taskStatus.name === 'Todo'
+      if (!isTodo || this.isDarkTheme) {
         return 'white'
       } else {
         return '#333'
@@ -141,13 +141,26 @@ export default {
 
     tagStyle() {
       const isStatic = !this.isStatic && !this.isCurrentUserClient
-      const isTodo = this.taskStatus.short_name.toLowerCase() === 'todo'
+      const isTodo = this.taskStatus.name === 'Todo'
       if (this.thin && !isTodo) {
-        return {
-          background: 'transparent',
-          border: '1px solid ' + (isTodo ? 'grey' : this.backgroundColor),
-          color: this.backgroundColor,
-          cursor: isStatic ? 'pointer' : this.cursor
+        if (this.isDarkTheme) {
+          return {
+            background: 'transparent',
+            border:
+              '1px solid ' +
+              (isTodo
+                ? 'grey'
+                : colors.lightenColor(this.backgroundColor, 0.5)),
+            color: colors.lightenColor(this.backgroundColor, 0.5),
+            cursor: isStatic ? 'pointer' : this.cursor
+          }
+        } else {
+          return {
+            background: 'transparent',
+            border: '1px solid ' + (isTodo ? 'grey' : this.backgroundColor),
+            color: this.backgroundColor,
+            cursor: isStatic ? 'pointer' : this.cursor
+          }
         }
       } else {
         return {
@@ -178,7 +191,7 @@ export default {
       }
 
       const taskType = this.taskTypeMap.get(task.task_type_id)
-      route.params.type = taskType.for_shots ? 'shots' : 'assets'
+      route.params.type = this.$tc(taskType.for_entity.toLowerCase(), 2)
 
       return route
     }
@@ -188,6 +201,8 @@ export default {
 
 <style lang="scss" scoped>
 .tag {
+  letter-spacing: 1px;
+  margin-right: 0.1em;
   text-transform: uppercase;
 }
 

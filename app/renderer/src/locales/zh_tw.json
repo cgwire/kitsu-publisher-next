@@ -378,14 +378,6 @@
       "team": "團隊",
       "title": "人員",
       "unactive": "非活動",
-      "csv": {
-        "import_file": "導入.csv檔案",
-        "export_file": "下載為.csv檔案",
-        "import_title": "從CSV檔案導入數據",
-        "required_fields": "您的CSV檔案需要有如下列項",
-        "select_file": "請從您的某個檔案夾選擇檔案:",
-        "error_upload": "上傳您的CSV檔案時出現錯誤."
-      },
       "fields": {
         "first_name": "名字",
         "last_name": "姓氏",
@@ -409,7 +401,8 @@
       "role": {
         "admin": "公司管理層",
         "client": "客戶",
-        "manager": "總監",
+        "manager": "Production manager",
+        "supervisor": "Supervisor",
         "user": "Artist",
         "undefined": "未定義",
         "vendor": "外包"
@@ -630,6 +623,10 @@
       "notifications_enabled": "電子郵件通知已啟用",
       "notifications_slack_enabled": "Slack通知已啟用",
       "notifications_slack_user": "Slack 用戶名",
+      "notifications_mattermost_enabled": "Mattermost通知已啟用",
+      "notifications_mattermost_user": "Mattermost 用戶名",
+      "notifications_discord_enabled": "Discord通知已啟用",
+      "notifications_discord_user": "Discord 用戶名",
       "password_title": "更改密碼",
       "timezone": "時區",
       "title": "您的簡介",
@@ -655,10 +652,13 @@
       "no_logo": "沒有設置Logo",
       "set_logo": "設置公司Logo",
       "title": "設置",
+      "webhook_error": "Une erreur est survenue en postant le webhook",
       "fields": {
         "name": "公司名稱",
         "hours_by_day": "每天工作時間",
         "slack_token": "Slack Token （可選）",
+        "mattermost_webhook": "Mattermost Webhook（可選）",
+        "discord_token": "Discord Token （可選）",
         "use_original_name": "使用原始檔案名進行下載",
         "timesheets_locked": ""
       },
@@ -683,7 +683,7 @@
         "is_artist_allowed": "Artist允許",
         "is_client_allowed": "客戶允許",
         "is_done": "已完成",
-        "is_reviewable": "可審查",
+        "is_default": "Is default",
         "is_retake": "重新賦值",
         "name": "名稱",
         "short_name": "簡稱"

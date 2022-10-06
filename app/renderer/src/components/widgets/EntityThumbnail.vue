@@ -1,19 +1,21 @@
 <template>
   <a
     v-if="isPreview && withLink"
-    class="thumbnail-wrapper"
-    :href="originalPath"
+    class="thumbnail-wrapper thumbnail-picture"
     target="_blank"
     :style="{
-      width: width + 'px',
-      height: height + 'px'
+      width: emptyWidth + 'px',
+      'min-width': emptyWidth + 'px',
+      height: emptyHeight + 'px'
     }"
+    @click="onClicked"
   >
     <img
       :key="thumbnailKey"
       v-lazy="thumbnailPath"
       class="thumbnail-picture"
       :style="imgStyle"
+      :width="width || ''"
     >
   </a>
 
@@ -23,6 +25,7 @@
     v-lazy="thumbnailPath"
     class="thumbnail-picture"
     style="imgStyle"
+    :width="width || ''"
   >
 
   <span
@@ -103,6 +106,7 @@ export default {
         style['max-width'] = this.maxWidth + 'px'
       } else if (this.width) {
         style.width = this.width + 'px'
+        style['min-width'] = this.width + 'px'
       }
       if (this.maxHeight) {
         style['max-height'] = this.maxHeight + 'px'
@@ -126,6 +130,13 @@ export default {
       const previewFileId = this.previewFileId || this.entity.preview_file_id
       return `thumbnail-${previewFileId}`
     }
+  },
+
+  methods: {
+    onClicked() {
+      const previewFileId = this.previewFileId || this.entity.preview_file_id
+      this.$store.commit('SHOW_PREVIEW_FILE', previewFileId)
+    }
   }
 }
 </script>
@@ -137,6 +148,7 @@ export default {
 }
 
 .thumbnail-picture {
+  border-radius: 4px;
   margin: 0;
 }
 
@@ -157,9 +169,13 @@ table .thumbnail-picture.thumbnail-empty {
 
 table .thumbnail-picture {
   margin: 0px;
+  padding: 0px;
 }
 
 .thumbnail-wrapper {
+  padding: 0px;
+  border: 0;
+  border-radius: 4px;
   display: inline-block;
 }
 </style>

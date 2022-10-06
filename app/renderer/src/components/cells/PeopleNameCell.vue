@@ -1,11 +1,12 @@
 <template>
-  <th
+  <td
     scope="row"
-    class="name datatable-row-header"
+    class="name"
   >
     <div class="people-name">
       <people-avatar
         class="avatar"
+        :is-link="false"
         :person="person"
       />
       <people-name
@@ -13,7 +14,7 @@
         :person="person"
       />
     </div>
-  </th>
+  </td>
 </template>
 
 <script>

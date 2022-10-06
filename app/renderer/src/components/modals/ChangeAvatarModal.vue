@@ -54,12 +54,12 @@ import ModalFooter from '@/components/modals/ModalFooter.vue'
 
 export default {
   name: 'ChangeAvatarModal',
+  mixins: [modalMixin],
 
   components: {
     FileUpload,
     ModalFooter
   },
-  mixins: [modalMixin],
 
   props: ['active', 'cancelRoute', 'isLoading', 'isError', 'title'],
 

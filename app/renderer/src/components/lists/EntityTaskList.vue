@@ -1,6 +1,6 @@
 <template>
   <div class="data-list">
-    <div style="overflow: hidden">
+    <div>
       <table
         ref="headerWrapper"
         class="datatable"
@@ -19,6 +19,9 @@
             <th class="estimation">
               {{ $t('tasks.fields.duration').substring(0, 3) }}.
             </th>
+            <th class="startdate">
+              {{ $t('tasks.fields.start_date_short') }}
+            </th>
             <th class="duedate">
               {{ $t('tasks.fields.due_date') }}
             </th>
@@ -36,7 +39,11 @@
       :is-error="isError"
     />
 
-    <div v-if="entries.length > 0">
+    <div
+      v-if="entries.length > 0"
+      v-scroll="onBodyScroll"
+      class="task-list-body"
+    >
       <table class="datatable">
         <tbody class="datatable-body">
           <tr
@@ -68,6 +75,9 @@
             <td class="estimation">
               {{ getTaskDuration(taskId) }}
             </td>
+            <td class="startdate">
+              {{ getTaskStartDate(taskId) }}
+            </td>
             <td class="duedate">
               {{ getTaskDueDate(taskId) }}
             </td>
@@ -84,6 +94,7 @@
                   <people-avatar
                     :key="taskId + '-' + personId"
                     class="person-avatar flexrow-item"
+                    :is-link="false"
                     :person="personMap.get(personId)"
                     :size="30"
                     :font-size="15"
@@ -111,6 +122,7 @@ import PeopleAvatar from '@/components/widgets/PeopleAvatar'
 
 export default {
   name: 'EntityTaskList',
+  mixins: [formatListMixin],
 
   components: {
     TableInfo,
@@ -118,7 +130,6 @@ export default {
     PeopleAvatar,
     ValidationTag
   },
-  mixins: [formatListMixin],
 
   props: {
     entries: {
@@ -156,6 +167,7 @@ export default {
       return [...this.entries].sort((taskIdA, taskIdB) => {
         const taskA = this.getTask(taskIdA)
         const taskB = this.getTask(taskIdB)
+        if (!taskA) return false
         const taskTypeA = this.taskTypeMap.get(taskA.task_type_id)
         const taskTypeB = this.taskTypeMap.get(taskB.task_type_id)
         const taskTypeAPriority = this.getTaskTypePriority(taskA.task_type_id)
@@ -182,6 +194,11 @@ export default {
       } else {
         return task
       }
+    },
+
+    getTaskStartDate(taskId) {
+      const task = this.getTask(taskId)
+      return task && task.start_date ? task.start_date.substring(0, 10) : ''
     },
 
     getTaskDueDate(taskId) {
@@ -233,6 +250,7 @@ export default {
   min-width: 50px;
 }
 
+.startdate,
 .duedate {
   max-width: 100px;
   min-width: 100px;
@@ -258,5 +276,14 @@ export default {
 
 .avatar-wrapper {
   margin-right: 0.5em;
+}
+
+.task-list-body {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.datatable-row-header::after {
+  display: none;
 }
 </style>

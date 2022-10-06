@@ -10,7 +10,7 @@
           ref="thead"
           class="datatable-head"
         >
-          <tr>
+          <tr class="row-header">
             <th
               ref="th-thumbnail"
               class="thumbnail"
@@ -50,26 +50,26 @@
             <th
               v-if="!isAssets"
               ref="th-frames"
-              class="frames"
+              class="frames number-cell"
             >
               {{ $t('tasks.fields.frames') }}
             </th>
             <th
               ref="th-estimation"
-              class="estimation"
+              class="estimation number-cell"
               :title="$t('main.estimation')"
             >
               {{ $t('tasks.fields.estimation').substring(0, 3) }}.
             </th>
             <th
               ref="th-duration"
-              class="duration"
+              class="duration number-cell"
             >
               {{ $t('tasks.fields.duration').substring(0, 3) }}.
             </th>
             <th
               ref="th-retake-count"
-              class="retake-count"
+              class="retake-count number-cell"
             >
               {{ $t('tasks.fields.retake_count') }}
             </th>
@@ -133,6 +133,7 @@
                 :height="33"
                 :empty-width="50"
                 :empty-height="33"
+                :with-link="false"
               />
             </td>
             <td
@@ -176,9 +177,9 @@
             >
               {{ getEntity(task.entity.id).nb_frames }}
             </td>
-            <td class="estimation">
+            <td class="estimation number-cell">
               <input
-                v-if="selectionGrid[task.id]"
+                v-if="isInDepartment(task) && selectionGrid[task.id]"
                 :ref="task.id + '-estimation'"
                 class="input"
                 :value="formatDuration(task.estimation)"
@@ -191,12 +192,13 @@
             <td
               :class="{
                 duration: true,
+                'number-cell': true,
                 error: isEstimationBurned(task)
               }"
             >
               {{ formatDuration(task.duration) }}
             </td>
-            <td class="retake-count">
+            <td class="retake-count number-cell">
               <span
                 v-for="index in task.retake_count"
                 :key="index"
@@ -206,11 +208,12 @@
             </td>
             <td class="start-date">
               <date-field
-                v-if="selectionGrid[task.id]"
+                v-if="isInDepartment(task) && selectionGrid[task.id]"
                 class="flexrow-item"
                 :with-margin="false"
-                :modelValue="getDate(task.start_date)"
-                @update:modelValue="updateStartDate"
+                :value="getDate(task.start_date)"
+                :disabled-dates="disabledDates"
+                @input="updateStartDate"
               />
               <span v-else>
                 {{ formatDate(task.start_date) }}
@@ -218,11 +221,12 @@
             </td>
             <td class="due-date">
               <date-field
-                v-if="selectionGrid[task.id]"
+                v-if="isInDepartment(task) && selectionGrid[task.id]"
                 class="flexrow-item"
                 :with-margin="false"
-                :modelValue="getDate(task.due_date)"
-                @update:modelValue="updateDueDate"
+                :value="getDate(task.due_date)"
+                :disabled-dates="disabledDates"
+                @input="updateDueDate"
               />
               <span v-else>
                 {{ formatDate(task.due_date) }}
@@ -269,6 +273,7 @@ import {
   formatSimpleDate,
   getDatesFromStartDate,
   getDatesFromEndDate,
+  parseSimpleDate,
   minutesToDays,
   range
 } from '@/lib/time'
@@ -283,6 +288,7 @@ import ValidationCell from '@/components/cells/ValidationCell'
 
 export default {
   name: 'TaskList',
+  mixins: [domMixin, formatListMixin],
 
   components: {
     DateField,
@@ -291,12 +297,24 @@ export default {
     TableInfo,
     ValidationCell
   },
-  mixins: [domMixin, formatListMixin],
+
+  data() {
+    return {
+      lastSelection: null,
+      page: 1,
+      selectionGrid: {},
+      selectedDate: moment().toDate() // By default current day.
+    }
+  },
 
   props: {
-    isAssets: {
-      type: Boolean,
-      default: true
+    disabledDates: {
+      type: Object,
+      default: () => {}
+    },
+    entityType: {
+      type: String,
+      default: 'Asset'
     },
     isError: {
       type: Boolean,
@@ -316,15 +334,6 @@ export default {
     }
   },
 
-  data() {
-    return {
-      lastSelection: null,
-      page: 1,
-      selectionGrid: {},
-      selectedDate: moment().toDate() // By default current day.
-    }
-  },
-
   mounted() {
     window.addEventListener('keydown', this.onKeyDown, false)
   },
@@ -336,13 +345,21 @@ export default {
   computed: {
     ...mapGetters([
       'assetMap',
+      'editMap',
       'nbSelectedTasks',
       'personMap',
       'user',
       'selectedTasks',
       'shotMap',
-      'taskMap'
+      'taskMap',
+      'isCurrentUserManager',
+      'isCurrentUserSupervisor',
+      'taskTypeMap'
     ]),
+
+    isAssets() {
+      return this.entityType === 'Asset'
+    },
 
     timeSpent() {
       return this.tasks.reduce((acc, task) => acc + task.duration, 0)
@@ -386,6 +403,7 @@ export default {
       'addSelectedTasks',
       'clearSelectedTasks',
       'updateTask',
+      'unassignPersonFromTask',
       'removeSelectedTask'
     ]),
 
@@ -408,6 +426,15 @@ export default {
       this.updateTasksEstimation({ estimation })
     },
 
+    onUnassign(task, person) {
+      if (this.selectedTasks.size > 0) {
+        this.selectedTasks.forEach((t) => {
+          this.unassignPersonFromTask({ task: t, person })
+        })
+      }
+      this.unassignPersonFromTask({ task, person })
+    },
+
     updateStartDate(date) {
       Object.keys(this.selectionGrid).forEach((taskId) => {
         let data = {
@@ -415,7 +442,7 @@ export default {
           due_date: null
         }
         const task = this.taskMap.get(taskId)
-        const dueDate = task.due_date ? moment(task.due_date) : null
+        const dueDate = task.due_date ? parseSimpleDate(task.due_date) : null
         if (date) {
           const startDate = moment(date)
           if (
@@ -447,7 +474,9 @@ export default {
           due_date: null
         }
         const task = this.taskMap.get(taskId)
-        const startDate = task.start_date ? moment(task.start_date) : null
+        const startDate = task.start_date
+          ? parseSimpleDate(task.start_date)
+          : null
         if (date) {
           const dueDate = moment(date)
           if (
@@ -517,9 +546,12 @@ export default {
     getEntity(entityId) {
       if (this.isAssets) {
         return this.assetMap.get(entityId)
-      } else {
+      } else if (this.entityType === 'Shot') {
         return this.shotMap.get(entityId)
+      } else if (this.entityType === 'Edit') {
+        return this.editMap.get(entityId)
       }
+      return this.assetMap.get(entityId)
     },
 
     onKeyDown(event) {
@@ -602,6 +634,24 @@ export default {
           const scrollingRequired = listRect.top - rect.top + margin
           this.setScrollPosition(this.$refs.body.scrollTop - scrollingRequired)
         }
+      }
+    },
+
+    isInDepartment(task) {
+      if (this.isCurrentUserManager) {
+        return true
+      } else if (this.isCurrentUserSupervisor) {
+        if (this.user.departments.length === 0) {
+          return true
+        } else {
+          const taskType = this.taskTypeMap.get(task.task_type_id)
+          return (
+            taskType.department_id &&
+            this.user.departments.includes(taskType.department_id)
+          )
+        }
+      } else {
+        return false
       }
     },
 
@@ -718,7 +768,12 @@ export default {
 .estimation {
   min-width: 60px;
   width: 60px;
-  text-align: center;
+}
+
+.selected {
+  .estimation {
+    padding: 0;
+  }
 }
 
 .last-comment-date,
@@ -778,7 +833,7 @@ td.retake-count {
 
 .datatable-head {
   th {
-    padding-left: 0;
+    padding-left: 5px;
 
     &.retake-count {
       padding-right: 1em;
@@ -801,11 +856,13 @@ td.retake-count {
 
 .datatable-body {
   overflow-x: auto;
+  overflow-y: scroll;
   min-height: 100%;
 
   td,
   tr {
-    padding: 0;
+    padding-bottom: 0;
+    padding-top: 0;
 
     &.thumbnail {
       padding: 6px;
@@ -813,7 +870,11 @@ td.retake-count {
   }
 
   td.retake-count {
-    padding-right: 1em;
+    padding-right: 0.5em;
+  }
+
+  td.name {
+    border-right: 1px solid var(--border);
   }
 
   td.status {

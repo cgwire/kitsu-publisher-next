@@ -2,6 +2,8 @@
   <td
     ref="cell"
     :class="{
+      canceled,
+      disabled: disabled,
       validation: selectable,
       selected: selectable & selected
     }"
@@ -30,7 +32,7 @@
           {{ taskStatus.short_name }}
         </span>
         <span
-          v-if="!isCurrentUserClient"
+          v-if="!isCurrentUserClient && !disabled"
           class="priority"
         >
           {{ priority }}
@@ -56,7 +58,7 @@
       <span />
       <span
         v-for="personId in assignees"
-        v-if="isAssignees && !isCurrentUserClient"
+        v-if="isAssignees && !isCurrentUserClient && !disabled"
         :key="'avatar-' + personId"
         class="avatar has-text-centered"
         :title="personMap.get(personId).full_name"
@@ -102,6 +104,12 @@ import colors from '@/lib/colors'
 
 export default {
   name: 'ValidationCell',
+
+  data() {
+    return {
+      task: null
+    }
+  },
 
   components: {},
 
@@ -154,6 +162,10 @@ export default {
       default: false,
       type: Boolean
     },
+    disabled: {
+      default: false,
+      type: Boolean
+    },
     rowX: {
       default: 0,
       type: Number
@@ -169,12 +181,10 @@ export default {
     sticked: {
       default: false,
       type: Boolean
-    }
-  },
-
-  data() {
-    return {
-      task: null
+    },
+    canceled: {
+      default: false,
+      type: Boolean
     }
   },
 
@@ -205,19 +215,23 @@ export default {
     },
 
     backgroundColor() {
-      if (this.taskStatus.short_name === 'todo' && !this.isDarkTheme) {
+      const isTodo = this.taskStatus.name === 'Todo'
+      if (isTodo && !this.isDarkTheme) {
         return '#ECECEC'
-      } else if (this.taskStatus.short_name === 'todo' && this.isDarkTheme) {
+      } else if (isTodo && this.isDarkTheme) {
         return '#5F626A'
-      } else if (this.isDarkTheme) {
+      } else if (this.isDarkTheme && this.taskStatus.color) {
         return colors.darkenColor(this.taskStatus.color)
-      } else {
+      } else if (this.taskStatus.color) {
         return this.taskStatus.color
+      } else {
+        return 'transparent'
       }
     },
 
     color() {
-      if (this.taskStatus.short_name !== 'todo' || this.isDarkTheme) {
+      const isTodo = this.taskStatus.name === 'Todo'
+      if (!isTodo || this.isDarkTheme) {
         return 'white'
       } else {
         return '#333'
@@ -254,7 +268,9 @@ export default {
     ...mapActions([]),
 
     getBackground() {
-      if (this.isBorder && !this.sticked) {
+      if (this.disabled) {
+        return 'rgba(0, 0, 0, 0.15)'
+      } else if (this.isBorder && !this.sticked) {
         const opacity = this.isDarkTheme ? 0.15 : 0.08
         return colors.hexToRGBa(this.column.color, opacity)
       } else {
@@ -416,14 +432,20 @@ span.person-avatar:nth-child(2) {
 }
 
 .tag {
-  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 1px;
   margin-right: 0.1em;
   margin-bottom: 0.3em;
+  text-transform: uppercase;
 }
 
 .priority {
   color: red;
   margin-right: 3px;
+}
+
+.disabled .tag {
+  opacity: 0;
 }
 
 .casting-status {

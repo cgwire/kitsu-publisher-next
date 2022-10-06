@@ -58,11 +58,11 @@ import ModalFooter from '@/components/modals/ModalFooter'
 
 export default {
   name: 'EditSearchFilterModal',
+  mixins: [modalMixin],
   components: {
     ModalFooter,
     TextField
   },
-  mixins: [modalMixin],
 
   props: ['active', 'isLoading', 'isError', 'searchQueryToEdit'],
 
@@ -86,6 +86,17 @@ export default {
 
   computed: {},
 
+  methods: {
+    runConfirmation(event) {
+      if (!event || event.keyCode === 13 || !event.keyCode) {
+        this.$emit('confirm', {
+          id: this.searchQueryToEdit.id,
+          ...this.form
+        })
+      }
+    }
+  },
+
   watch: {
     searchQueryToEdit() {
       if (this.searchQueryToEdit && this.searchQueryToEdit.id) {
@@ -106,17 +117,6 @@ export default {
         setTimeout(() => {
           this.$refs.nameField.focus()
         }, 100)
-      }
-    }
-  },
-
-  methods: {
-    runConfirmation(event) {
-      if (!event || event.keyCode === 13 || !event.keyCode) {
-        this.$emit('confirm', {
-          id: this.searchQueryToEdit.id,
-          ...this.form
-        })
       }
     }
   }

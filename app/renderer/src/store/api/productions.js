@@ -27,14 +27,17 @@ export default {
       description: production.description,
       project_status_id: production.project_status_id,
       production_type: production.production_type,
+      production_style: production.production_style,
       fps: production.fps,
       ratio: production.ratio,
       resolution: production.resolution,
       start_date: production.start_date,
       end_date: production.end_date,
       man_days: production.man_days,
+      max_retakes: production.max_retakes,
       nb_episodes: production.nb_episodes,
-      episode_span: production.episode_span
+      episode_span: production.episode_span,
+      is_clients_isolated: production.is_clients_isolated === 'true'
     }
     return client.pput(`/api/data/projects/${production.id}`, data)
   },
@@ -93,13 +96,25 @@ export default {
     return client.pdel(path)
   },
 
+  addStatusAutomationToProduction(productionId, statusAutomationId) {
+    const data = { status_automation_id: statusAutomationId }
+    const path = `/api/data/projects/${productionId}/settings/status-automations`
+    return client.ppost(path, data)
+  },
+
+  removeStatusAutomationFromProduction(productionId, statusAutomationId) {
+    const path = `/api/data/projects/${productionId}/settings/status-automations/${statusAutomationId}`
+    return client.pdel(path)
+  },
+
   addMetadataDescriptor(productionId, descriptor) {
     return new Promise((resolve, reject) => {
       const data = {
         name: descriptor.name,
         choices: descriptor.values,
         for_client: descriptor.for_client === 'true',
-        entity_type: descriptor.entity_type
+        entity_type: descriptor.entity_type,
+        departments: descriptor.departments
       }
       client.post(
         `/api/data/projects/${productionId}/metadata-descriptors`,
@@ -131,7 +146,8 @@ export default {
         name: descriptor.name,
         choices: descriptor.values,
         for_client: descriptor.for_client === 'true',
-        entity_type: descriptor.entity_type
+        entity_type: descriptor.entity_type,
+        departments: descriptor.departments
       }
       client.put(
         `/api/data/projects/${productionId}/metadata-descriptors/${descriptor.id}`,

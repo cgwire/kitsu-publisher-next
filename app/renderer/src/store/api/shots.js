@@ -66,18 +66,25 @@ export default {
       name: shot.name,
       parent_id: shot.sequence_id,
       description: shot.description,
-      nb_frames: parseInt(shot.nb_frames),
-      data: shot.data
+      data: shot.data,
+      is_casting_standby: Boolean(shot.is_casting_standby)
+    }
+    if (shot.nb_frames) {
+      data.nb_frames = parseInt(shot.nb_frames)
     }
     if (
       shot.frameOut !== undefined ||
       shot.frameIn !== undefined ||
-      shot.fps !== undefined
+      shot.fps !== undefined ||
+      shot.resolution !== undefined ||
+      shot.max_retakes !== undefined
     ) {
       Object.assign(data.data, {
         frame_in: shot.frameIn,
         frame_out: shot.frameOut,
-        fps: shot.fps
+        fps: shot.fps,
+        resolution: shot.resolution,
+        max_retakes: parseInt(shot.max_retakes)
       })
     }
     const path = `/api/data/entities/${shot.id}`
@@ -95,7 +102,8 @@ export default {
   updateEpisode(episode) {
     const data = {
       name: episode.name,
-      description: episode.description
+      description: episode.description,
+      is_casting_standby: Boolean(episode.is_casting_standby)
     }
     return client.pput(`/api/data/entities/${episode.id}`, data)
   },
@@ -138,5 +146,13 @@ export default {
 
   loadShotHistory(shotId) {
     return client.pget(`/api/data/shots/${shotId}/versions`)
+  },
+
+  getQuotas(productionId, taskTypeId, detailLevel, computeMode) {
+    const weighted = computeMode === 'weighted'
+    return client.pget(
+      `/api/data/projects/${productionId}/quotas/` +
+        `${taskTypeId}?detail=${detailLevel}&weighted=${weighted}`
+    )
   }
 }

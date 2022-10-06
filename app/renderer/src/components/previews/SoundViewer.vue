@@ -2,7 +2,7 @@
   <div
     id="sound-container"
     :style="{
-      height: '100%',
+      height: defaultHeight + 'px',
       width: '100%'
     }"
   >
@@ -33,6 +33,13 @@ export default {
     Spinner
   },
 
+  data() {
+    return {
+      isLoading: false,
+      wavesurfer: null
+    }
+  },
+
   props: {
     previewUrl: {
       default: '',
@@ -50,32 +57,6 @@ export default {
       default: false,
       type: Boolean
     }
-  },
-
-  data() {
-    return {
-      isLoading: false,
-      wavesurfer: null
-    }
-  },
-
-  computed: {
-    container() {
-      return this.$refs.container
-    }
-  },
-
-  watch: {
-    defaultHeight() {},
-
-    previewUrl() {
-      if (this.previewUrl && this.previewUrl.length > 0) {
-        this.isLoading = true
-        this.wavesurfer.load(this.previewUrl)
-      }
-    },
-
-    light() {}
   },
 
   mounted() {
@@ -99,6 +80,12 @@ export default {
     }
   },
 
+  computed: {
+    container() {
+      return this.$refs.container
+    }
+  },
+
   methods: {
     play() {
       this.wavesurfer.play()
@@ -109,6 +96,19 @@ export default {
     },
 
     redraw() {}
+  },
+
+  watch: {
+    defaultHeight() {},
+
+    previewUrl() {
+      if (this.previewUrl && this.previewUrl.length > 0) {
+        this.isLoading = true
+        this.wavesurfer.load(this.previewUrl)
+      }
+    },
+
+    light() {}
   }
 }
 </script>

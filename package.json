@@ -22,7 +22,6 @@
   },
   "dependencies": {
     "@google/model-viewer": "1.11.1",
-    "@vueform/slider": "2.0.9",
     "ansi_up": "5.1.0",
     "apisauce": "2.1.5",
     "color-hash": "2.0.1",
@@ -48,8 +47,8 @@
     "vue-feather": "2.0.0",
     "vue-i18n": "9.1.10",
     "vue-router": "4.0.15",
-    "vue-textarea-autosize": "1.1.1",
     "vue-websocket-next": "0.2.7",
+    "vue-slider-component": "4.1.0-beta.2",
     "vue3-datepicker": "0.3.3",
     "vue3-lazyload": "0.2.5-beta",
     "vue3-popper": "1.4.2",

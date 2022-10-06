@@ -66,9 +66,9 @@ import { modalMixin } from '@/components/modals/base_modal'
 
 export default {
   name: 'ShotHistoryModal',
+  mixins: [modalMixin],
 
   components: {},
-  mixins: [modalMixin],
 
   props: {
     active: {

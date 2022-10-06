@@ -20,7 +20,7 @@ export const selectionListMixin = {
       const i = lastSelection.x
       const j = lastSelection.y
       let validationCell = null
-      if (event.altKey) {
+      if (event.altKey && [37, 38, 39, 40].includes(event.keyCode)) {
         if (event.keyCode === 37) {
           validationCell = this.select(i, j - 1)
         } else if (event.keyCode === 38) {
@@ -63,33 +63,50 @@ export const selectionListMixin = {
 
     scrollToValidationCell(validationCell) {
       if (validationCell) {
-        const margin = 20
-        const rect = validationCell.$el.getBoundingClientRect()
-        const listRect = this.$refs.body.getBoundingClientRect()
-        const isBelow = rect.bottom > listRect.bottom - margin
-        const isAbove = rect.top < listRect.top + margin
-        const isRight = rect.right > listRect.right - margin
-        const isLeft = rect.left < listRect.left + margin
-
-        if (isBelow) {
-          const scrollingRequired = rect.bottom - listRect.bottom + margin
-          this.setScrollPosition(this.$refs.body.scrollTop + scrollingRequired)
-        } else if (isAbove) {
-          const scrollingRequired = listRect.top - rect.top + margin
-          this.setScrollPosition(this.$refs.body.scrollTop - scrollingRequired)
-        }
-
-        if (isRight) {
-          const scrollingRequired = rect.right - listRect.right + margin
-          this.setScrollLeftPosition(
-            this.$refs.body.scrollLeft + scrollingRequired
+        this.$nextTick(() => {
+          const margin = 20
+          const sideColumn = document.getElementById('side-column')
+          const sideWidth = sideColumn.offsetWidth
+          const headers = document.querySelectorAll(
+            '.datatable-head .datatable-row-header'
           )
-        } else if (isLeft) {
-          const scrollingRequired = listRect.left - rect.left + margin
-          this.setScrollLeftPosition(
-            this.$refs.body.scrollLeft - scrollingRequired
-          )
-        }
+          let stickyHeaderWidth = 0
+          headers.forEach((h) => {
+            stickyHeaderWidth += h.offsetWidth
+          })
+          const rect = validationCell.$el.getBoundingClientRect()
+          const listRect = this.$refs.body.getBoundingClientRect()
+          const isBelow = rect.bottom > listRect.bottom - margin
+          const isAbove = rect.top < listRect.top + margin
+          const isRight = rect.right > listRect.right - margin - sideWidth
+          const isLeft = rect.left < listRect.left + margin
+
+          if (isBelow) {
+            const scrollingRequired = rect.bottom - listRect.bottom + margin
+            this.setScrollPosition(
+              this.$refs.body.scrollTop + scrollingRequired
+            )
+          } else if (isAbove) {
+            const scrollingRequired = listRect.top - rect.top + 2 * margin
+            this.setScrollPosition(
+              this.$refs.body.scrollTop - scrollingRequired
+            )
+          }
+
+          if (isRight) {
+            const scrollingRequired = rect.left - stickyHeaderWidth - 60
+            this.$nextTick(() => {
+              this.setScrollLeftPosition(
+                this.$refs.body.scrollLeft + scrollingRequired
+              )
+            })
+          } else if (isLeft) {
+            const scrollingRequired = listRect.left - rect.left + margin
+            this.setScrollLeftPosition(
+              this.$refs.body.scrollLeft - scrollingRequired
+            )
+          }
+        })
       }
     }
   }

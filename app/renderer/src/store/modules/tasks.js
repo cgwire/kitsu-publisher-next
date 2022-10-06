@@ -8,12 +8,13 @@ import {
   sortRevisionPreviewFiles,
   sortByName
 } from '@/lib/sorting'
-import { arrayMove } from '@/lib/models'
+import { arrayMove, removeModelFromList } from '@/lib/models'
 
 import personStore from '@/store/modules/people'
 import taskTypeStore from '@/store/modules/tasktypes'
 import assetStore from '@/store/modules/assets'
 import shotStore from '@/store/modules/shots'
+import editStore from '@/store/modules/edits'
 
 import {
   LOAD_ASSETS_END,
@@ -36,6 +37,7 @@ import {
   DELETE_COMMENT_END,
   PIN_COMMENT,
   ACK_COMMENT,
+  REMOVE_TASK_COMMENT,
   ADD_REPLY_TO_COMMENT,
   REMOVE_REPLY_FROM_COMMENT,
   PREVIEW_FILE_SELECTED,
@@ -48,10 +50,12 @@ import {
   REMOVE_SELECTED_TASK,
   CLEAR_SELECTED_TASKS,
   ASSIGN_TASKS,
+  UNASSIGN_TASK,
   UNASSIGN_TASKS,
   SET_PREVIEW,
   SET_IS_SHOW_ASSIGNATIONS,
   SET_IS_SHOW_INFOS,
+  SET_IS_SHOW_INFOS_BREAKDOWN,
   SET_IS_BIG_THUMBNAILS,
   DELETE_PREVIEW_END,
   LOAD_PERSON_TASKS_END,
@@ -61,6 +65,10 @@ import {
   UPDATE_COMMENT_CHECKLIST,
   UPDATE_COMMENT_REPLIES,
   SET_LAST_COMMENT_DRAFT,
+  SET_UPLOAD_PROGRESS,
+  CLEAR_UPLOAD_PROGRESS,
+  ADD_ATTACHMENT_TO_COMMENT,
+  REMOVE_ATTACHMENT_FROM_COMMENT,
   REMOVE_FIRST_PREVIEW_FILE_TO_UPLOAD,
   UPDATE_REVISION_PREVIEW_POSITION,
   RESET_ALL
@@ -83,11 +91,13 @@ const initialState = {
   isBigThumbnails: false,
   isShowAssignations: true,
   isShowInfos: true,
+  isShowInfosBreakdown: false,
 
   isSavingCommentPreview: false,
   previewForms: [],
 
-  lastCommentDraft: ''
+  lastCommentDraft: '',
+  uploadProgress: {}
 }
 
 const state = {
@@ -144,10 +154,12 @@ const getters = {
   isBigThumbnails: (state) => state.isBigThumbnails,
   isShowAssignations: (state) => state.isShowAssignations,
   isShowInfos: (state) => state.isShowInfos,
+  isShowInfosBreakdown: (state) => state.isShowInfosBreakdown,
   taskEntityPreviews: (state) => state.taskEntityPreviews,
   previewForms: (state) => state.previewForms,
   isSavingCommentPreview: (state) => state.isSavingCommentPreview,
-  lastCommentDraft: (state) => state.lastCommentDraft
+  lastCommentDraft: (state) => state.lastCommentDraft,
+  uploadProgress: (state) => state.uploadProgress
 }
 
 const actions = {
@@ -205,6 +217,7 @@ const actions = {
       .commentTask({ taskId, taskStatusId, comment, attachment, checklist })
       .then((comment) => {
         commit(NEW_TASK_COMMENT_END, { comment, taskId })
+        return Promise.resolve(comment)
       })
   },
 
@@ -215,13 +228,32 @@ const actions = {
     })
   },
 
+  addAttachmentToComment({ commit, state }, { comment, files }) {
+    if (files.length === 0) return Promise.resolve(comment)
+    return tasksApi
+      .addAttachmentToComment(comment, files)
+      .then((attachmentFiles) => {
+        commit(ADD_ATTACHMENT_TO_COMMENT, { comment, attachmentFiles })
+        return Promise.resolve(comment)
+      })
+  },
+
+  deleteAttachment({ commit, state }, { comment, attachment }) {
+    return tasksApi.deleteAttachment(comment, attachment).then(() => {
+      commit(REMOVE_ATTACHMENT_FROM_COMMENT, { comment, attachment })
+      return Promise.resolve(comment)
+    })
+  },
+
   createTasks({ commit, state }, payload) {
     let entityIds = []
     if (payload.selectionOnly) {
       if (payload.type === 'shots') {
         entityIds = shotStore.cache.result.map((shot) => shot.id)
-      } else {
+      } else if (payload.type === 'assets') {
         entityIds = assetStore.cache.result.map((asset) => asset.id)
+      } else if (payload.type === 'edits') {
+        entityIds = editStore.cache.result.map((edit) => edit.id)
       }
     }
     const data = {
@@ -249,7 +281,6 @@ const actions = {
           commit(CREATE_TASKS_END, tasks)
           tasks.forEach((task) => {
             commit(REMOVE_SELECTED_TASK, validationInfo)
-            task.assigneesInfo = []
             validationInfo.task = task
             commit(ADD_SELECTED_TASK, validationInfo)
           })
@@ -298,7 +329,7 @@ const actions = {
       const data = {
         entity_id: entityId,
         task_type_id: taskTypeId,
-        type: type,
+        type,
         project_id: projectId
       }
       tasksApi.createTask(data, (err, tasks) => {
@@ -379,7 +410,8 @@ const actions = {
     })
   },
 
-  getTask({ commit, rootGetters }, { taskId, callback }) {
+  /*
+  getTask ({ commit, rootGetters }, { taskId, callback }) {
     tasksApi.getTask(taskId, (err, task) => {
       if (!err) {
         const taskType = rootGetters.taskTypeMap.get(task.task_type_id)
@@ -388,6 +420,7 @@ const actions = {
       if (callback) callback(err)
     })
   },
+  */
 
   deleteTask({ commit }, { task, callback }) {
     tasksApi.deleteTask(task, (err) => {
@@ -408,7 +441,7 @@ const actions = {
 
   deleteTaskComment({ commit, rootState }, { taskId, commentId, callback }) {
     const todoStatus = rootState.taskStatus.taskStatus.find((taskStatus) => {
-      return taskStatus.short_name === 'todo'
+      return taskStatus.is_default
     })
     return tasksApi.deleteTaskComment(taskId, commentId).then(() => {
       commit(DELETE_COMMENT_END, {
@@ -440,7 +473,15 @@ const actions = {
       })
       .then((preview) => {
         if (!form) form = state.previewForms[0]
-        return tasksApi.uploadPreview(preview.id, form)
+        const { request, promise } = tasksApi.uploadPreview(preview.id, form)
+        request.on('progress', (e) => {
+          commit(SET_UPLOAD_PROGRESS, {
+            previewId: preview.id,
+            percent: e.percent,
+            name: form.get('file').name
+          })
+        })
+        return promise
       })
       .then((preview) => {
         commit(NEW_TASK_COMMENT_END, { comment: newComment, taskId })
@@ -458,6 +499,7 @@ const actions = {
             previewId: preview.id
           })
         }
+        commit(CLEAR_UPLOAD_PROGRESS)
         return Promise.resolve({ newComment, preview })
       })
   },
@@ -469,7 +511,17 @@ const actions = {
     const addPreview = (form) => {
       return tasksApi
         .addExtraPreview(previewId, taskId, commentId)
-        .then((preview) => tasksApi.uploadPreview(preview.id, form))
+        .then((preview) => {
+          const { request, promise } = tasksApi.uploadPreview(preview.id, form)
+          request.on('progress', (e) => {
+            commit(SET_UPLOAD_PROGRESS, {
+              previewId: preview.id,
+              percent: e.percent,
+              name: form.get('file').name
+            })
+          })
+          return promise
+        })
         .then((preview) => {
           const comment = getters.getTaskComment(taskId, commentId)
           commit(ADD_PREVIEW_END, {
@@ -552,6 +604,15 @@ const actions = {
     })
   },
 
+  unassignPersonFromTask({ commit, state }, { task, person }) {
+    return tasksApi
+      .unassignPersonFromTask(task.id, person.id)
+      .then(() => {
+        commit(UNASSIGN_TASK, { task, person })
+      })
+      .catch(console.error)
+  },
+
   showAssignations({ commit, state }) {
     commit(SET_IS_SHOW_ASSIGNATIONS, true)
   },
@@ -566,6 +627,14 @@ const actions = {
 
   hideInfos({ commit, state }) {
     commit(SET_IS_SHOW_INFOS, false)
+  },
+
+  showInfosBreakdown({ commit, state }) {
+    commit(SET_IS_SHOW_INFOS_BREAKDOWN, true)
+  },
+
+  hideInfosBreakdown({ commit, state }) {
+    commit(SET_IS_SHOW_INFOS_BREAKDOWN, false)
   },
 
   setBigThumbnails({ commit, state }) {
@@ -710,6 +779,16 @@ const mutations = {
       state.taskMap.set(task.id, task)
     } else {
       Object.assign(state.taskMap.get(task.id), task)
+      if (
+        state.taskComments[task.id] &&
+        state.taskComments[task.id].length > 0
+      ) {
+        const comment = state.taskComments[task.id][0]
+        Object.assign(comment, {
+          task_status_id: task.task_status_id,
+          task_status: state.taskStatusMap.get(task.task_status_id)
+        })
+      }
     }
   },
 
@@ -729,7 +808,7 @@ const mutations = {
         const preview = comment.previews[0]
         preview.previews = sortRevisionPreviewFiles(
           comment.previews.map((p) => {
-            return {
+            const prev = {
               id: p.id,
               annotations: p.annotations,
               extension: p.extension,
@@ -739,6 +818,8 @@ const mutations = {
               position: p.position,
               original_name: p.original_name
             }
+            prev.status = p.status
+            return prev
           })
         )
         previews.push(preview)
@@ -814,10 +895,14 @@ const mutations = {
 
     comments = comments.filter((c) => c.id !== commentId)
     state.taskComments[taskId] = comments
-    state.taskPreviews[taskId] = [...state.taskPreviews[taskId]].filter(
-      (p) =>
-        !(oldComment.previews.length > 0 && oldComment.previews[0].id === p.id)
-    )
+    if (oldComment) {
+      state.taskPreviews[taskId] = [...state.taskPreviews[taskId]].filter(
+        (p) =>
+          !(
+            oldComment.previews.length > 0 && oldComment.previews[0].id === p.id
+          )
+      )
+    }
 
     if (oldCommentIndex === pinnedCount) {
       let newStatus = todoStatus
@@ -1056,9 +1141,14 @@ const mutations = {
       const task = state.taskMap.get(taskId)
       if (task) {
         task.assignees = []
-        task.assigneesInfo = []
       }
     })
+  },
+
+  [UNASSIGN_TASK](state, { person, task }) {
+    if (task) {
+      task.assignees = task.assignees.filter((pId) => pId !== person.id)
+    }
   },
 
   [SET_PREVIEW](state, { taskId, previewId }) {
@@ -1077,6 +1167,10 @@ const mutations = {
 
   [SET_IS_SHOW_INFOS](state, isShowInfos) {
     state.isShowInfos = isShowInfos
+  },
+
+  [SET_IS_SHOW_INFOS_BREAKDOWN](state, isShowInfosBreakdown) {
+    state.isShowInfosBreakdown = isShowInfosBreakdown
   },
 
   [LOAD_PERSON_TASKS_END](state, { tasks }) {
@@ -1147,6 +1241,12 @@ const mutations = {
     comment.replies = comment.replies.filter((r) => r.id !== reply.id)
   },
 
+  [REMOVE_TASK_COMMENT](state, { task, comment }) {
+    state.taskComments[task.id] = state.taskComments[task.id].filter(
+      (c) => c.id !== comment.id
+    )
+  },
+
   [UPDATE_COMMENT_CHECKLIST](state, { comment, checklist }) {
     if (state.taskComments[comment.object_id]) {
       const localComment = state.taskComments[comment.object_id].find(
@@ -1163,6 +1263,27 @@ const mutations = {
       )
       localComment.replies = comment.replies
     }
+  },
+
+  [ADD_ATTACHMENT_TO_COMMENT](state, { comment, attachmentFiles }) {
+    const oldComment = state.taskComments[comment.object_id].find(
+      (c) => c.id === comment.id
+    )
+    if (!comment.attachment_files) {
+      comment.attachment_files = []
+    }
+    oldComment.attachment_files =
+      oldComment.attachment_files.concat(attachmentFiles)
+  },
+
+  [REMOVE_ATTACHMENT_FROM_COMMENT](state, { comment, attachment }) {
+    const oldComment = state.taskComments[comment.object_id].find(
+      (c) => c.id === comment.id
+    )
+    oldComment.attachment_files = removeModelFromList(
+      oldComment.attachment_files,
+      attachment
+    )
   },
 
   [CLEAR_ASSETS](state) {
@@ -1194,6 +1315,17 @@ const mutations = {
 
   [REMOVE_FIRST_PREVIEW_FILE_TO_UPLOAD](state) {
     state.previewForms = state.previewForms.splice(1)
+  },
+
+  [SET_UPLOAD_PROGRESS](state, { name, percent }) {
+    if (!state.uploadProgress.name) {
+      state.uploadProgress[name] = percent
+    }
+    state.uploadProgress[name] = percent
+  },
+
+  [CLEAR_UPLOAD_PROGRESS](state) {
+    state.uploadProgress = {}
   },
 
   [RESET_ALL](state, shots) {

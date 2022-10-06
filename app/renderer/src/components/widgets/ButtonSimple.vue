@@ -99,7 +99,8 @@ export default {
         funnel: 'filter',
         refresh: 'refresh-cw',
         soundoff: 'volume-x',
-        soundon: 'volume-2'
+        soundon: 'volume-2',
+        attach: 'paperclip'
       }
       return names[this.icon] || this.icon || ''
     },

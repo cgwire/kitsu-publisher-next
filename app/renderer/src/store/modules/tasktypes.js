@@ -49,11 +49,15 @@ const getters = {
   },
 
   assetTaskTypes: (state, getters, rootState, rootGetters) => {
-    return state.taskTypes.filter((taskType) => !taskType.for_shots)
+    return state.taskTypes.filter((taskType) => taskType.for_entity === 'Asset')
   },
 
   shotTaskTypes: (state, getters, rootState, rootGetters) => {
-    return state.taskTypes.filter((taskType) => taskType.for_shots)
+    return state.taskTypes.filter((taskType) => taskType.for_entity === 'Shot')
+  },
+
+  editTaskTypes: (state, getters, rootState, rootGetters) => {
+    return state.taskTypes.filter((taskType) => taskType.for_entity === 'Edit')
   },
 
   getTaskTypeOptions: (state) =>
@@ -71,6 +75,11 @@ const getters = {
       return { label: type.name, value: type.id }
     }),
 
+  getEditTaskTypeOptions: (state, getters) =>
+    getters.editTaskTypes.map((type) => {
+      return { label: type.name, value: type.id }
+    }),
+
   getTaskType: (state, getters) => (id) => {
     return state.taskTypeMap.get(id)
   },
@@ -82,10 +91,33 @@ const getters = {
         return null
       }
       return getTaskTypePriorityOfProd(taskType, rootGetters.currentProduction)
+    },
+
+  isTaskTypePriorityHigherById:
+    (state, getters, rootState, rootGetters) => (taskTypeAId, taskTypeBId) => {
+      return (
+        getTaskTypePriorityOfProd(
+          getters.getTaskType(taskTypeAId),
+          rootGetters.currentProduction
+        ) >
+        getTaskTypePriorityOfProd(
+          getters.getTaskType(taskTypeBId),
+          rootGetters.currentProduction
+        )
+      )
     }
 }
 
 const actions = {
+  uploadTaskTypeEstimations({ commit, state, rootGetters }, formData) {
+    return taskTypesApi.postTaskTypeEstimations(
+      rootGetters.currentProduction,
+      rootGetters.currentEpisode,
+      rootGetters.currentTaskType,
+      formData
+    )
+  },
+
   loadTaskTypes({ commit, state }) {
     commit(LOAD_TASK_TYPES_START)
     return taskTypesApi
@@ -143,7 +175,7 @@ const actions = {
 
   initTaskType({ commit, dispatch, state, rootState, rootGetters }, force) {
     return new Promise((resolve, reject) => {
-      if (rootGetters.currentTaskType.for_shots) {
+      if (rootGetters.currentTaskType.for_entity === 'Shot') {
         if (rootGetters.shotMap.size < 2 || force) {
           if (rootGetters.episodes.length === 0 && rootGetters.isTVShow) {
             dispatch('loadEpisodes')
@@ -163,9 +195,22 @@ const actions = {
         } else {
           resolve()
         }
-      } else {
+      } else if (rootGetters.currentTaskType.for_entity === 'Asset') {
         if (rootGetters.assetMap.size < 2 || force) {
-          dispatch('loadAssets').then(resolve).catch(reject)
+          if (rootGetters.episodes.length === 0 && rootGetters.isTVShow) {
+            dispatch('loadEpisodes')
+              .then(() => dispatch('loadAssets'))
+              .then(resolve)
+              .catch(reject)
+          } else {
+            dispatch('loadAssets').then(resolve).catch(reject)
+          }
+        } else {
+          resolve()
+        }
+      } else if (rootGetters.currentTaskType.for_entity === 'Edit') {
+        if (rootGetters.editMap.size < 2 || force) {
+          dispatch('loadEdits').then(resolve).catch(reject)
         } else {
           resolve()
         }

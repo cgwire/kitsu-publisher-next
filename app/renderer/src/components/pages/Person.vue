@@ -14,6 +14,7 @@
             class="flexrow-item"
           >
             <people-avatar
+              :is-link="false"
               :person="person"
               :size="80"
               :font-size="30"
@@ -92,7 +93,6 @@
           class="flexrow"
         >
           <search-field
-            v-if="!isActiveTab('done')"
             ref="person-tasks-search-field"
             :class="{
               'search-field': true,
@@ -103,6 +103,13 @@
             @save="saveSearchQuery"
           />
           <span class="filler" />
+          <combobox-number
+            v-if="isActiveTab('schedule')"
+            v-model="zoomLevel"
+            class="flexrow-item zoom-level"
+            :label="$t('schedule.zoom_level')"
+            :options="zoomOptions"
+          />
           <combobox
             v-model="currentSort"
             class="flexrow-item"
@@ -153,7 +160,8 @@
           :is-error="isTasksLoadingError"
           :time-spent-map="personTimeSpentMap"
           :time-spent-total="personTimeSpentTotal"
-          :hide-done="personTasksSearchText.length > 0"
+          :hide-done="personTasksSearchText.length === 0"
+          :hide-day-off="!(isCurrentUserAdmin || user.id == person.id)"
           @date-changed="onDateChanged"
           @time-spent-change="onTimeSpentChange"
           @set-day-off="onSetDayOff"
@@ -167,11 +175,10 @@
             :start-date="tasksStartDate"
             :end-date="tasksEndDate"
             :hierarchy="scheduleItems"
-            :zoom-level="2"
+            :zoom-level="zoomLevel"
             :height="scheduleHeight"
             :is-loading="isTasksLoading"
             :is-estimation-linked="true"
-            :with-milestones="false"
           />
           <div
             v-else
@@ -201,6 +208,7 @@ import colors from '@/lib/colors'
 import { getFirstStartDate, getLastEndDate, parseDate } from '@/lib/time'
 
 import Combobox from '@/components/widgets/Combobox'
+import ComboboxNumber from '@/components/widgets/ComboboxNumber'
 import PageTitle from '@/components/widgets/PageTitle'
 import PeopleAvatar from '@/components/widgets/PeopleAvatar'
 import Schedule from '@/components/pages/schedule/Schedule'
@@ -212,8 +220,10 @@ import TaskInfo from '@/components/sides/TaskInfo'
 
 export default {
   name: 'Person',
+  mixins: [formatListMixin],
   components: {
     Combobox,
+    ComboboxNumber,
     PageTitle,
     PeopleAvatar,
     Schedule,
@@ -223,7 +233,6 @@ export default {
     TodosList,
     TimesheetList
   },
-  mixins: [formatListMixin],
 
   data() {
     return {
@@ -238,10 +247,18 @@ export default {
         'entity_name',
         'priority',
         'task_status_short_name',
-        'estimation',
+        'start_date',
         'due_date',
+        'estimation',
         'last_comment_date'
-      ].map((name) => ({ label: name, value: name }))
+      ].map((name) => ({ label: name, value: name })),
+      zoomLevel: 1,
+      zoomOptions: [
+        { label: 'Week', value: 0 },
+        { label: '1', value: 1 },
+        { label: '2', value: 2 },
+        { label: '3', value: 3 }
+      ]
     }
   },
 
@@ -270,6 +287,7 @@ export default {
     ...mapGetters([
       'displayedPersonTasks',
       'displayedPersonDoneTasks',
+      'isCurrentUserAdmin',
       'isCurrentUserManager',
       'nbSelectedTasks',
       'personMap',
@@ -281,7 +299,8 @@ export default {
       'personTimeSpentTotal',
       'productionMap',
       'selectedTasks',
-      'taskTypeMap'
+      'taskTypeMap',
+      'user'
     ]),
 
     loggablePersonTasks() {
@@ -310,12 +329,49 @@ export default {
 
     sortedTasks() {
       const isName = this.currentSort === 'entity_name'
+      const isPriority = this.currentSort === 'priority'
+      const isDueDate = this.currentSort === 'due_date'
+      const isStartDate = this.currentSort === 'start_date'
       const tasks = [...this.displayedPersonTasks]
       if (isName) {
         return tasks.sort(
           firstBy('project_name')
             .thenBy('task_type_name')
             .thenBy('full_entity_name')
+        )
+      } else if (isPriority) {
+        return tasks.sort(
+          firstBy('priority', -1)
+            .thenBy((a, b) => {
+              if (!a.due_date) return 1
+              else if (!b.due_date) return -1
+              else return a.due_date.localeCompare(b.due_date)
+            })
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
+        )
+      } else if (isDueDate) {
+        return tasks.sort(
+          firstBy((a, b) => {
+            if (!a.due_date) return 1
+            else if (!b.due_date) return -1
+            else return a.due_date.localeCompare(b.due_date)
+          })
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
+        )
+      } else if (isStartDate) {
+        return tasks.sort(
+          firstBy((a, b) => {
+            if (!a.start_date) return 1
+            else if (!b.start_date) return -1
+            else return a.start_date.localeCompare(b.start_date)
+          })
+            .thenBy('project_name')
+            .thenBy('task_type_name')
+            .thenBy('entity_name')
         )
       } else {
         return tasks.sort(
@@ -367,7 +423,7 @@ export default {
       const rootElements = Array.from(rootMap.values())
       rootElements.forEach((rootElement) => {
         let rootStartDate = moment()
-        let rootEndDate = moment().add('days', 1)
+        let rootEndDate = moment().add(1, 'days')
         let manDays = 0
         if (rootElement.children.length > 0) {
           rootStartDate = getFirstStartDate(rootElement.children)
@@ -421,7 +477,6 @@ export default {
         ...project,
         avatar: true,
         color: colors.fromString(project.name, true),
-        for_shots: false,
         priority: 1,
         expanded: true,
         loading: false,
@@ -606,7 +661,9 @@ export default {
       const personId = this.$route.params.person_id
 
       this.updateActiveTab()
-      if (this.person.id !== personId) this.loadPerson()
+      if (this.person && this.person.id !== personId) {
+        this.loadPerson(personId)
+      }
     },
 
     activeTab() {

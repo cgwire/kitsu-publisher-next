@@ -1,8 +1,7 @@
 <template>
   <div class="flexrow production-name">
-    <!-- TODO : reenable productionRoute
     <router-link
-      v-if="!noLink"
+      v-if="isLink"
       class="flexrow flexrow-item"
       :to="productionRoute"
     >
@@ -21,15 +20,20 @@
           {{ generateAvatar(entry) }}
         </span>
         <span v-else>
-          <img :src="getThumbnailPath(entry)" />
+          <img :src="getThumbnailPath(entry)">
         </span>
       </div>
-      <span v-if="!onlyAvatar" class="flexrow-item">
+      <span
+        v-if="!onlyAvatar"
+        class="flexrow-item"
+      >
         {{ entry.name }}
       </span>
     </router-link>
-    -->
-    <div class="flexrow flexrow-item">
+    <div
+      v-else
+      class="flexrow flexrow-item"
+    >
       <div
         v-if="withAvatar"
         class="flexrow-item avatar has-text-centered"
@@ -90,8 +94,8 @@ export default {
       default: false,
       type: Boolean
     },
-    noLink: {
-      default: false,
+    isLink: {
+      default: true,
       type: Boolean
     }
   },

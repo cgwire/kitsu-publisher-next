@@ -57,9 +57,15 @@
         />-->
         <subscribe-button
           v-if="!isAssigned"
-          class="flexrow-item"
+          class="flexrow-item subscribe-button"
           :subscribed="isAssigned || isSubscribed"
           @click="toggleSubscribe"
+        />
+        <button-simple
+          class="flexrow-item"
+          icon="download"
+          :title="$t('main.csv.export_file')"
+          @click="onExportClick"
         />
         <div class="filler" />
         <div
@@ -99,15 +105,15 @@
                 :previews="currentPreview ? currentPreview.previews : []"
                 :task-type-map="taskTypeMap"
                 :light="!isWide"
-                :read-only="!isCurrentUserManager"
+                :read-only="isPreviewPlayerReadOnly"
                 :is-assigned="isAssigned"
                 :task="task"
                 :extra-wide="isExtraWide"
-                @add-extra-preview="onAddExtraPreview"
                 @annotation-changed="onAnnotationChanged"
                 @change-current-preview="changeCurrentPreview"
-                @comment-added="onCommentAdded"
+                @add-extra-preview="onAddExtraPreview"
                 @remove-extra-preview="onRemoveExtraPreview"
+                @comment-added="onCommentAdded"
                 @time-updated="onTimeUpdated"
               />
             </div>
@@ -122,42 +128,11 @@
         </div>
       </div>
 
-      <div class="task-column">
-        <article class="time-spent">
-          <div class="flexrow">
-            <date-field
-              v-model="selectedDate"
-              class="flexrow-item"
-              :disabled-dates="disabledDates"
-              :can-delete="false"
-              :with-margin="false"
-            />
-            <h1 class="title flexrow-item">
-              {{ $t('timesheets.time_spents') }}
-            </h1>
-          </div>
-          <div class="flexrow">
-            <div>
-              <span class="slider-infos flexrow-item">
-                {{ durationValue }}
-              </span>
-            </div>
-            <div class="slider-flex flexrow-item">
-              <slider
-                v-model="durationValue"
-                v-bind="sliderConfiguration"
-                class="slider slider-green"
-              />
-            </div>
-          </div>
-        </article>
-      </div>
-
       <div class="task-column comments-column">
         <div>
           <div>
             <add-comment
-              v-if="isCommentingAllowed"
+              v-show="isCommentingAllowed"
               ref="add-comment"
               :user="user"
               :team="currentTeam"
@@ -165,8 +140,9 @@
               :task-status="getTaskStatusForCurrentUser(task.project_id)"
               :light="true"
               :is-loading="loading.addComment"
-              :attached-file-name="attachedFileName"
+              :previewForms="previewForms"
               :is-error="errors.addComment"
+              :is-max-retakes-error="errors.addCommentMaxRetakes"
               :fps="parseInt(currentFps)"
               :time="isPreview ? currentTime : currentTimeRaw"
               :revision="currentRevision"
@@ -174,6 +150,8 @@
               @add-comment="addComment"
               @add-preview="onAddPreviewClicked"
               @file-drop="selectFile"
+              @clear-files="clearPreviewFiles"
+              @remove-preview="onPreviewFormRemoved"
               @annotation-snapshots-requested="extractAnnotationSnapshots"
             />
 
@@ -289,13 +267,18 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import moment from 'moment'
 import { getTaskEntityPath, getTaskPath } from '@/lib/path'
 import { getTaskTypeStyle } from '@/lib/render'
-import moment from 'moment-timezone'
-import peopleApi from '@/store/api/people'
+import csv from '@/lib/csv'
+import drafts from '@/lib/drafts'
+import stringHelpers from '@/lib/string'
+import { formatDate } from '@/lib/time'
+import { taskMixin } from '@/components/mixins/task'
 
 import AddComment from '@/components/widgets/AddComment'
 import AddPreviewModal from '@/components/modals/AddPreviewModal'
+import ButtonSimple from '@/components/widgets/ButtonSimple'
 import Comment from '@/components/widgets/Comment'
 import DeleteModal from '@/components/modals/DeleteModal'
 import EditCommentModal from '@/components/modals/EditCommentModal'
@@ -303,24 +286,22 @@ import Spinner from '@/components/widgets/Spinner'
 import SubscribeButton from '@/components/widgets/SubscribeButton'
 import TaskTypeName from '@/components/widgets/TaskTypeName'
 import PreviewPlayer from '@/components/previews/PreviewPlayer'
-import Slider from '@vueform/slider'
-import DateField from '@/components/widgets/DateField'
-import '@vueform/slider/themes/default.css'
 
 export default {
   name: 'TaskInfo',
+  mixins: [taskMixin],
+
   components: {
     AddComment,
     AddPreviewModal,
+    ButtonSimple,
     Comment,
-    DateField,
     DeleteModal,
     EditCommentModal,
     PreviewPlayer,
     Spinner,
     SubscribeButton,
-    TaskTypeName,
-    Slider
+    TaskTypeName
   },
 
   props: {
@@ -352,13 +333,8 @@ export default {
 
   data() {
     return {
-      durationValue: 0,
-      updatedDurationValue: true,
-      selectedDate: moment().toDate(),
-      disabledDates: {},
       addExtraPreviewFormData: null,
-      attachedFileName: '',
-      attachedImage: '',
+      previewForms: [],
       currentPreviewIndex: 0,
       currentPreviewPath: '',
       currentPreviewDlPath: '',
@@ -372,6 +348,7 @@ export default {
       taskPreviews: [],
       errors: {
         addComment: false,
+        addCommentMaxRetakes: false,
         addPreview: false,
         addExtraPreview: false,
         editComment: false,
@@ -394,15 +371,6 @@ export default {
         editComment: false,
         deleteComment: false,
         deleteExtraPreview: false
-      },
-      sliderConfiguration: {
-        min: 0,
-        max: 10,
-        step: 0.25,
-        lazy: true,
-        tooltipPosition: 'bottom',
-        showTooltip: 'drag',
-        format: (value) => `${value}`
       }
     }
   },
@@ -410,23 +378,10 @@ export default {
   mounted() {
     this.loadTaskData()
     if (this.$refs['add-comment']) {
-      this.$refs['add-comment'].text = this.lastCommentDraft
-    }
-    const beginningOfTheWeek = moment().startOf('isoWeek').toDate()
-    this.disabledDates = {
-      to:
-        this.isCurrentUserArtist &&
-        this.organisation.timesheets_locked === 'true'
-          ? beginningOfTheWeek
-          : undefined,
-      from: moment().toDate() // Disable dates after today.
-    }
-  },
-
-  beforeUnmount() {
-    if (this.$refs['add-comment']) {
-      const lastComment = `${this.$refs['add-comment'].text}`
-      this.$store.commit('SET_LAST_COMMENT_DRAFT', lastComment)
+      const draft = drafts.getTaskDraft(this.task.id)
+      if (draft) {
+        this.$refs['add-comment'].text = draft
+      }
     }
   },
 
@@ -440,11 +395,11 @@ export default {
       'getTaskStatusForCurrentUser',
       'isCurrentUserAdmin',
       'isCurrentUserClient',
+      'isCurrentUserSupervisor',
       'isCurrentUserManager',
       'isSingleEpisode',
       'isTVShow',
       'lastCommentDraft',
-      'organisation',
       'personMap',
       'previewFormData',
       'productionMap',
@@ -479,13 +434,47 @@ export default {
     },
 
     isCommentingAllowed() {
-      if (!this.task) return false
-      const isManager = this.isCurrentUserManager
-      const isAssigned = this.task.assignees.find(
-        (personId) => personId === this.user.id
-      )
-      const isClient = this.isCurrentUserClient
-      return isManager || isAssigned || isClient
+      if (this.task) {
+        if (this.isCurrentUserManager) {
+          return true
+        } else if (this.isCurrentUserSupervisor) {
+          if (this.user.departments.length === 0) {
+            return true
+          } else {
+            const taskType = this.taskTypeMap.get(this.task.task_type_id)
+            return (
+              taskType.department_id &&
+              this.user.departments.includes(taskType.department_id)
+            )
+          }
+        } else if (this.isCurrentUserClient) {
+          return true
+        } else if (
+          this.task.assignees.find((personId) => personId === this.user.id)
+        ) {
+          return true
+        }
+      }
+      return false
+    },
+
+    isPreviewPlayerReadOnly() {
+      if (this.task) {
+        if (this.isCurrentUserManager || this.isCurrentUserClient) {
+          return false
+        } else if (this.isCurrentUserSupervisor) {
+          if (this.user.departments.length === 0) {
+            return false
+          } else {
+            const taskType = this.taskTypeMap.get(this.task.task_type_id)
+            return !(
+              taskType.department_id &&
+              this.user.departments.includes(taskType.department_id)
+            )
+          }
+        }
+      }
+      return false
     },
 
     isSetThumbnailAllowed() {
@@ -622,19 +611,17 @@ export default {
     pinnedCount() {
       if (!this.taskComments) return 0
       return this.taskComments.filter((c) => c.pinned).length
-    },
-
-    previewPlayer() {
-      return this.$refs['preview-player']
     }
   },
 
   methods: {
     ...mapActions([
+      'addAttachmentToComment',
       'ackComment',
       'addCommentExtraPreview',
       'commentTask',
       'commentTaskWithPreview',
+      'deleteAttachment',
       'deleteTaskComment',
       'deleteTaskPreview',
       'editTaskComment',
@@ -669,7 +656,6 @@ export default {
             console.error(err)
             this.errors.task = true
           })
-        this.updateDurationValue()
       }
     },
 
@@ -687,35 +673,40 @@ export default {
         comment
       }
       let action = 'commentTask'
-      if (this.attachedFileName) action = 'commentTaskWithPreview'
+      if (this.previewForms.length > 0) action = 'commentTaskWithPreview'
       this.loading.addComment = true
       this.errors.addComment = false
+      this.errors.addCommentMaxRetakes = false
       this.$store
         .dispatch(action, params)
         .then(() => {
-          this.$refs['add-preview-modal'].reset()
-          if (this.$refs['add-comment-image-modal']) {
-            this.$refs['add-comment-image-modal'].reset()
-          }
+          drafts.clearTaskDraft(this.task.id)
           this.reset()
-          this.attachedFileName = ''
+          this.previewForms = []
           this.loading.addComment = false
           this.$emit('comment-added')
         })
         .catch((err) => {
           console.error(err)
-          this.errors.addComment = true
+          const isRetakeError =
+            err.response &&
+            err.response.body.message &&
+            err.response.body.message.indexOf('retake') > 0
+          this.errors.addComment = !isRetakeError
+          this.errors.addCommentMaxRetakes = isRetakeError
           this.loading.addComment = false
         })
     },
 
     reset() {
+      this.resetModals()
       if (this.task) {
         this.taskComments = this.getTaskComments(this.task.id)
         this.taskPreviews = this.getTaskPreviews(this.task.id)
         this.setOtherPreviews()
         this.currentPreviewPath = this.getOriginalPath()
         this.currentPreviewDlPath = this.getOriginalDlPath()
+        this.resetDraft()
         this.$nextTick(() => {
           if (this.$refs['add-comment']) this.$refs['add-comment'].focus()
         })
@@ -748,9 +739,15 @@ export default {
 
     selectFile(forms) {
       this.loadPreviewFileFormData(forms)
-      this.attachedFileName = forms
-        .map((form) => form.get('file').name)
-        .join(', ')
+      this.previewForms = forms
+    },
+
+    onPreviewFormRemoved(previewForm) {
+      this.previewForms = this.previewForms.filter((f) => f !== previewForm)
+    },
+
+    clearPreviewFiles() {
+      this.previewForms = []
     },
 
     createExtraPreview() {
@@ -809,14 +806,16 @@ export default {
     },
 
     onAnnotationChanged({ preview, additions, deletions, updates }) {
-      const taskId = this.task.id
-      this.updatePreviewAnnotation({
-        taskId,
-        preview,
-        additions,
-        deletions,
-        updates
-      })
+      const taskId = this.task ? this.task.id : this.previousTaskId
+      if (taskId) {
+        this.updatePreviewAnnotation({
+          taskId,
+          preview,
+          additions,
+          deletions,
+          updates
+        })
+      }
     },
 
     onAddPreviewClicked(comment) {
@@ -962,24 +961,6 @@ export default {
         })
     },
 
-    confirmEditTaskComment(comment) {
-      this.loading.editComment = true
-      this.errors.editComment = false
-      this.editTaskComment({
-        taskId: this.task.id,
-        comment
-      })
-        .then(() => {
-          this.loading.editComment = false
-          this.modals.editComment = false
-        })
-        .catch((err) => {
-          console.error(err)
-          this.loading.editComment = false
-          this.errors.editComment = true
-        })
-    },
-
     getCurrentTaskComments() {
       return this.getTaskComments(this.task.id)
     },
@@ -992,7 +973,7 @@ export default {
         return comment.previews.findIndex((p) => p.id === previewId) >= 0
       })
 
-      this.previewPlayer.displayFirst()
+      this.$refs['preview-player'].displayFirst()
       this.deleteTaskPreview({
         taskId: this.task.id,
         commentId: comment.id,
@@ -1057,8 +1038,8 @@ export default {
         this.taskPreviews.find((p) => p.revision === parseInt(versionRevision))
       )
       setTimeout(() => {
-        this.previewPlayer.setCurrentFrame(frame - 1)
-        this.previewPlayer.focus()
+        this.$refs['preview-player'].setCurrentFrame(frame)
+        this.$refs['preview-player'].focus()
       }, 20)
     },
 
@@ -1067,52 +1048,94 @@ export default {
     },
 
     async extractAnnotationSnapshots() {
-      const files = await this.previewPlayer.extractAnnotationSnapshots()
+      let previewPlayer = this.$refs['preview-player']
+      if (!previewPlayer) previewPlayer = this.$parent
+      this.$refs['add-comment'].showAnnotationLoading()
+      const files = await previewPlayer.extractAnnotationSnapshots()
+      this.$refs['add-comment'].hideAnnotationLoading()
       this.$refs['add-comment'].setAnnotationSnapshots(files)
       return files
     },
 
-    updateDurationValue() {
-      peopleApi.getUserTaskTimeSpent(
-        this.task.id,
-        moment(this.selectedDate).format('YYYY-MM-DD'),
-        (err, timeSpent) => {
-          if (!err && timeSpent) {
-            this.durationValue = timeSpent.duration
-              ? timeSpent.duration / 60
-              : 0
-          } else {
-            this.durationValue = 0
-          }
+    onExportClick() {
+      const nameData = [
+        moment().format('YYYY-MM-DD'),
+        'kitsu',
+        this.currentProduction.name,
+        this.task.entity_name.replaceAll(' / ', '_'),
+        this.taskTypeMap.get(this.task.task_type_id).name,
+        'comments'
+      ]
+      const name = stringHelpers.slugify(nameData.join('_'))
+      var headers = [
+        this.$t('comments.fields.created_at'),
+        this.$t('comments.fields.task_status'),
+        this.$t('comments.fields.person'),
+        this.$t('comments.fields.text'),
+        this.$t('comments.fields.checklist'),
+        this.$t('comments.fields.acknowledgements')
+      ]
+      var commentLines = []
+      this.getCurrentTaskComments().forEach((comment) => {
+        commentLines.push([
+          formatDate(comment.created_at),
+          comment.task_status.name,
+          comment.person.name,
+          comment.text,
+          comment.checklist
+            ? comment.checklist
+                .map(
+                  (checkListElement) =>
+                    `[${checkListElement.checked ? 'x' : ' '}] ${
+                      checkListElement.text
+                    }`
+                )
+                .join('\n')
+            : '',
+          comment.acknowledgements
+            ? comment.acknowledgements
+                .map((personId) => this.personMap.get(personId).name)
+                .join(',')
+            : ''
+        ])
+        if (comment.replies) {
+          comment.replies.forEach((reply) =>
+            commentLines.push([
+              formatDate(reply.date),
+              'Reply',
+              this.personMap.get(reply.person_id).name,
+              reply.text
+            ])
+          )
         }
-      )
+      })
+      csv.buildCsvFile(name, [headers].concat(commentLines))
     }
   },
 
   watch: {
     task() {
-      this.attachedFileName = ''
+      this.previewForms = []
       this.currentPreviewIndex = 0
+      if (this.previousTaskId && this.$refs['add-comment']) {
+        const lastComment = `${this.$refs['add-comment'].text}`
+        const previousDraft = drafts.getTaskDraft(this.previousTaskId)
+        if (
+          (this.$refs['add-comment'].text.length > 0 || previousDraft) &&
+          this.$refs['add-comment'].text !== previousDraft
+        ) {
+          drafts.setTaskDraft(this.previousTaskId, lastComment)
+        }
+      }
+      this.$nextTick(() => {
+        if (this.task) this.previousTaskId = this.task.id
+        if (this.task && this.$refs['add-comment']) {
+          const draft = drafts.getTaskDraft(this.task.id)
+          if (draft) this.$refs['add-comment'].text = draft
+        }
+      })
       if (!this.silent) {
         this.loadTaskData()
-      }
-    },
-
-    selectedDate() {
-      this.updateDurationValue()
-      this.updatedDurationValue = true
-    },
-
-    durationValue() {
-      if (!this.updatedDurationValue) {
-        peopleApi.setTimeSpent(
-          this.task.id,
-          this.user.id,
-          moment(this.selectedDate).format('YYYY-MM-DD'),
-          this.durationValue
-        )
-      } else {
-        this.updatedDurationValue = false
       }
     }
   },
@@ -1140,14 +1163,25 @@ export default {
         }
       },
 
+      'task:update'(eventData) {
+        const task = this.getTask()
+        // Wait for data to be reinitialized by App.vue to update comments.
+        if (task && eventData.task_id === task.id) {
+          setTimeout(() => {
+            this.taskComments = this.getTaskComments(task.id)
+          }, 1000)
+        }
+      },
+
       'comment:new'(eventData) {
         setTimeout(() => {
+          const comments = this.task ? this.getTaskComments(this.task.id) : null
           if (
             this.task &&
-            this.getTaskComments(this.task.id).length !==
-              this.taskComments.length
+            comments &&
+            comments.length !== this.taskComments.length
           ) {
-            this.taskComments = this.getTaskComments(this.task.id)
+            this.taskComments = comments
             this.taskPreviews = this.getTaskPreviews(this.task.id)
           }
         }, 1000)
@@ -1185,6 +1219,19 @@ export default {
         }
       },
 
+      'comment:delete'(eventData) {
+        const task = this.getTask()
+        if (task) {
+          const comments = this.getComments()
+          const comment = comments.find((c) => c.id === eventData.comment_id)
+          if (comment) {
+            this.$store.commit('REMOVE_TASK_COMMENT', { task, comment })
+            this.taskComments = this.getTaskComments(this.task.id)
+            this.taskPreviews = this.getTaskPreviews(this.task.id)
+          }
+        }
+      },
+
       'comment:delete-reply'(eventData) {
         if (this.task) {
           const comment = this.taskComments.find(
@@ -1198,6 +1245,27 @@ export default {
             })
           }
         }
+      },
+
+      'preview-file:annotation-update'(eventData) {
+        const previewPlayer = this.$refs['preview-player']
+        if (!previewPlayer) return
+        const isValid = previewPlayer.isValidPreviewModification(
+          eventData.preview_file_id,
+          eventData.updated_at
+        )
+        if (isValid) {
+          this.refreshPreview({
+            previewId: previewPlayer.currentPreview.id,
+            taskId: previewPlayer.currentPreview.task_id
+          }).then((preview) => {
+            if (!previewPlayer.notSaved) {
+              this.taskPreviews = this.getTaskPreviews(this.task.id)
+              previewPlayer.reloadAnnotations()
+              previewPlayer.loadAnnotation()
+            }
+          })
+        }
       }
     }
   }
@@ -1207,7 +1275,6 @@ export default {
 <style lang="scss" scoped>
 .dark {
   .add-comment,
-  .time-spent,
   .comment,
   .preview-column-content,
   .no-comment {
@@ -1240,13 +1307,6 @@ export default {
   box-shadow: 0px 0px 6px #e0e0e0;
 }
 
-.time-spent {
-  padding: 0.5em;
-  margin-bottom: 0.5em;
-  box-shadow: 0px 0px 6px #e0e0e0;
-  border-radius: 5px;
-}
-
 .page-header {
   padding: 0;
   margin-top: 0;
@@ -1261,6 +1321,9 @@ export default {
   flex: 1;
   font-size: 1.3em;
   line-height: 1.5em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: $grey;
 }
 
 .title a {
@@ -1323,7 +1386,8 @@ export default {
 }
 
 .change-wideness-button,
-.set-thumbnail-button {
+.set-thumbnail-button,
+.subscribe-button {
   margin-right: 0.2em;
 }
 
@@ -1347,16 +1411,5 @@ export default {
       background: var(--background-selected);
     }
   }
-}
-.slider-flex {
-  width: 100%;
-  padding-right: 10px;
-}
-
-.slider-infos {
-  font-size: 1.5em;
-  margin-right: 15px;
-  font-weight: bold;
-  width: 30px;
 }
 </style>

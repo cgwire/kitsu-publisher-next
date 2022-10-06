@@ -11,100 +11,186 @@
     @dragover="onDragover"
     @dragleave="onDragleave"
   >
-    <figure
-      v-if="!light"
-      class="media-left"
-    >
-      <div class="level">
-        <div class="level-left">
-          <people-avatar
-            class="level-item"
-            :person="user"
-          />
-        </div>
-      </div>
-    </figure>
     <div class="media-content">
+      <div class="flexrow tab-row">
+        <span
+          :class="{
+            'flexrow-item': true,
+            filler: true,
+            'has-text-centered': true,
+            active: mode === 'status'
+          }"
+          @click="mode = 'status'"
+        >
+          {{ $t('tasks.change_status') }}
+        </span>
+        <span
+          :class="{
+            'flexrow-item': true,
+            filler: true,
+            'has-text-centered': true,
+            active: mode === 'publish'
+          }"
+          @click="mode = 'publish'"
+        >
+          {{ $t('tasks.publish') }}
+        </span>
+      </div>
+
       <textarea
+        v-if="mode === 'status' || showCommentArea"
         ref="comment-textarea"
         v-model="text"
         v-focus
         class="textarea flexrow-item"
         :placeholder="$t('comments.add_comment')"
         :disabled="isLoading"
+        :min-height="50"
+        :max-height="300"
         @keyup.enter.ctrl="
-          runAddComment(text, attachment, checklist, task_status_id)
+          runAddComment(text, attachments, checklist, task_status_id)
         "
         @keyup.enter.meta="
-          runAddComment(text, attachment, checklist, task_status_id)
+          runAddComment(text, attachments, checklist, task_status_id)
         "
       />
-      <checklist
-        v-if="checklist.length > 0"
-        :checklist="checklist"
-        @add-item="onAddChecklistItem"
-        @remove-task="removeTask"
-      />
-      <div class="flexrow preview-section">
-        <button
-          class="button flexrow-item"
-          @click="$emit('add-preview')"
+
+      <div class="post-area">
+        <checklist
+          v-if="checklist.length > 0"
+          :checklist="checklist"
+          @add-item="onAddChecklistItem"
+          @remove-task="removeTask"
+        />
+
+        <div
+          v-if="mode === 'publish'"
+          class="post-area mt1"
         >
-          {{ $t('comments.add_preview') }}
-        </button>
-        <span class="attachment-file flexrow-item">
-          <em v-if="!isFileAttached">
-            {{ $t('comments.no_file_attached') }}
-          </em>
-          <em v-if="isFileAttached">
-            {{ attachedFileName }}
-          </em>
-        </span>
-      </div>
-      <group-button class="mt1">
-        <combobox-status
-          v-model="task_status_id"
-          class="status-selector"
-          :narrow="true"
-          :task-status-list="taskStatus"
-        />
-        <button-simple
-          :class="{
-            button: true,
-            active: checklist.length !== 0
-          }"
-          icon="list"
-          :title="$t('comments.add_checklist')"
-          @click="addChecklistEntry(-1)"
-        />
-        <button-simple
-          :class="{
-            button: true,
-            active: attachment.length !== 0
-          }"
-          icon="image"
-          :title="$t('comments.add_attachment')"
-          @click="onAddCommentAttachmentClicked()"
-        />
-        <button
-          :class="{
-            button: true,
-            'is-primary': true,
-            'is-loading': isLoading
-          }"
-          :style="{
-            'background-color': taskStatusColor
-          }"
-          @click="runAddComment(text, attachment, checklist, task_status_id)"
+          <div
+            v-if="previewForms.length > 0"
+            class="attachment-title"
+          >
+            {{ $t('comments.previews') }}
+          </div>
+          <div
+            v-for="(preview, index) in previewForms"
+            :key="'preview-' + index"
+            class="preview-file"
+          >
+            <div class="m0">
+              {{ shortenText(preview.get('file').name, 40) }}
+              <span @click="$emit('remove-preview', preview)">x</span>
+            </div>
+            <div class="progress-wrapper">
+              <div
+                class="progress"
+                :style="{
+                  width: (uploadProgress[preview.get('file').name] || 0) + '%'
+                }"
+              />
+            </div>
+          </div>
+
+          <div
+            v-if="mode === 'publish'"
+            class="flexrow preview-section"
+          >
+            <button
+              class="button flexrow-item preview-button"
+              @click="$emit('add-preview')"
+            >
+              {{ $t('comments.add_preview') }}
+            </button>
+          </div>
+        </div>
+
+        <div
+          v-if="attachments.length > 0"
+          class="attachment-title"
         >
-          {{ $t('comments.post_status') }}
-        </button>
-      </group-button>
-      <div
-        v-if="isError"
-        class="error pull-right"
-      >
-        <em>{{ $t('comments.error') }}</em>
+          {{ $t('comments.attachments') }}
+        </div>
+        <div
+          v-for="(attach, index) in attachments"
+          :key="'attachment-' + index"
+          class="attachment-file"
+        >
+          {{ shortenText(attach.get('file').name, 40) }}
+          <span @click="removeAttachment(attach)">x</span>
+        </div>
+
+        <div class="flexrow button-row mt1">
+          <button-simple
+            v-if="mode === 'status'"
+            :class="{
+              button: true,
+              'flexrow-item': true,
+              active: attachments.length !== 0
+            }"
+            icon="attach"
+            :title="$t('comments.add_attachment')"
+            @click="onAddCommentAttachmentClicked()"
+          />
+          <button-simple
+            v-if="mode === 'status'"
+            :class="{
+              button: true,
+              'flexrow-item': true,
+              active: checklist.length !== 0
+            }"
+            icon="list"
+            :title="$t('comments.add_checklist')"
+            @click="addChecklistEntry(-1)"
+          />
+          <button-simple
+            v-if="mode === 'publish'"
+            :class="{
+              button: true,
+              'flexrow-item': true,
+              active: showCommentArea
+            }"
+            icon="comment"
+            :title="$t('comments.add_comment')"
+            @click="showCommentArea = !showCommentArea"
+          />
+          <div class="filler" />
+          <div class="">
+            <combobox-status
+              v-model="task_status_id"
+              class="flexrow-item status-selector"
+              :narrow="true"
+              :color-only="true"
+              :task-status-list="taskStatus"
+            />
+          </div>
+          <button-simple
+            :class="{
+              button: true,
+              'post-button': true,
+              'flexrow-item': true,
+              'is-loading': isLoading
+            }"
+            icon="send"
+            text="Post"
+            :disabled="mode === 'publish' && previewForms.length === 0"
+            :title="$t('comments.post_status')"
+            @click="runAddComment(text, attachments, checklist, task_status_id)"
+          />
+        </div>
+
+        <div
+          v-if="isError"
+          class="error pull-right"
+        >
+          <em>{{ $t('comments.error') }}</em>
+        </div>
+        <div
+          v-if="isMaxRetakesError"
+          class="error pull-right"
+        >
+          <em>{{ $t('comments.max_retakes_error') }}</em>
+        </div>
       </div>
     </div>
 
@@ -114,8 +200,11 @@
       :is-loading="loading.addCommentAttachment"
       :is-error="errors.addCommentAttachment"
       :is-movie="isMovie"
+      :title="`${task.entity_name} / ${
+        taskTypeMap.get(task.task_type_id).name
+      }`"
       @cancel="onCloseCommentAttachment"
-      @confirm="createCommentAttachment"
+      @confirm="addCommentAttachment"
       @add-snapshots="$emit('annotation-snapshots-requested')"
     />
   </article>
@@ -124,15 +213,14 @@
 <script>
 import { mapGetters } from 'vuex'
 import { remove } from '@/lib/models'
+import strings from '@/lib/string'
 import colors from '@/lib/colors'
 import { replaceTimeWithTimecode } from '@/lib/render'
 
 import AddCommentImageModal from '@/components/modals/AddCommentImageModal'
 import ButtonSimple from '@/components/widgets/ButtonSimple'
-import Checklist from '@/components/widgets/Checklist'
 import ComboboxStatus from '@/components/widgets/ComboboxStatus'
-import GroupButton from '@/components/widgets/GroupButton'
-import PeopleAvatar from '@/components/widgets/PeopleAvatar'
+import Checklist from '@/components/widgets/Checklist'
 
 export default {
   name: 'AddComment',
@@ -141,9 +229,29 @@ export default {
     AddCommentImageModal,
     ButtonSimple,
     Checklist,
-    ComboboxStatus,
-    GroupButton,
-    PeopleAvatar
+    ComboboxStatus
+  },
+
+  data() {
+    return {
+      atOptions: [],
+      attachments: [],
+      checklist: [],
+      isDragging: false,
+      mode: 'publish',
+      showCommentArea: false,
+      text: '',
+      task_status_id: null,
+      errors: {
+        addCommentAttachment: false
+      },
+      loading: {
+        addCommentAttachment: false
+      },
+      modals: {
+        addCommentAttachment: false
+      }
+    }
   },
 
   props: {
@@ -152,6 +260,10 @@ export default {
       default: null
     },
     isError: {
+      type: Boolean,
+      default: null
+    },
+    isMaxRetakesError: {
       type: Boolean,
       default: null
     },
@@ -179,10 +291,6 @@ export default {
       type: Object,
       default: () => {}
     },
-    attachedFileName: {
-      type: String,
-      default: ''
-    },
     team: {
       type: Array,
       default: () => []
@@ -198,26 +306,10 @@ export default {
     time: {
       type: Number,
       default: 0
-    }
-  },
-
-  data() {
-    return {
-      atOptions: [],
-      isDragging: false,
-      text: '',
-      attachment: [],
-      checklist: [],
-      task_status_id: null,
-      errors: {
-        addCommentAttachment: false
-      },
-      loading: {
-        addCommentAttachment: false
-      },
-      modals: {
-        addCommentAttachment: false
-      }
+    },
+    previewForms: {
+      type: Array,
+      default: () => []
     }
   },
 
@@ -246,7 +338,9 @@ export default {
       'currentProduction',
       'isDarkTheme',
       'isCurrentUserArtist',
+      'uploadProgress',
       'taskStatusForCurrentUser',
+      'taskTypeMap',
       'taskStatusMap'
     ]),
 
@@ -254,50 +348,66 @@ export default {
       return this.$refs['add-comment-image-modal']
     },
 
-    isFileAttached() {
-      return (
-        this.attachedFileName !== undefined && this.attachedFileName.length > 0
-      )
+    isAddChecklistAllowed() {
+      const status =
+        this.taskStatus.find((t) => t.id === this.task_status_id) ||
+        this.taskStatus[0]
+      return status.is_retake && this.checklist.length === 0
     },
 
     taskStatusColor() {
       const status =
         this.taskStatus.find((t) => t.id === this.task_status_id) ||
         this.taskStatus[0]
-      if (status.short_name === 'todo') return '#666'
-      const color = status.color
-      if (this.isDarkTheme) {
-        return colors.darkenColor(color)
+      if (status.color === '#f5f5f5') {
+        return this.isDarkTheme ? '#666' : '#999'
       } else {
-        return color
+        const color = status.color
+        if (this.isDarkTheme) {
+          return colors.darkenColor(color)
+        } else {
+          return color
+        }
       }
-    },
-
-    isAddChecklistAllowed() {
-      const status =
-        this.taskStatus.find((t) => t.id === this.task_status_id) ||
-        this.taskStatus[0]
-      return status.is_retake && this.checklist.length === 0
     }
   },
 
   methods: {
-    runAddComment(text, attachment, checklist, taskStatusId) {
-      const frameDuration = Math.round((1 / this.fps) * 10000) / 10000
-      text = replaceTimeWithTimecode(
-        text,
-        this.revision,
-        this.time + frameDuration,
-        this.fps
-      )
-      this.$emit('add-comment', text, attachment, checklist, taskStatusId)
+    shortenText: strings.shortenText,
+    runAddComment(text, attachments, checklist, taskStatusId) {
+      if (this.mode === 'publish') {
+        if (!this.showCommentArea) text = ''
+        attachments = []
+        checklist = []
+      }
+      text = replaceTimeWithTimecode(text, this.revision, this.time, this.fps)
+      this.$emit('add-comment', text, attachments, checklist, taskStatusId)
       this.text = ''
-      this.attachment = []
+      this.attachments = []
       this.checklist = []
     },
 
     focus() {
-      this.$refs['comment-textarea'].focus()
+      if (this.$refs['comment-textarea']) {
+        this.$refs['comment-textarea'].focus()
+      }
+    },
+
+    onAddChecklistItem(item) {
+      this.checklist[item.index].text = this.checklist[item.index].text.trim()
+      delete item.index
+      this.checklist.push(item)
+    },
+
+    resetStatus() {
+      if (this.task) {
+        const taskStatus = this.taskStatusMap.get(this.task.task_status_id)
+        if (!this.isCurrentUserArtist || taskStatus.is_artist_allowed) {
+          this.task_status_id = this.task.task_status_id
+        } else {
+          this.task_status_id = this.taskStatusForCurrentUser[0].id
+        }
+      }
     },
 
     onDragover() {
@@ -315,7 +425,11 @@ export default {
         form.append('file', event.dataTransfer.files[i])
         forms.push(form)
       }
-      this.$emit('file-drop', forms)
+      if (this.mode === 'publish') {
+        this.$emit('file-drop', forms)
+      } else {
+        this.addCommentAttachment(forms)
+      }
       this.isDragging = false
     },
 
@@ -323,13 +437,17 @@ export default {
       this.modals.addCommentAttachment = true
     },
 
-    createCommentAttachment(forms) {
+    addCommentAttachment(forms) {
       this.onCloseCommentAttachment()
-      this.attachment = forms
+      this.attachments = this.attachments.concat(forms)
     },
 
     onCloseCommentAttachment() {
       this.modals.addCommentAttachment = false
+    },
+
+    removeAttachment(attach) {
+      this.attachments = this.attachments.filter((a) => a !== attach)
     },
 
     addChecklistEntry(index) {
@@ -349,17 +467,17 @@ export default {
       this.checklist = comment.checklist
       this.$nextTick(() => {
         this.$refs['comment-textarea'].value = comment.text
+        this.text = comment.text
       })
     },
 
     onTextChanged(input) {
       if (input.indexOf('@frame') >= 0) {
         this.$nextTick(() => {
-          const frameDuration = Math.round((1 / this.fps) * 10000) / 10000
           const text = replaceTimeWithTimecode(
             this.$refs['comment-textarea'].value,
             this.revision,
-            this.time + frameDuration,
+            this.time,
             this.fps
           )
           this.$refs['comment-textarea'].value = text
@@ -367,29 +485,31 @@ export default {
       }
     },
 
-    onAddChecklistItem(item) {
-      this.checklist[item.index].text = this.checklist[item.index].text.trim()
-      delete item.index
-      this.checklist.push(item)
-    },
-
-    resetStatus() {
-      const taskStatus = this.taskStatusMap.get(this.task.task_status_id)
-      if (!this.isCurrentUserArtist || taskStatus.is_artist_allowed) {
-        this.task_status_id = this.task.task_status_id
-      } else {
-        this.task_status_id = this.taskStatusForCurrentUser[0].id
-      }
-    },
-
     setAnnotationSnapshots(files) {
       this.attachmentModal.addFiles(files)
+    },
+
+    showAnnotationLoading() {
+      this.attachmentModal.showAnnotationLoading()
+    },
+
+    hideAnnotationLoading() {
+      this.attachmentModal.hideAnnotationLoading()
     }
   },
 
   watch: {
     task() {
       this.resetStatus()
+    },
+
+    mode() {
+      if (this.mode === 'publish') {
+        this.checklist = []
+        this.attachments = []
+      } else {
+        this.$emit('clear-files')
+      }
     },
 
     team: {
@@ -412,28 +532,27 @@ export default {
   background: #555;
 }
 
+article.add-comment {
+  padding: 0;
+  border-radius: 10px;
+}
+
 .add-comment {
   border-radius: 5px;
   background: white;
+  border: 1px solid $light-grey-light;
   transition: background 0.2s ease;
 
   textarea {
-    min-height: 7em;
-    margin-bottom: 0.3em;
+    margin: 0;
+    min-height: 3.5em;
+    border-radius: 0px;
+
+    &:focus,
+    &:active {
+      border-color: var(--border-alt);
+    }
   }
-
-  textarea:focus,
-  textarea:active {
-    border-color: $green;
-  }
-}
-
-.control {
-  margin-bottom: 0.1em;
-}
-
-.preview-section {
-  word-break: break-all;
 }
 
 .post-button-wrapper {
@@ -465,5 +584,112 @@ export default {
 
 .status-selector {
   margin: 0;
+}
+
+.preview-button {
+  background: var(--background-alt-2);
+  color: var(--text);
+  margin: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.button-row {
+  padding-bottom: 0.5em;
+
+  .button {
+    border: 0;
+    margin: 0;
+    margin-right: 3px;
+    color: var(--text-alt);
+    padding: 0em 10px;
+
+    &:hover {
+      color: var(--text);
+    }
+
+    &.post-button {
+      border: 1px solid var(--border);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      padding-right: 1em;
+      &:hover {
+        border: 1px solid var(--border-alt);
+      }
+    }
+  }
+}
+
+.tab-row {
+  color: lighten($dark-grey-light, 40%);
+  font-size: 0.9em;
+  text-transform: uppercase;
+  margin-top: 5px;
+  margin-bottom: 0px;
+
+  span {
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    margin-right: 0;
+    padding-bottom: 0.5em;
+  }
+
+  span.active {
+    color: var(--text);
+    font-weight: 600;
+    // border-bottom: 1px solid $green;
+  }
+}
+
+.attachment-title {
+  margin-left: 3px;
+  margin-top: 6px;
+  color: $grey;
+  font-size: 0.8em;
+  text-transform: uppercase;
+}
+
+.attachment-file {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
+  padding-bottom: 3px;
+  border-bottom: 1px dashed $light-grey-light;
+
+  span {
+    cursor: pointer;
+    float: right;
+  }
+}
+
+.preview-file {
+  margin-top: 1em;
+  margin-bottom: 3px;
+  margin-left: 3px;
+  margin-right: 3px;
+
+  span {
+    cursor: pointer;
+    float: right;
+  }
+}
+
+.post-area {
+  padding: 0 0.5em 0.2em 0.5em;
+}
+
+.progress-wrapper {
+  border-radius: 5px;
+  background: var(--background-alt);
+  height: 5px;
+  margin-top: 0.3em;
+  margin-bottom: 1em;
+}
+
+.progress {
+  height: 5px;
+  width: 100%;
+  background-color: $light-green;
 }
 </style>

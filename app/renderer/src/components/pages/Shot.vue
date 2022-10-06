@@ -8,29 +8,27 @@
         >
           <icon name="chevron-left" />
         </router-link>
-        <entity-thumbnail
-          v-if="currentShot"
-          class="shot-thumbnail flexrow-item"
-          :entity="currentShot"
-          :with-link="false"
-        />
+        <span class="flexrow-item ml2">
+          <entity-thumbnail
+            v-if="currentShot"
+            class="entity-thumbnail"
+            :entity="currentShot"
+            :empty-width="120"
+            :empty-height="50"
+            :width="120"
+            :with-link="false"
+          />
+        </span>
         <div class="flexrow-item">
           <page-title
             :text="title"
             class="entity-title"
           />
         </div>
-        <div class="flexrow-item">
-          <button-simple
-            v-if="isCurrentUserManager"
-            icon="edit"
-            @click="modals.edit = true"
-          />
-        </div>
       </div>
 
       <div class="flexrow infos">
-        <div class="flexrow-item">
+        <div class="flexrow-item block flexcolumn">
           <page-subtitle :text="$t('shots.tasks')" />
           <entity-task-list
             class="task-list"
@@ -40,50 +38,24 @@
             @task-selected="onTaskSelected"
           />
         </div>
-        <div class="flexrow-item">
-          <page-subtitle :text="$t('main.info')" />
+        <div class="flexrow-item block flexcolumn">
+          <div class="flexrow">
+            <page-subtitle :text="$t('main.info')" />
+            <div class="filler" />
+            <div class="flexrow-item has-text-right">
+              <button-simple
+                v-if="isCurrentUserManager"
+                icon="edit"
+                @click="modals.edit = true"
+              />
+            </div>
+          </div>
           <div class="table-body">
             <table
               v-if="currentShot"
-              class="datatable"
+              class="datatable no-header"
             >
               <tbody class="datatable-body">
-                <tr
-                  v-if="currentShot.data && currentShot.data.fps"
-                  class="datatable-row"
-                >
-                  <td class="field-label">
-                    {{ $t('shots.fields.fps') }}
-                  </td>
-                  <td>
-                    {{ currentShot ? currentShot.data.fps : '' }}
-                  </td>
-                </tr>
-
-                <tr
-                  v-if="currentShot.data && currentShot.data.frame_in"
-                  class="datatable-row"
-                >
-                  <td class="field-label">
-                    {{ $t('shots.fields.frame_in') }}
-                  </td>
-                  <td>
-                    {{ currentShot ? currentShot.data.frame_in : '' }}
-                  </td>
-                </tr>
-
-                <tr
-                  v-if="currentShot.data && currentShot.data.frame_out"
-                  class="datatable-row"
-                >
-                  <td class="field-label">
-                    {{ $t('shots.fields.frame_out') }}
-                  </td>
-                  <td>
-                    {{ currentShot ? currentShot.data.frame_out : '' }}
-                  </td>
-                </tr>
-
                 <tr class="datatable-row">
                   <td class="field-label">
                     {{ $t('shots.fields.description') }}
@@ -104,6 +76,80 @@
                 </tr>
 
                 <tr
+                  v-if="
+                    currentShot && currentShot.data && currentShot.data.frame_in
+                  "
+                  class="datatable-row"
+                >
+                  <td class="field-label">
+                    {{ $t('shots.fields.frame_in') }}
+                  </td>
+                  <td>
+                    {{ currentShot ? currentShot.data.frame_in : '' }}
+                  </td>
+                </tr>
+
+                <tr
+                  v-if="
+                    currentShot &&
+                      currentShot.data &&
+                      currentShot.data.frame_out
+                  "
+                  class="datatable-row"
+                >
+                  <td class="field-label">
+                    {{ $t('shots.fields.frame_out') }}
+                  </td>
+                  <td>
+                    {{ currentShot ? currentShot.data.frame_out : '' }}
+                  </td>
+                </tr>
+
+                <tr
+                  v-if="currentShot && currentShot.data && currentShot.data.fps"
+                  class="datatable-row"
+                >
+                  <td class="field-label">
+                    {{ $t('shots.fields.fps') }}
+                  </td>
+                  <td>
+                    {{ currentShot ? currentShot.data.fps : '' }}
+                  </td>
+                </tr>
+
+                <tr
+                  v-if="
+                    currentShot &&
+                      currentShot.data &&
+                      currentShot.data.resolution
+                  "
+                  class="datatable-row"
+                >
+                  <td class="field-label">
+                    {{ $t('shots.fields.resolution') }}
+                  </td>
+                  <td>
+                    {{ currentShot ? currentShot.data.resolution : '' }}
+                  </td>
+                </tr>
+
+                <tr
+                  v-if="
+                    currentShot &&
+                      currentShot.data &&
+                      currentShot.data.max_retakes
+                  "
+                  class="datatable-row"
+                >
+                  <td class="field-label">
+                    {{ $t('shots.fields.max_retakes') }}
+                  </td>
+                  <td>
+                    {{ currentShot ? currentShot.data.max_retakes : '' }}
+                  </td>
+                </tr>
+
+                <tr
                   v-for="descriptor in shotMetadataDescriptors"
                   :key="descriptor.id"
                   class="datatable-row"
@@ -113,7 +159,7 @@
                   </td>
                   <td>
                     {{
-                      currentShot.data
+                      currentShot && currentShot.data
                         ? currentShot.data[descriptor.field_name]
                         : ''
                     }}
@@ -125,92 +171,149 @@
         </div>
       </div>
 
-      <div
-        v-if="scheduleItems.length > 0"
-        class="infos schedule"
-      >
-        <page-subtitle
-          class="schedule-title"
-          text="Schedule"
-        />
-        <div class="wrapper">
-          <schedule
-            ref="schedule-widget"
-            class="schedule-widget"
-            :start-date="tasksStartDate"
-            :end-date="tasksEndDate"
-            :hierarchy="scheduleItems"
-            :zoom-level="2"
-            :height="385"
-            :is-loading="false"
-            :is-estimation-linked="true"
-            :hide-root="true"
-            :with-milestones="false"
+      <div class="shot-data block">
+        <div class="flexrow">
+          <combobox-styled
+            v-model="currentSection"
+            class="section-combo flexrow-item"
+            :options="entityNavOptions"
+          />
+          <span v-show="currentSection === 'casting'">
+            {{ nbAssets }} {{ $tc('assets.number', nbAssets) }}
+          </span>
+          <span
+            v-show="
+              currentSection === 'casting' && currentShot.is_casting_standby
+            "
+            class="tag tag-standby"
+          >
+            {{ $t('breakdown.fields.standby') }}
+          </span>
+          <div class="filler" />
+          <span
+            v-show="currentSection === 'schedule'"
+            class="flexrow-item mt05"
+          >
+            {{ $t('schedule.zoom_level') }}:
+          </span>
+          <combobox-number
+            v-show="currentSection === 'schedule'"
+            v-model="zoomLevel"
+            class="zoom-level flexrow-item"
+            :options="zoomOptions"
+            is-simple
           />
         </div>
-      </div>
 
-      <div class="shot-casting">
-        <page-subtitle :text="$t('shots.casting')" />
-        <div v-if="currentShot">
-          <div
-            v-if="
-              currentShot.castingAssetsByType &&
-                currentShot.castingAssetsByType[0].length > 0
-            "
-          >
+        <div
+          v-show="currentSection === 'casting'"
+          class="shot-casting"
+        >
+          <div v-if="currentShot">
             <div
-              v-for="typeAssets in currentShot.castingAssetsByType"
-              :key="typeAssets.length > 0 ? typeAssets[0].asset_type_name : ''"
-              class="type-assets"
+              v-if="
+                currentShot &&
+                  currentShot.castingAssetsByType &&
+                  currentShot.castingAssetsByType[0].length > 0
+              "
             >
-              <div class="asset-type">
-                {{ typeAssets.length > 0 ? typeAssets[0].asset_type_name : '' }}
-                ({{ typeAssets.length }})
-              </div>
-              <div class="asset-list">
-                <router-link
-                  v-for="asset in typeAssets"
-                  :key="asset.id"
-                  class="asset-link"
-                  :to="buildAssetRoute(asset)"
-                >
-                  <entity-thumbnail
-                    :entity="asset"
-                    :square="true"
-                    :empty-width="103"
-                    :empty-height="103"
-                    :with-link="false"
-                  />
-                  <div>
-                    <span>{{ asset.asset_name }}</span>
-                    <span v-if="asset.nb_occurences > 1">
-                      ({{ asset.nb_occurences }})
-                    </span>
-                  </div>
-                  <div class="ready-for flexrow">
-                    <task-type-name
-                      v-if="asset.ready_for"
-                      class="flexrow-item"
-                      :task-type="taskTypeMap.get(asset.ready_for)"
-                      :current-production-id="currentProduction.id"
-                      :title="
-                        'Ready for: ' + taskTypeMap.get(asset.ready_for).name
-                      "
+              <div
+                v-for="typeAssets in currentShot.castingAssetsByType"
+                :key="
+                  typeAssets.length > 0 ? typeAssets[0].asset_type_name : ''
+                "
+                class="type-assets"
+              >
+                <div class="asset-type">
+                  {{
+                    typeAssets.length > 0 ? typeAssets[0].asset_type_name : ''
+                  }}
+                  ({{ typeAssets.length }})
+                </div>
+                <div class="asset-list">
+                  <router-link
+                    v-for="asset in typeAssets"
+                    :key="asset.id"
+                    class="asset-link"
+                    :to="buildAssetRoute(asset)"
+                  >
+                    <entity-thumbnail
+                      class="entity-thumbnail"
+                      :entity="asset"
+                      :square="true"
+                      :empty-width="103"
+                      :empty-height="103"
+                      :with-link="false"
+                      :no-cache="true"
                     />
-                  </div>
-                </router-link>
+                    <div>
+                      {{ asset.asset_name }}
+                      <span v-if="asset.nb_occurences > 1">
+                        ({{ asset.nb_occurences }})
+                      </span>
+                    </div>
+                    <div class="ready-for flexrow">
+                      <task-type-name
+                        v-if="asset.ready_for"
+                        class="flexrow-item"
+                        :task-type="taskTypeMap.get(asset.ready_for)"
+                        :current-production-id="currentProduction.id"
+                        :title="
+                          'Ready for: ' + taskTypeMap.get(asset.ready_for).name
+                        "
+                      />
+                    </div>
+                  </router-link>
+                </div>
               </div>
             </div>
+            <div
+              v-else
+              class="mt1"
+            >
+              {{ $t('shots.no_casting') }}
+            </div>
           </div>
-          <div v-else>
-            {{ $t('shots.no_casting') }}
+          <table-info
+            v-else
+            :is-loading="casting.isLoading"
+            :is-error="casting.isError"
+          />
+        </div>
+
+        <div
+          v-if="scheduleItems[0].children.length > 0"
+          v-show="currentSection === 'schedule'"
+          class="schedule mt1"
+        >
+          <div class="wrapper">
+            <schedule
+              ref="schedule-widget"
+              :start-date="tasksStartDate"
+              :end-date="tasksEndDate"
+              :hierarchy="scheduleItems"
+              :zoom-level="zoomLevel"
+              :is-loading="false"
+              :is-estimation-linked="true"
+              :hide-root="true"
+              :with-milestones="false"
+            />
           </div>
         </div>
-        <table-info
-          v-else
-          :is-loading="casting.isLoading"
-          :is-error="casting.isError"
+
+        <entity-preview-files
+          v-if="currentSection === 'preview-files'"
+          :entity="currentShot"
+        />
+
+        <entity-news
+          v-if="currentSection === 'activity'"
+          :entity="currentShot"
+        />
+
+        <entity-time-logs
+          v-if="currentSection === 'time-logs'"
+          :entity="currentShot"
         />
       </div>
     </div>
@@ -242,10 +345,15 @@ import { entityMixin } from '@/components/mixins/entity'
 import { formatListMixin } from '@/components/mixins/format'
 
 import ButtonSimple from '@/components/widgets/ButtonSimple'
+import ComboboxNumber from '@/components/widgets/ComboboxNumber'
+import ComboboxStyled from '@/components/widgets/ComboboxStyled'
 import DescriptionCell from '@/components/cells/DescriptionCell'
 import EditShotModal from '@/components/modals/EditShotModal'
-import EntityThumbnail from '@/components/widgets/EntityThumbnail'
+import EntityNews from '@/components/pages/entities/EntityNews'
+import EntityPreviewFiles from '@/components/pages/entities/EntityPreviewFiles'
 import EntityTaskList from '@/components/lists/EntityTaskList'
+import EntityTimeLogs from '@/components/pages/entities/EntityTimeLogs'
+import EntityThumbnail from '@/components/widgets/EntityThumbnail'
 import Icon from '@/components/widgets/Icon'
 import PageTitle from '@/components/widgets/PageTitle'
 import PageSubtitle from '@/components/widgets/PageSubtitle'
@@ -256,13 +364,19 @@ import TaskTypeName from '@/components/widgets/TaskTypeName'
 
 export default {
   name: 'Shot',
+  mixins: [entityMixin, formatListMixin],
   components: {
     ButtonSimple,
-    Icon,
+    ComboboxNumber,
+    ComboboxStyled,
     DescriptionCell,
     EditShotModal,
-    EntityThumbnail,
+    EntityNews,
+    EntityPreviewFiles,
     EntityTaskList,
+    EntityTimeLogs,
+    EntityThumbnail,
+    Icon,
     PageSubtitle,
     PageTitle,
     Schedule,
@@ -270,7 +384,6 @@ export default {
     TaskInfo,
     TaskTypeName
   },
-  mixins: [entityMixin, formatListMixin],
 
   data() {
     return {
@@ -287,30 +400,36 @@ export default {
         edit: false
       },
       modals: {
-        edit: false
+        edit: false,
+        preview: false
       }
     }
   },
 
   mounted() {
     this.clearSelectedTasks()
-    this.currentShot = this.getCurrentShot()
-
-    this.casting.isLoading = true
-    this.casting.isError = false
-
-    if (this.currentShot) {
-      this.loadShotCasting(this.currentShot)
-        .then(() => {
-          this.casting.isLoading = false
-        })
-        .catch((err) => {
-          this.casting.isError = true
-          console.error(err)
-        })
-    } else {
-      this.resetData()
-    }
+    this.getCurrentShot()
+      .then((shot) => {
+        this.currentShot = shot
+        this.currentSection = this.route.query.section || 'casting'
+        this.casting.isLoading = true
+        this.casting.isError = false
+        if (this.currentShot) {
+          this.loadShotCasting(this.currentShot)
+            .then(() => this.loadShotCasting(this.currentShot))
+            .then(() => {
+              this.casting.isLoading = false
+            })
+            .catch((err) => {
+              this.casting.isLoading = false
+              this.casting.isError = true
+              console.error(err)
+            })
+        } else {
+          this.resetData()
+        }
+      })
+      .catch(console.error)
   },
 
   computed: {
@@ -323,6 +442,7 @@ export default {
       'route',
       'shotMap',
       'shotMetadataDescriptors',
+      'shotSearchText',
       'shotsPath',
       'taskMap',
       'taskTypeMap'
@@ -366,7 +486,7 @@ export default {
           production_id: this.currentProduction.id
         },
         query: {
-          search: ''
+          search: this.shotSearchText
         }
       }
       if (this.currentEpisode) {
@@ -374,6 +494,20 @@ export default {
         route.params.episode_id = this.currentEpisode.id
       }
       return route
+    },
+
+    nbAssets() {
+      let nbAssets = 0
+      if (
+        this.currentShot &&
+        this.currentSection === 'casting' &&
+        this.currentShot.castingAssetsByType
+      ) {
+        this.currentShot.castingAssetsByType.forEach((group) => {
+          nbAssets += group.length
+        })
+      }
+      return nbAssets
     }
   },
 
@@ -381,8 +515,7 @@ export default {
     ...mapActions([
       'clearSelectedTasks',
       'editShot',
-      'loadAssets',
-      'loadShots',
+      'loadShot',
       'loadShotCasting'
     ]),
 
@@ -391,7 +524,15 @@ export default {
     },
 
     getCurrentShot() {
-      return this.shotMap.get(this.route.params.shot_id) || null
+      return new Promise((resolve, reject) => {
+        const shotId = this.route.params.shot_id
+        const shot = this.shotMap.get(shotId) || null
+        if (!shot) {
+          return this.loadShot(shotId).then(resolve)
+        } else {
+          return resolve(shot)
+        }
+      })
     },
 
     onEditClicked() {
@@ -400,6 +541,11 @@ export default {
 
     confirmEditShot(form) {
       form.id = this.currentShot.id
+      form.data.resolution = form.resolution
+      form.data.max_retakes = form.max_retakes
+      form.data.frame_in = form.frameIn
+      form.data.frame_out = form.frameOut
+      form.data.fps = form.fps
       this.loading.edit = true
       this.errors.edit = false
       this.editShot(form)
@@ -412,10 +558,6 @@ export default {
           this.loading.edit = false
           this.errors.edit = true
         })
-    },
-
-    onTaskSelected(task) {
-      this.currentTask = task
     },
 
     buildAssetRoute(asset) {
@@ -432,36 +574,28 @@ export default {
     },
 
     resetData() {
+      this.casting.isLoading = true
+
+      // Next tick is needed to wait for the episode change.
       this.$nextTick(() => {
-        this.loadShots(() => {
-          this.loadAssets().then(() => {
-            this.currentShot = this.getCurrentShot()
+        this.getCurrentShot()
+          .then((shot) => {
+            this.currentShot = shot
             return this.loadShotCasting(this.currentShot)
-              .then(() => {
-                this.casting.isLoading = false
-              })
-              .catch((err) => {
-                console.error(err)
-                this.casting.isError = true
-              })
           })
-        })
+          .then(() => {
+            this.casting.isLoading = false
+          })
+          .catch((err) => {
+            this.casting.isError = true
+            this.casting.isLoading = false
+            console.error(err)
+          })
       })
     }
   },
 
-  watch: {
-    // Needed when reloading the page with F5
-    currentProduction() {
-      if (!this.isTVShow) this.resetData()
-    },
-
-    currentEpisode() {
-      if (this.isTVShow && this.shotMap.size === 0) {
-        this.resetData()
-      }
-    }
-  },
+  watch: {},
 
   metaInfo() {
     return {
@@ -478,64 +612,59 @@ export default {
   padding-bottom: 1em;
 }
 
-.dark .page-header,
-.dark .shot-casting,
-.dark .infos {
-  background: #46494f;
-  border-color: $dark-grey;
-  box-shadow: 0px 0px 6px #333;
-}
-
 .dark .wrapper {
   background: $dark-grey-2;
 }
 
+.main-column {
+  display: flex;
+  flex-direction: column;
+  background: var(--background-page);
+  padding-bottom: 1em;
+}
+
 h2.subtitle {
+  border-bottom: 0;
   margin-top: 0;
   margin-bottom: 0.5em;
-  font-weight: 300;
   font-size: 1.5em;
 }
 
-.page {
-  background: #f9f9f9;
-  padding: 0em;
-}
-
 .page-header {
-  padding: 1em 1em 1em 1em;
-  background: white;
-  box-shadow: 0px 0px 6px #e0e0e0;
   margin-top: calc(50px + 2em);
-  margin-bottom: 2em;
-  margin-left: 1em;
+  margin-bottom: 0.8em;
+  margin-left: 2em;
   margin-right: 1em;
+
+  .entity-title {
+    font-weight: 500;
+  }
 }
 
 .infos {
-  background: white;
-  padding: 1em 1em 1em 1em;
-  box-shadow: 0px 0px 6px #e0e0e0;
+  height: 350px;
   margin-bottom: 1em;
   margin-left: 1em;
   margin-right: 1em;
 
   .flexrow-item {
     align-self: flex-start;
+    height: 100%;
     flex: 1;
   }
 }
 
-.shot-casting {
-  margin-left: 1em;
-  margin-right: 1em;
-  background: white;
-  padding: 1em;
-  box-shadow: 0px 0px 6px #e0e0e0;
+.shot-data {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  margin: 0 1em 0 1em;
+  max-height: 100%;
+  overflow: hidden;
 }
 
-.shot-thumbnail {
-  max-width: 100px;
+.shot-casting {
+  overflow-y: auto;
 }
 
 .asset-link .thumbnail-picture {
@@ -586,11 +715,6 @@ h2.subtitle {
   max-width: 100%;
 }
 
-.page-header .thumbnail-picture {
-  margin: 0 1em 0 0;
-  max-width: 80px;
-}
-
 .back-link {
   padding-top: 3px;
 }
@@ -605,22 +729,29 @@ h2.subtitle {
 
 .schedule {
   position: relative;
-  height: 300px;
-  padding: 10px;
+  height: 100%;
+
+  .timelien-wrapper,
+  .timeline {
+    height: 100%;
+  }
 
   .schedule-title {
     margin-bottom: 5px;
   }
 
   .wrapper {
-    height: 230px;
+    height: 100%;
     border-radius: 10px;
   }
 }
 
-.column.main-column {
-  background: var(--background-page);
-  padding-bottom: 1em;
+.section-combo {
+  width: 150px;
+
+  .option-line {
+    width: 150px;
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -636,5 +767,17 @@ h2.subtitle {
     font-size: 1.3em;
     line-height: 1.5em;
   }
+}
+
+.tag-standby {
+  background: $red;
+  color: $white;
+  margin-left: 1em;
+  cursor: default;
+  text-transform: uppercase;
+}
+
+.dark .tag-standby {
+  background: $dark-red;
 }
 </style>

@@ -13,6 +13,9 @@
 
     <div class="modal-content">
       <div class="box content">
+        <h2 class="subtitle">
+          {{ title }}
+        </h2>
         <h1
           v-if="isEditing"
           class="title"
@@ -38,6 +41,8 @@
           :label="$t('main.csv.upload_file')"
           :accept="extensions"
           :multiple="true"
+          :is-primary="false"
+          hide-file-names
           @fileselected="onFileSelected"
         />
 
@@ -263,42 +268,33 @@
           {{ $t('tasks.add_preview_error') }}
         </p>
 
-        <p class="has-text-right">
-          <a
-            :class="{
-              button: true,
-              'is-primary': true,
-              'is-loading': isLoading,
-              'is-disabled': forms == undefined || isCurrentlyOnTake
-            }"
-            @click="$emit('confirm')"
-          >
-            {{ $t('main.confirmation') }}
-          </a>
-          <button
-            class="button is-link"
-            @click="$emit('cancel')"
-          >
-            {{ $t('main.cancel') }}
-          </button>
-        </p>
-
+        <h3
+          v-if="forms.length > 0"
+          class="subtitle has-text-centered"
+        >
+          Selected Files
+        </h3>
         <p
-          v-if="forms"
-          class="upload-previews"
+          v-if="forms.length > 0"
+          class="upload-previews mt2"
         >
           <template
             v-for="(form, i) in forms"
-            :key="'preview-' + i"
+            :key="'name-' + i"
           >
-            <hr>
+            <p class="preview-name">
+              {{ form.get('file').name }}
+              <span @click="removePreview(form)">x</span>
+            </p>
             <img
               v-if="isImage(form)"
+              :key="'image-' + i"
               alt="uploaded file"
               :src="getURL(form)"
             >
             <video
               v-else-if="isVideo(form)"
+              :key="'video-' + i"
               preload="auto"
               class="is-fullwidth"
               autoplay
@@ -314,7 +310,28 @@
               frameborder="0"
               :src="getURL(form)"
             />
+            <hr>
           </template>
+        </p>
+
+        <p class="has-text-right">
+          <a
+            :class="{
+              button: true,
+              'is-primary': true,
+              'is-loading': isLoading,
+              'is-disabled': forms.length === 0 || isCurrentlyOnTake
+            }"
+            @click="$emit('confirm')"
+          >
+            {{ $t('tasks.add_revision_confirm') }}
+          </a>
+          <button
+            class="button is-link"
+            @click="$emit('cancel')"
+          >
+            {{ $t('main.cancel') }}
+          </button>
         </p>
       </div>
     </div>
@@ -332,12 +349,12 @@ import AnsiUp from 'ansi_up'
 
 export default {
   name: 'AddPreviewModal',
+  mixins: [modalMixin],
 
   components: {
     FileUpload,
     Icon
   },
-  mixins: [modalMixin],
 
   props: {
     active: {
@@ -360,6 +377,10 @@ export default {
       type: String,
       default: files.ALL_EXTENSIONS_STRING
     },
+    title: {
+      type: String,
+      default: ''
+    },
     currentTask: {
       type: Object,
       default: null
@@ -368,7 +389,7 @@ export default {
 
   data() {
     return {
-      forms: null,
+      forms: [],
       DCCClients: [],
       isCurrentlyOnTake: false,
       exportCommandOutput: null,
@@ -423,13 +444,13 @@ export default {
 
     onFileSelected(forms) {
       this.exportCommandOutput = null
-      this.forms = forms
-      this.$emit('fileselected', forms)
+      this.forms = this.forms.concat(forms)
+      this.$emit('fileselected', this.forms)
     },
 
     reset() {
       this.previewField.reset()
-      this.forms = null
+      this.forms = []
     },
 
     onPaste(event) {
@@ -448,6 +469,10 @@ export default {
 
     isVideo(form) {
       return form.get('file').type.startsWith('video')
+    },
+
+    isPdf(form) {
+      return form.get('file').type.indexOf('pdf') > 0
     },
 
     onTake(DCCClient, isAnimation = false) {
@@ -536,8 +561,8 @@ export default {
       })
     },
 
-    isPdf(form) {
-      return form.get('file').type.indexOf('pdf') > 0
+    removePreview(form) {
+      this.forms = this.forms.filter((f) => f !== form)
     }
   },
 
@@ -548,7 +573,7 @@ export default {
   },
 
   mounted() {
-    this.forms = null
+    this.forms = []
     this.refreshConnectedDCCClients()
     window.addEventListener('paste', this.onPaste, false)
   },
@@ -607,5 +632,36 @@ pre {
 pre code {
   padding: 10px;
   max-height: 200px;
+}
+
+.subtitle {
+  color: $grey;
+  font-size: 1.2em;
+  margin: 0;
+  margin-bottom: 1em;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+h1.title {
+  font-weight: 350;
+  line-height: 1.2em;
+}
+
+h3 {
+  font-weight: 350;
+  font-size: 1.4em;
+  margin-top: 0.5em;
+  padding: 0;
+}
+
+h3.subtitle {
+  margin-top: 2em;
+  font-weight: 400;
+}
+
+.preview-name span {
+  cursor: pointer;
+  float: right;
 }
 </style>

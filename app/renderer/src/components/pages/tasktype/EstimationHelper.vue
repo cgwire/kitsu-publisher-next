@@ -42,9 +42,6 @@
               <th class="estimation numeric-cell">
                 {{ $t('tasks.fields.estimation').substring(0, 3) }}.
               </th>
-              <th class="empty">
-&nbsp;
-              </th>
             </tr>
           </thead>
 
@@ -68,6 +65,7 @@
                   :person="personMap.get(personId)"
                   :size="30"
                   :font-size="17"
+                  :is-link="false"
                 />
                 <span
                   v-for="personId in task.assignees"
@@ -80,6 +78,7 @@
                     :person="personMap.get(personId)"
                     :size="30"
                     :font-size="17"
+                    :is-link="false"
                   />
                   <people-name
                     class="flexrow-item"
@@ -94,6 +93,7 @@
                   :height="33"
                   :empty-width="50"
                   :empty-height="31"
+                  :with-link="false"
                 />
               </td>
               <td
@@ -128,7 +128,7 @@
                 @click="selectTask($event, task, index)"
               >
                 <input
-                  v-if="isCurrentUserManager"
+                  v-if="isInDepartment(task)"
                   :ref="task.id + '-estimation'"
                   class="input stylehidden"
                   :value="formatDuration(task.estimation)"
@@ -142,7 +142,6 @@
                   {{ formatDuration(task.estimation) }}
                 </span>
               </td>
-              <td />
             </tr>
           </tbody>
         </table>
@@ -171,7 +170,25 @@
                 {{ $t('tasks.fields.estimation').substring(0, 3) }}.
               </th>
               <th class="quota numeric-cell">
-                {{ $t('tasks.fields.estimated_quota') }}.
+                {{
+                  $t('tasks.fields.estimated_quota') +
+                    ' ' +
+                    $t('tasks.fields.seconds').substring(0, 3)
+                }}.
+              </th>
+              <th class="quota numeric-cell">
+                {{
+                  $t('tasks.fields.estimated_quota') +
+                    ' ' +
+                    $t('tasks.fields.frames').substring(0, 3)
+                }}.
+              </th>
+              <th class="quota numeric-cell">
+                {{
+                  $t('tasks.fields.estimated_quota') +
+                    ' ' +
+                    $t('tasks.fields.count')
+                }}.
               </th>
               <th class="empty">
 &nbsp;
@@ -195,6 +212,7 @@
                   :person="person"
                   :size="30"
                   :font-size="17"
+                  :is-link="false"
                 />
                 <people-name
                   class="flexrow-item"
@@ -215,6 +233,12 @@
               </td>
               <td class="quota numeric-cell">
                 {{ person.quota }}
+              </td>
+              <td class="quota numeric-cell">
+                {{ person.quotaFrames }}
+              </td>
+              <td class="quota numeric-cell">
+                {{ person.quotaCount }}
               </td>
               <td />
             </tr>
@@ -241,18 +265,18 @@ import firstBy from 'thenby'
 export default {
   name: 'EstimationHelper',
 
+  mixins: [domMixin, formatListMixin],
+
   components: {
     EntityThumbnail,
     PeopleAvatar,
     PeopleName
   },
 
-  mixins: [domMixin, formatListMixin],
-
   props: {
-    isAssets: {
-      type: Boolean,
-      default: true
+    entityType: {
+      type: String,
+      default: 'Asset'
     },
     tasks: {
       type: Array,
@@ -273,12 +297,20 @@ export default {
   computed: {
     ...mapGetters([
       'assetMap',
+      'editMap',
       'currentProduction',
       'isCurrentUserManager',
+      'isCurrentUserSupervisor',
+      'user',
       'organisation',
       'personMap',
-      'shotMap'
+      'shotMap',
+      'taskTypeMap'
     ]),
+
+    isAssets() {
+      return this.entityType === 'Asset'
+    },
 
     assignees() {
       const assigneeSet = new Set()
@@ -315,14 +347,19 @@ export default {
         const estimation = estimationMap.get(person.id) || 0
         const seconds = secondMap.get(person.id) || 0
         const frames = frameMap.get(person.id) || 0
+        const count = countMap.get(person.id) || 0
         const estimationDays = minutesToDays(this.organisation, estimation)
         const quota = estimation > 0 ? seconds / estimationDays : 0
+        const quotaCount = estimation > 0 ? count / estimationDays : 0
+        const quotaFrames = estimation > 0 ? frames / estimationDays : 0
         return {
           ...person,
           count: countMap.get(person.id) || 0,
           estimation: this.formatDuration(estimation),
           frames,
           quota: quota.toFixed(2),
+          quotaFrames: quotaFrames.toFixed(2),
+          quotaCount: quotaCount.toFixed(2),
           seconds: seconds.toFixed(2)
         }
       })
@@ -341,9 +378,12 @@ export default {
     getEntity(entityId) {
       if (this.isAssets) {
         return this.assetMap.get(entityId)
-      } else {
+      } else if (this.entityType === 'Shot') {
         return this.shotMap.get(entityId)
+      } else if (this.entityType === 'Edit') {
+        return this.editMap.get(entityId)
       }
+      return this.assetMap.get(entityId)
     },
 
     compareFirstAssignees(a, b) {
@@ -417,7 +457,7 @@ export default {
         if (!(event.ctrlKey || event.metaKey)) this.clearSelection()
         this.selectSingleTask(index)
       }
-      if (this.isCurrentUserManager) {
+      if (this.isInDepartment(task)) {
         this.focusInput(
           this.$refs[this.tasksByPerson[index].id + '-estimation'][0]
         )
@@ -455,6 +495,24 @@ export default {
       selection.forEach((taskId) => {
         this.addToSelection(taskId)
       })
+    },
+
+    isInDepartment(task) {
+      if (this.isCurrentUserManager) {
+        return true
+      } else if (this.isCurrentUserSupervisor) {
+        if (this.user.departments.length === 0) {
+          return true
+        } else {
+          const taskType = this.taskTypeMap.get(task.task_type_id)
+          return (
+            taskType.department_id &&
+            this.user.departments.includes(taskType.department_id)
+          )
+        }
+      } else {
+        return false
+      }
     }
   }
 }
@@ -466,7 +524,7 @@ th {
 }
 
 td {
-  padding: 0;
+  padding: 0 0.4em;
 
   &.thumbnail {
     padding-top: 0.2em;
@@ -479,9 +537,9 @@ td {
 }
 
 .assignees {
-  min-width: 260px;
-  max-width: 260px;
-  width: 260px;
+  min-width: 200px;
+  max-width: 200px;
+  width: 200px;
 
   span {
     margin-top: 0.2em;
@@ -490,9 +548,9 @@ td {
 }
 
 .thumbnail {
-  min-width: 80px;
-  max-width: 80px;
-  width: 80px;
+  min-width: 64px;
+  max-width: 64px;
+  width: 64px;
 }
 
 .asset-type {
@@ -511,9 +569,18 @@ td {
   font-weight: bold;
 }
 
+.frames,
+.estimation,
+.seconds,
+.count {
+  min-width: 60px;
+  width: 60px;
+}
+
 .number {
   min-width: 80px;
   width: 80px;
+  text-align: right;
 }
 
 .estimation-helper {
@@ -533,7 +600,21 @@ td {
 }
 
 .task-list {
-  flex: 1.5;
+  .empty {
+    border-left: 0px solid transparent;
+  }
+}
+
+th.numeric-cell {
+  padding-right: 0.4em;
+}
+
+.numeric-cell {
+  text-align: right;
+
+  input {
+    text-align: right;
+  }
 }
 
 .person-list {

@@ -30,11 +30,13 @@
             >
               {{ $t('tasks.fields.entity') }}
             </th>
-            <!-- TODO : reactivate description-cell
-            <th scope="col" class="description">
+            <th
+              v-if="isDescriptionPresent"
+              class="description"
+              scope="col"
+            >
               {{ $t('assets.fields.description') }}
             </th>
-            -->
             <th
               scope="col"
               class="estimation"
@@ -50,10 +52,24 @@
             </th>
             <th
               scope="col"
+              class="start-date"
+            >
+              {{ $t('tasks.fields.start_date_short') }}
+            </th>
+            <th
+              scope="col"
               class="due-date"
             >
               {{ $t('tasks.fields.due_date') }}
             </th>
+            <metadata-header
+              v-for="field_name in Object.keys(metadataDescriptorsMap)"
+              :key="'desc-header' + field_name"
+              :descriptor="
+                mergeMetadataDescriptors(metadataDescriptorsMap[field_name])
+              "
+              :no-menu="true"
+            />
             <th
               scope="col"
               class="status"
@@ -85,7 +101,7 @@
             :key="entry + '-' + i"
             :class="{
               'datatable-row': true,
-              'datatable-row--selectable': !done,
+              'datatable-row--selectable': true,
               selected:
                 selectionGrid && selectionGrid[i] ? selectionGrid[i][0] : false
             }"
@@ -99,6 +115,7 @@
                 :is-tooltip="true"
                 :entry="productionMap.get(entry.project_id)"
                 :only-avatar="true"
+                :is-link="false"
               />
             </td>
             <task-type-cell
@@ -113,30 +130,88 @@
             >
               <div class="flexrow">
                 <entity-thumbnail
-                  :width="60"
-                  :height="40"
-                  :withLink="false"
                   :empty-width="60"
                   :empty-height="40"
                   :entity="{ preview_file_id: entry.entity_preview_file_id }"
+                  :with-link="false"
                 />
                 {{ entry.full_entity_name }}
               </div>
             </td>
-            <!-- TODO : reactivate description-cell
             <description-cell
+              v-if="isDescriptionPresent"
               class="description"
               :entry="{ description: entry.entity_description }"
             />
-            -->
             <td class="estimation">
               {{ formatDuration(entry.estimation) }}
             </td>
             <td class="estimation">
               {{ formatDuration(entry.duration) }}
             </td>
+            <td class="start-date">
+              {{ formatDate(entry.start_date) }}
+            </td>
             <td class="due-date">
               {{ formatDate(entry.due_date) }}
+            </td>
+            <td
+              v-for="fieldName in Object.keys(metadataDescriptorsMap)"
+              :key="'desc-' + entry.id + '-' + fieldName"
+              class="metadata-descriptor"
+            >
+              <div
+                v-if="
+                  entry.entity_data && getMetadataDescriptor(fieldName, entry)
+                "
+              >
+                <div
+                  v-if="
+                    getDescriptorChecklistValues(
+                      getMetadataDescriptor(fieldName, entry)
+                    ).length > 0
+                  "
+                >
+                  <p
+                    v-for="(option, i) in getDescriptorChecklistValues(
+                      getMetadataDescriptor(fieldName, entry)
+                    )"
+                    :key="`${entry.id}-
+                    ${getMetadataDescriptor(fieldName, entry).id}
+                    -${i}-${option.text}-div`"
+                  >
+                    <input
+                      :id="`${entry.id}
+                      -${getMetadataDescriptor(fieldName, entry).id}
+                      -${i}-${option.text}-input`"
+                      type="checkbox"
+                      disabled
+                      :checked="
+                        getMetadataChecklistValues(
+                          getMetadataDescriptor(fieldName, entry),
+                          entry
+                        )[option.text]
+                      "
+                    >
+                    <label
+                      style="cursor: pointer"
+                      :for="`${entry.id}
+                      -${getMetadataDescriptor(fieldName, entry).id}
+                      -${i}-${option.text}-input`"
+                    >
+                      {{ option.text }}
+                    </label>
+                  </p>
+                </div>
+                <p v-else>
+                  {{
+                    getMetadataFieldValue(
+                      getMetadataDescriptor(fieldName, entry),
+                      entry
+                    )
+                  }}
+                </p>
+              </div>
             </td>
             <validation-cell
               :ref="'validation-' + i + '-0'"
@@ -190,7 +265,7 @@
 
     <p
       v-if="tasks.length && !isLoading"
-      class="has-text-centered footer-info mt1"
+      class="has-text-centered footer-info"
     >
       {{ tasks.length }} {{ $tc('tasks.tasks', tasks.length) }}
     </p>
@@ -202,53 +277,35 @@ import { mapGetters, mapActions } from 'vuex'
 
 import { selectionListMixin } from '@/components/mixins/selection'
 import { formatListMixin } from '@/components/mixins/format'
+import { descriptorMixin } from '@/components/mixins/descriptors'
 import { PAGE_SIZE } from '@/lib/pagination'
 import { formatSimpleDate } from '@/lib/time'
 
 import EntityThumbnail from '@/components/widgets/EntityThumbnail'
-//import DescriptionCell from '@/components/cells/DescriptionCell'
+import DescriptionCell from '@/components/cells/DescriptionCell'
 import LastCommentCell from '@/components/cells/LastCommentCell'
 import ProductionNameCell from '@/components/cells/ProductionNameCell'
 import TaskTypeCell from '@/components/cells/TaskTypeName'
 import TableInfo from '@/components/widgets/TableInfo'
 import ValidationCell from '@/components/cells/ValidationCell'
+import MetadataHeader from '@/components/cells/MetadataHeader'
 
 export default {
   name: 'TodosList',
+  mixins: [formatListMixin, selectionListMixin, descriptorMixin],
 
   components: {
     EntityThumbnail,
-    //DescriptionCell,
+    DescriptionCell,
     LastCommentCell,
     ProductionNameCell,
     TableInfo,
     TaskTypeCell,
-    ValidationCell
+    ValidationCell,
+    MetadataHeader
   },
-  mixins: [formatListMixin, selectionListMixin],
 
-  props: {
-    done: {
-      type: Boolean,
-      default: false
-    },
-    isLoading: {
-      type: Boolean,
-      default: false
-    },
-    isError: {
-      type: Boolean,
-      default: false
-    },
-    tasks: {
-      type: Array,
-      default: () => []
-    },
-    selectionGrid: {
-      type: Object,
-      default: () => {}
-    }
-  },
+  props: ['done', 'tasks', 'isLoading', 'isError', 'selectionGrid'],
 
   data() {
     return {
@@ -274,10 +331,48 @@ export default {
   },
 
   computed: {
-    ...mapGetters(['nbSelectedTasks', 'taskTypeMap', 'productionMap']),
+    ...mapGetters([
+      'nbSelectedTasks',
+      'taskTypeMap',
+      'productionMap',
+      'openProductions',
+      'user'
+    ]),
 
     displayedTasks() {
       return this.tasks.slice(0, this.page * PAGE_SIZE)
+    },
+
+    isDescriptionPresent() {
+      return this.tasks.some((task) => {
+        return task.entity_description && task.entity_description.length > 0
+      })
+    },
+
+    metadataDescriptorsMap() {
+      const metadataDescriptorsMap = {}
+      this.openProductions.forEach((project) => {
+        project.descriptors.forEach((descriptor) => {
+          const isUserDepartment = this.user.departments.some((department) =>
+            descriptor.departments.includes(department)
+          )
+          if (isUserDepartment) {
+            // group them by field_name if they have the same field_name
+            if (!(descriptor.field_name in metadataDescriptorsMap)) {
+              metadataDescriptorsMap[descriptor.field_name] = {}
+            }
+            const descriptorFieldNameEntry =
+              metadataDescriptorsMap[descriptor.field_name]
+            // group them by entity_type if the have the same entity_type
+            if (!(descriptor.entity_type in descriptorFieldNameEntry)) {
+              descriptorFieldNameEntry[descriptor.entity_type] = {}
+            }
+            descriptorFieldNameEntry[descriptor.entity_type][project.id] =
+              descriptor
+          }
+        })
+      })
+      return metadataDescriptorsMap
     }
   },
 
@@ -306,7 +401,9 @@ export default {
     onLineClicked(i, event) {
       const ref = 'validation-' + i + '-0'
       const validationCell = this.$refs[ref][0]
-      validationCell.select(event)
+      if (validationCell) {
+        validationCell.select(event)
+      }
     },
 
     onTaskSelected(validationInfo) {
@@ -487,6 +584,39 @@ export default {
           this.$refs['th-' + desc.name].style['min-width'] = `${width}px`
         })
       }
+    },
+
+    mergeMetadataDescriptors(descriptors) {
+      const firstKeyEntityType = Object.keys(descriptors)[0]
+      const firstKeyProjectId = Object.keys(descriptors[firstKeyEntityType])[0]
+      const mergedDescriptors = {
+        departments: [],
+        field_name:
+          descriptors[firstKeyEntityType][firstKeyProjectId].field_name,
+        name: descriptors[firstKeyEntityType][firstKeyProjectId].name
+      }
+      // merge departments
+      Object.keys(descriptors).forEach((entityType) =>
+        Object.keys(descriptors[entityType]).forEach((projectId) => {
+          mergedDescriptors.departments = [
+            ...new Set([
+              ...descriptors[entityType][projectId].departments,
+              ...mergedDescriptors.departments
+            ])
+          ]
+        })
+      )
+      return mergedDescriptors
+    },
+
+    getMetadataDescriptor(fieldName, entry) {
+      const entityType = entry.task_type_for_entity
+      const projectId = entry.project_id
+      return this.metadataDescriptorsMap[fieldName] &&
+        this.metadataDescriptorsMap[fieldName][entityType] &&
+        this.metadataDescriptorsMap[fieldName][entityType][projectId]
+        ? this.metadataDescriptorsMap[fieldName][entityType][projectId]
+        : null
     }
   }
 }
@@ -498,13 +628,13 @@ export default {
   border-top: 0;
 }
 
-.datatable .datatable-row-cursor {
+.datatable .datatable-row {
   cursor: pointer;
 }
 
 .name {
-  width: 280px;
-  min-width: 280px;
+  width: 300px;
+  min-width: 300px;
 }
 
 .description {
@@ -542,9 +672,18 @@ export default {
   min-width: 60px;
 }
 
+td.estimation {
+  text-align: center;
+}
+
+.start-date,
 .due-date {
   width: 110px;
   min-width: 110px;
+}
+
+td.due-date {
+  border-right: 1px solid var(--border-alt);
 }
 
 th.last-comment {
@@ -571,5 +710,10 @@ td.end-date {
 
 .empty-list img {
   max-width: 80vh;
+}
+
+.entity-name {
+  color: var(--text);
+  font-weight: bold;
 }
 </style>

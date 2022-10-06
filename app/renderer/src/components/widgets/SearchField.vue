@@ -15,9 +15,6 @@
       <input
         ref="input"
         v-focus
-        :style="{
-          color: active ? 'inherit' : '#999'
-        }"
         class="search-input"
         type="text"
         :placeholder="placeholder"
@@ -58,8 +55,8 @@ import Icon from '@/components/widgets/Icon'
 export default {
   name: 'SearchField',
 
-  components: {
-    Icon
+  data() {
+    return {}
   },
 
   props: {
@@ -77,8 +74,8 @@ export default {
     }
   },
 
-  data() {
-    return {}
+  components: {
+    Icon
   },
 
   computed: {},
@@ -123,15 +120,11 @@ export default {
     },
 
     setFocusedStyle() {
-      if (this.$refs.wrapper) {
-        this.$refs.wrapper.className = 'flexrow search-field-wrapper focused'
-      }
+      this.$refs.wrapper.className = 'flexrow search-field-wrapper focused'
     },
 
     unsetFocusedStyle() {
-      if (this.$refs.wrapper) {
-        this.$refs.wrapper.className = 'flexrow search-field-wrapper'
-      }
+      this.$refs.wrapper.className = 'flexrow search-field-wrapper'
     }
   }
 }
@@ -149,10 +142,6 @@ export default {
     &.focused {
       box-shadow: 0 0 4px 3px #222;
     }
-  }
-
-  .search-input {
-    color: white;
   }
 
   .search-input::placeholder {
@@ -173,6 +162,11 @@ export default {
 .search-input {
   width: 300px;
   background: inherit;
+  color: var(--text);
+}
+
+.search-icon {
+  color: var(--text);
 }
 
 .search-input::placeholder {

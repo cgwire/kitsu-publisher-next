@@ -35,6 +35,7 @@ export const annotationMixin = {
       additions: [],
       deletions: [],
       updates: [],
+      objIndex: new Map(),
       isShowingPalette: false,
       isShowingPencilPalette: false,
       notSave: false
@@ -59,30 +60,36 @@ export const annotationMixin = {
 
   methods: {
     // Objects
+    getObjectById(objectId) {
+      return this.fabricCanvas.getObjects().find((obj) => obj.id === objectId)
+    },
 
     setObjectData(object) {
       if (!object.id) object.id = uuidv4()
       object.canvasWidth = this.fabricCanvas.width
       object.canvasHeight = this.fabricCanvas.height
       object.serialize = () =>
-        object.toJSON(['id', 'canvasWidth', 'canvasHeight'])
+        object.toJSON(['id', 'canvasWidth', 'canvasHeight', 'angle', 'scale'])
       return object
     },
 
-    addObject(activeObject) {
+    addObject(activeObject, persist = true) {
       if (activeObject._objects) {
         activeObject._objects.forEach((obj) => {
           this.fabricCanvas.add(obj)
-          this.$options.doneActionStack.pop()
+          this.doneActionStack.pop()
         })
       } else {
         this.fabricCanvas.add(activeObject)
       }
-      this.$options.doneActionStack.push({ type: 'add', obj: activeObject })
-      this.saveAnnotations()
+      if (persist) {
+        this.doneActionStack.push({ type: 'add', obj: activeObject })
+        this.saveAnnotations()
+      }
     },
 
     addText() {
+      if (this.fabricCanvas.getActiveObject()) return
       const canvas = this.canvas || this.canvasWrapper
       const offsetCanvas = canvas.getBoundingClientRect()
       const posX = event.clientX - offsetCanvas.x
@@ -147,16 +154,42 @@ export const annotationMixin = {
         activeObject._objects.forEach((obj) => {
           this.fabricCanvas.remove(obj)
           this.addToDeletions(obj)
+          this.doneActionStack.push({
+            type: 'remove',
+            obj
+          })
         })
       } else if (activeObject) {
         this.fabricCanvas.remove(activeObject)
         this.addToDeletions(activeObject)
+        this.doneActionStack.push({
+          type: 'remove',
+          obj: activeObject
+        })
       }
-      this.$options.doneActionStack.push({
-        type: 'remove',
-        obj: activeObject
-      })
       this.saveAnnotations()
+    },
+
+    removeObjectFromCanvas(deletedObject) {
+      const obj = this.getObjectById(deletedObject.id)
+      if (obj) {
+        if (obj._objects) {
+          obj._objects.forEach(this.fabricCanvas.remove)
+          this.fabricCanvas.remove(obj)
+        } else {
+          this.fabricCanvas.remove(obj)
+        }
+      }
+      this.objIndex.delete(deletedObject.id)
+    },
+
+    updateObjectInCanvas(annotation, updatedObject) {
+      const obj = this.getObjectById(updatedObject.id)
+      if (obj) {
+        this.removeObjectFromCanvas(obj)
+        this.objIndex.set(updatedObject.id, updatedObject)
+        this.addObjectToCanvas(annotation, updatedObject)
+      }
     },
 
     addToAdditions(obj) {
@@ -171,6 +204,11 @@ export const annotationMixin = {
           drawing: { objects: [obj.serialize()] }
         })
       }
+      this.postAnnotationAddition(currentTime, obj.serialize())
+    },
+
+    postAnnotationAddition(currentTime, obj) {
+      // Aimed at being supercharged
     },
 
     removeFromAdditions(obj) {
@@ -195,6 +233,14 @@ export const annotationMixin = {
           objects: [obj.id]
         })
       }
+      this.postAnnotationDeletion(
+        currentTime,
+        obj.toJSON(['id', 'canvasWidth', 'canvasHeight', 'angle', 'scale'])
+      )
+    },
+
+    postAnnotationDeletion(currentTime, obj) {
+      // Aimed at being supercharged
     },
 
     removeFromDeletions(obj) {
@@ -221,6 +267,11 @@ export const annotationMixin = {
           drawing: { objects: [obj.serialize()] }
         })
       }
+      this.postAnnotationUpdate(currentTime, obj.serialize())
+    },
+
+    postAnnotationUpdate(currentTime, obj) {
+      // Aimed at being supercharged
     },
 
     clearModifications() {
@@ -258,10 +309,10 @@ export const annotationMixin = {
             ml: false,
             mr: false,
             bl: false,
-            br: false,
+            br: true,
             tl: false,
             tr: false,
-            mtr: false
+            mtr: true
           })
         }
       })
@@ -300,92 +351,103 @@ export const annotationMixin = {
     },
 
     loadSingleAnnotation(annotation) {
+      annotation.drawing.objects.forEach((obj) => {
+        this.addObjectToCanvas(annotation, obj)
+      })
+    },
+
+    addObjectToCanvas(annotation, obj) {
+      if (!obj) return
+      if (this.getObjectById(obj.id)) return
+      this.objIndex.set(obj.id, obj)
       let scaleMultiplierX = 1
       let scaleMultiplierY = 1
-      if (annotation.width) {
+      if (annotation && annotation.width) {
         scaleMultiplierX = this.fabricCanvas.width / annotation.width
         scaleMultiplierY = this.fabricCanvas.width / annotation.width
       }
-      if (annotation.height) {
+      if (annotation && annotation.height) {
         scaleMultiplierY = this.fabricCanvas.height / annotation.height
       }
+      const canvasWidth = obj.canvasWidth || annotation.width
+      const canvasHeight = obj.canvasHeight
 
-      annotation.drawing.objects.forEach((obj) => {
-        const canvasWidth = obj.canvasWidth || annotation.width
-        const canvasHeight = obj.canvasHeight
-        if (canvasWidth) {
-          scaleMultiplierX = this.fabricCanvas.width / canvasWidth
-          scaleMultiplierY = this.fabricCanvas.width / canvasWidth
-        }
-        if (canvasHeight) {
-          scaleMultiplierY = this.fabricCanvas.height / canvasHeight
-        }
+      if (canvasWidth) {
+        scaleMultiplierX = this.fabricCanvas.width / canvasWidth
+        scaleMultiplierY = this.fabricCanvas.width / canvasWidth
+      }
+      if (canvasHeight) {
+        scaleMultiplierY = this.fabricCanvas.height / canvasHeight
+      }
 
-        const base = {
-          id: obj.id,
+      const base = {
+        id: obj.id,
+        left: obj.left * scaleMultiplierX,
+        top: obj.top * scaleMultiplierY,
+        fill: 'transparent',
+        stroke: obj.stroke,
+        strokeWidth: obj.strokeWidth,
+        radius: obj.radius,
+        width: obj.width,
+        height: obj.height,
+        scaleX: obj.scaleX * scaleMultiplierX,
+        scaleY: obj.scaleY * scaleMultiplierY,
+        angle: obj.angle,
+        scale: obj.scale,
+        editable: !this.isCurrentUserArtist,
+        selectable: !this.isCurrentUserArtist
+      }
+      if (obj.type === 'path') {
+        let strokeMultiplier = 1
+        if (obj.canvasWidth) {
+          strokeMultiplier = canvasWidth / this.fabricCanvas.width
+        }
+        if (this.fabricCanvas.width < 420) strokeMultiplier /= 2
+        const path = new fabric.Path(obj.path, {
+          ...base,
+          strokeWidth: obj.strokeWidth * strokeMultiplier,
+          canvasWidth: obj.canvasWidth
+        })
+        path.setControlsVisibility({
+          mt: false,
+          mb: false,
+          ml: false,
+          mr: false,
+          bl: false,
+          br: !this.isCurrentUserArtist,
+          tl: false,
+          tr: false,
+          mtr: !this.isCurrentUserArtist
+        })
+        this.silentAnnnotation = true
+        this.fabricCanvas.add(path)
+        this.silentAnnnotation = false
+      } else if (obj.type === 'i-text' || obj.type === 'text') {
+        const text = new fabric.IText(obj.text, {
+          ...base,
+          fill: obj.fill,
           left: obj.left * scaleMultiplierX,
           top: obj.top * scaleMultiplierY,
-          fill: 'transparent',
-          stroke: obj.stroke,
-          strokeWidth: obj.strokeWidth,
-          radius: obj.radius,
-          width: obj.width,
-          height: obj.height,
-          scaleX: obj.scaleX * scaleMultiplierX,
-          scaleY: obj.scaleY * scaleMultiplierY
-        }
-        if (obj.type === 'path') {
-          let strokeMultiplier = 1
-          if (obj.canvasWidth) {
-            strokeMultiplier = canvasWidth / this.fabricCanvas.width
-          }
-          if (this.fabricCanvas.width < 420) strokeMultiplier /= 2
-          const path = new fabric.Path(obj.path, {
-            ...base,
-            strokeWidth: obj.strokeWidth * strokeMultiplier,
-            canvasWidth: obj.canvasWidth
-          })
-          path.setControlsVisibility({
-            mt: false,
-            mb: false,
-            ml: false,
-            mr: false,
-            bl: false,
-            br: false,
-            tl: false,
-            tr: false,
-            mtr: false
-          })
-          this.$options.silentAnnnotation = true
-          this.fabricCanvas.add(path)
-          this.$options.silentAnnnotation = false
-        } else if (obj.type === 'i-text' || obj.type === 'text') {
-          const text = new fabric.Text(obj.text, {
-            ...base,
-            fill: obj.fill,
-            left: obj.left * scaleMultiplierX,
-            top: obj.top * scaleMultiplierY,
-            fontFamily: obj.fontFamily,
-            fontSize: obj.fontSize,
-            backgroundColor: 'rgba(255,255,255, 0.8)',
-            padding: 10
-          })
-          text.setControlsVisibility({
-            mt: false,
-            mb: false,
-            ml: false,
-            mr: false,
-            bl: false,
-            br: false,
-            tl: false,
-            tr: false,
-            mtr: false
-          })
-          this.$options.silentAnnnotation = true
-          this.fabricCanvas.add(text)
-          this.$options.silentAnnnotation = false
-        }
-      })
+          fontFamily: obj.fontFamily,
+          fontSize: obj.fontSize,
+          backgroundColor: 'rgba(255,255,255, 0.8)',
+          padding: 10
+        })
+        text.setControlsVisibility({
+          mt: false,
+          mb: false,
+          ml: false,
+          mr: false,
+          bl: false,
+          br: !this.isCurrentUserArtist,
+          tl: false,
+          tr: false,
+          mtr: !this.isCurrentUserArtist
+        })
+        this.silentAnnnotation = true
+        this.fabricCanvas.add(text)
+        this.silentAnnnotation = false
+      }
     },
 
     // Events
@@ -400,7 +462,7 @@ export const annotationMixin = {
 
     onChangeColor(color) {
       this.color = color
-      this.fabricCanvas.freeDrawingBrush.color = this.color
+      this._resetColor()
       this.isShowingPalette = false
     },
 
@@ -411,14 +473,74 @@ export const annotationMixin = {
 
     onChangePencil(pencil) {
       this.pencil = pencil
+      this._resetPencil()
+      this.isShowingPalette = false
+    },
+
+    _resetColor() {
+      this.fabricCanvas.freeDrawingBrush.color = this.color
+    },
+
+    _resetPencil() {
       const converter = {
         big: 4,
         medium: 2,
         small: 1
       }
-      const strokeWidth = converter[pencil]
+      const strokeWidth = converter[this.pencil]
       this.fabricCanvas.freeDrawingBrush.width = strokeWidth
-      this.isShowingPalette = false
+    },
+
+    onAnnotateClicked() {
+      this.showCanvas()
+      if (this.isDrawing) {
+        this.fabricCanvas.isDrawingMode = false
+        this.isDrawing = false
+      } else {
+        this.isTyping = false
+        if (this.fabricCanvas) {
+          this.fabricCanvas.isDrawingMode = true
+        }
+        this.fabricCanvas.freeDrawingBrush = new fabric.PencilBrush(
+          this.fabricCanvas
+        )
+        this._resetColor()
+        this._resetPencil()
+        this.isDrawing = true
+      }
+    },
+
+    onEraseClicked() {
+      this.showCanvas()
+      if (this.isDrawing) {
+        this.fabricCanvas.isDrawingMode = false
+        this.isDrawing = false
+      } else {
+        this.isTyping = false
+        if (this.fabricCanvas) {
+          this.fabricCanvas.isDrawingMode = true
+        }
+        this.isDrawing = true
+        this.previousStrokeWidth = this.fabricCanvas.freeDrawingBrush.width
+        this.fabricCanvas.freeDrawingBrush = new fabric.EraserBrush(
+          this.fabricCanvas
+        )
+        this.fabricCanvas.freeDrawingBrush.width = 10
+      }
+    },
+
+    onTypeClicked() {
+      const clickarea = this.canvas.getElementsByClassName('upper-canvas')[0]
+      this.showCanvas()
+      if (this.isTyping) {
+        this.isTyping = false
+        clickarea.removeEventListener('dblclick', this.addText)
+      } else {
+        this.fabricCanvas.isDrawingMode = false
+        this.isDrawing = false
+        this.isTyping = true
+        clickarea.addEventListener('dblclick', this.addText)
+      }
     },
 
     onWindowsClosed(event) {
@@ -430,12 +552,18 @@ export const annotationMixin = {
     },
 
     onObjectAdded(obj) {
-      if (this.$options.silentAnnnotation) return
-      let o = obj.target
+      if (this.silentAnnnotation) return
+      let o = obj
+      if (obj.target) o = obj.target
+      else o = obj.targets[0]
       o = this.setObjectData(o)
       // if (this.fabricCanvas.width < 420) o.strokeWidth *= 2
-      this.addToAdditions(o)
-      this.stackAddAction(obj)
+      if (this.isLaserModeOn) {
+        this.fadeObject(o)
+      } else {
+        this.addToAdditions(o)
+        this.stackAddAction(obj)
+      }
     },
 
     onObjectMoved(obj) {
@@ -443,22 +571,32 @@ export const annotationMixin = {
       this.saveAnnotations()
     },
 
+    fadeObject(obj) {
+      obj.animate('opacity', '0', {
+        duration: 1500,
+        onChange: this.fabricCanvas.renderAll.bind(this.fabricCanvas),
+        onComplete: () => {
+          this.fabricCanvas.remove(obj)
+        }
+      })
+    },
+
     // Undo / Redo
 
     resetUndoStacks() {
-      this.$options.doneActionStack = []
-      this.$options.undoneActionStack = []
+      this.doneActionStack = []
+      this.undoneActionStack = []
     },
 
     stackAddAction({ target }) {
-      this.$options.doneActionStack.push({ type: 'add', obj: target })
+      this.doneActionStack.push({ type: 'add', obj: target })
       target.lockScalingX = true
       target.lockScalingY = true
       target.rotation = true
     },
 
     undoLastAction() {
-      const action = this.$options.doneActionStack.pop()
+      const action = this.doneActionStack.pop()
       if (action && action.obj) {
         if (action.type === 'add') {
           this.deleteObject(action.obj)
@@ -469,13 +607,13 @@ export const annotationMixin = {
           this.addToAdditions(action.obj)
           this.removeFromDeletions(action.obj)
         }
-        this.$options.doneActionStack.pop()
-        this.$options.undoneActionStack.push(action)
+        this.doneActionStack.pop()
+        this.undoneActionStack.push(action)
       }
     },
 
     redoLastAction() {
-      const action = this.$options.undoneActionStack.pop()
+      const action = this.undoneActionStack.pop()
       if (action) {
         if (action.type === 'add') {
           this.addObject(action.obj)
@@ -486,7 +624,7 @@ export const annotationMixin = {
     },
 
     clearUndoneStack() {
-      this.$options.undoneActionStack = []
+      this.undoneActionStack = []
     },
 
     // Canvas
@@ -524,14 +662,17 @@ export const annotationMixin = {
     configureCanvas() {
       this.fabricCanvas.off('object:moved', this.onObjectMoved)
       this.fabricCanvas.off('text:changed', this.onObjectMoved)
+      this.fabricCanvas.off('object:modified', this.onObjectMoved)
       this.fabricCanvas.off('object:added', this.onObjectAdded)
       this.fabricCanvas.off('mouse:up', this.endDrawing)
       this.fabricCanvas.off('mouse:up', this.onCanvasReleased)
       this.fabricCanvas.off('mouse:move', this.onCanvasMouseMoved)
       this.fabricCanvas.off('mouse:down', this.onCanvasClicked)
       this.fabricCanvas.on('object:moved', this.onObjectMoved)
+      this.fabricCanvas.on('object:modified', this.onObjectMoved)
       this.fabricCanvas.on('text:changed', this.onObjectMoved)
       this.fabricCanvas.on('object:added', this.onObjectAdded)
+      this.fabricCanvas.on('erasing:end', this.onObjectAdded)
       this.fabricCanvas.on('mouse:up', this.endDrawing)
       this.fabricCanvas.on('mouse:move', this.onCanvasMouseMoved)
       this.fabricCanvas.on('mouse:down', this.onCanvasClicked)
@@ -559,6 +700,7 @@ export const annotationMixin = {
     clearCanvas() {
       if (this.fabricCanvas) {
         this.fabricCanvas.clear()
+        this.objIndex.clear()
       }
     },
 
@@ -575,9 +717,14 @@ export const annotationMixin = {
     pasteAnnotations() {
       this.fabricCanvas.discardActiveObject()
       const clonedObj = clipboard.pasteAnnotations()
-      this.addObject(clonedObj)
-      this.fabricCanvas.setActiveObject(clonedObj)
-      this.fabricCanvas.requestRenderAll()
+      if (clonedObj._objects) {
+        clonedObj._objects.forEach((obj) => this.addObject(obj))
+        this.fabricCanvas.requestRenderAll()
+      } else if (clonedObj._set) {
+        this.addObject(clonedObj)
+        this.fabricCanvas.setActiveObject(clonedObj)
+        this.fabricCanvas.requestRenderAll()
+      }
     },
 
     // Saving
@@ -589,26 +736,23 @@ export const annotationMixin = {
 
     startAnnotationSaving(preview, annotations) {
       this.notSaved = true
-      this.$options.annotatedPreview = preview
-      this.$options.annotationToSave = setTimeout(
-        this.endAnnotationSaving,
-        3000
-      )
+      this.annotatedPreview = preview
+      this.annotationToSave = setTimeout(this.endAnnotationSaving, 3000)
     },
 
     endAnnotationSaving() {
       if (this.notSaved) {
-        const preview = this.$options.annotatedPreview
-        this.$options.changesToSave = {
+        const preview = this.annotatedPreview
+        this.changesToSave = {
           preview,
           additions: [...this.additions],
           updates: [...this.updates],
           deletions: [...this.deletions]
         }
         this.clearModifications()
-        clearTimeout(this.$options.annotationToSave)
+        clearTimeout(this.annotationToSave)
         this.notSaved = false
-        this.$emit('annotation-changed', this.$options.changesToSave)
+        this.$emit('annotation-changed', this.changesToSave)
       }
     }
   }

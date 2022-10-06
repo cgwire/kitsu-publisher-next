@@ -26,6 +26,12 @@ export default {
 
   components: {},
 
+  data() {
+    return {
+      isLoading: false
+    }
+  },
+
   props: {
     previewUrl: {
       default: '',
@@ -57,11 +63,7 @@ export default {
     }
   },
 
-  data() {
-    return {
-      isLoading: false
-    }
-  },
+  mounted() {},
 
   computed: {
     container() {
@@ -69,17 +71,15 @@ export default {
     }
   },
 
+  methods: {},
+
   watch: {
     defaultHeight() {},
 
     previewUrl() {},
 
     light() {}
-  },
-
-  mounted() {},
-
-  methods: {}
+  }
 }
 </script>
 

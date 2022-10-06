@@ -96,7 +96,12 @@ const mutations = {
   },
 
   [ADD_FIRST_NEWS](state, news) {
-    state.newsList.unshift(news)
+    const existingNews = state.newsList.find((n) => n.id === news.id)
+    if (existingNews) {
+      Object.assign(existingNews, news)
+    } else {
+      state.newsList.unshift(news)
+    }
   },
 
   [NEWS_ADD_PREVIEW](state, { commentId, previewId, extension }) {

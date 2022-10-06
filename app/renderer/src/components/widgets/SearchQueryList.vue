@@ -49,15 +49,15 @@ import Icon from '@/components/widgets/Icon'
 
 export default {
   name: 'SearchQueryList',
-  components: {
-    Icon,
-    EditSearchFilterModal
-  },
   props: {
     queries: {
       type: Array,
       default: () => []
     }
+  },
+  components: {
+    Icon,
+    EditSearchFilterModal
   },
   data() {
     return {

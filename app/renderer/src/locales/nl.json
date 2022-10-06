@@ -378,14 +378,6 @@
       "team": "Team",
       "title": "Mensen",
       "unactive": "Inactief",
-      "csv": {
-        "import_file": "Importeer een .csv bestand",
-        "export_file": "Download een .csv bestand",
-        "import_title": "Importeer data uit een CSV bestand",
-        "required_fields": "De CSV file vereist the volgende kolommen",
-        "select_file": "Selecteer een bestand uit een folder:",
-        "error_upload": "Er is een probleem opgetreden tijdens het uploaden van het CSV bestand."
-      },
       "fields": {
         "first_name": "Voornaam",
         "last_name": "Achternaam",
@@ -409,7 +401,8 @@
       "role": {
         "admin": "Studio Manager",
         "client": "Cliënt",
-        "manager": "Supervisor",
+        "manager": "Production manager",
+        "supervisor": "Supervisor",
         "user": "Artist",
         "undefined": "ongedefinieerd",
         "vendor": "Leverancier"
@@ -630,6 +623,10 @@
       "notifications_enabled": "E-mail notificaties ingeschakeld",
       "notifications_slack_enabled": "Slack notificaties ingeschakeld",
       "notifications_slack_user": "Slack gebruikersnaam",
+      "notifications_mattermost_enabled": "Mattermost notificaties ingeschakeld",
+      "notifications_mattermost_user": "Mattermost gebruikersnaam",
+      "notifications_discord_enabled": "Discord notificaties ingeschakeld",
+      "notifications_discord_user": "Discord gebruikersnaam",
       "password_title": "Wachtwoord aanpassen",
       "timezone": "Tijdzone",
       "title": "Jouw profiel",
@@ -655,10 +652,13 @@
       "no_logo": "Er is geen logo ingesteld",
       "set_logo": "Studio logo instellen",
       "title": "Instellingen",
+      "webhook_error": "Une erreur est survenue en postant le webhook",
       "fields": {
         "name": "Studio naam",
         "hours_by_day": "Uren per dag",
         "slack_token": "Slack Token (Optioneel)",
+        "mattermost_webhook": "Mattermost Webhook (Optioneel)",
+        "discord_token": "Discord Token (Optioneel)",
         "use_original_name": "Gebruik originele bestandsnamen voor downloads",
         "timesheets_locked": "Timesheets van artists ouder dan 1 week vergrendelen"
       },
@@ -682,8 +682,8 @@
         "color": "Kleur",
         "is_artist_allowed": "Is artist toegestaan",
         "is_client_allowed": "Is klant toegestaan",
+        "is_default": "Is default",
         "is_done": "Is klaar",
-        "is_reviewable": "Kan beoordeeld worden",
         "is_retake": "Heeft heropnamewaarde",
         "name": "Naam",
         "short_name": "Korte naam"

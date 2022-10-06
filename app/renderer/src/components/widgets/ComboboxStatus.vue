@@ -11,7 +11,10 @@
     >
       {{ label }}
     </label>
-    <div class="status-combo">
+    <div
+      class="status-combo"
+      :style="comboStyles"
+    >
       <div
         class="flexrow"
         @click="toggleStatusList"
@@ -36,7 +39,10 @@
       <div
         v-if="showStatusList"
         ref="select"
-        class="select-input"
+        :class="{
+          'select-input': true,
+          'open-top': openTop
+        }"
       >
         <div
           v-for="status in taskStatusList"
@@ -78,7 +84,17 @@ export default {
     ComboboxMask
   },
 
+  data() {
+    return {
+      showStatusList: false
+    }
+  },
+
   props: {
+    colorOnly: {
+      default: false,
+      type: Boolean
+    },
     label: {
       default: '',
       type: String
@@ -102,12 +118,10 @@ export default {
     addPlaceholder: {
       default: false,
       type: Boolean
-    }
-  },
-
-  data() {
-    return {
-      showStatusList: false
+    },
+    openTop: {
+      default: false,
+      type: Boolean
     }
   },
 
@@ -129,6 +143,27 @@ export default {
       } else {
         return this.taskStatusList[0]
       }
+    },
+
+    comboStyles() {
+      return {
+        background: this.colorOnly
+          ? this.backgroundColor(this.currentStatus)
+          : 'transparent',
+        color: this.colorOnly ? this.color(this.currentStatus) : 'inherit',
+        'border-top-left-radius': this.colorOnly ? '20px' : '10px',
+        'border-top-right-radius': this.colorOnly ? '0px' : '10px',
+        'border-bottom-left-radius': this.showStatusList
+          ? '0'
+          : this.colorOnly
+          ? '20px'
+          : '10px',
+        'border-bottom-right-radius': this.showStatusList
+          ? '0'
+          : this.colorOnly
+          ? '0px'
+          : '10px'
+      }
     }
   },
 
@@ -139,15 +174,10 @@ export default {
     },
 
     backgroundColor(taskStatus) {
-      if (
-        (!taskStatus || taskStatus.short_name === 'todo') &&
-        !this.isDarkTheme
-      ) {
+      const isTodo = taskStatus.name === 'Todo'
+      if ((!taskStatus || isTodo) && !this.isDarkTheme) {
         return '#ECECEC'
-      } else if (
-        (!taskStatus || taskStatus.short_name === 'todo') &&
-        this.isDarkTheme
-      ) {
+      } else if ((!taskStatus || isTodo) && this.isDarkTheme) {
         return '#5F626A'
       } else if (this.isDarkTheme) {
         return colors.darkenColor(taskStatus.color)
@@ -157,7 +187,8 @@ export default {
     },
 
     color(taskStatus) {
-      if (!taskStatus || taskStatus.short_name !== 'todo' || this.isDarkTheme) {
+      const isTodo = taskStatus.name === 'Todo'
+      if (!taskStatus || !isTodo || this.isDarkTheme) {
         return 'white'
       } else {
         return '#333'
@@ -205,6 +236,7 @@ export default {
 .field--narrow .status-combo {
   padding: 0;
   margin: 0;
+  border-radius: 0;
 }
 
 .selected-status-line {
@@ -227,7 +259,6 @@ export default {
   width: 15px;
   min-width: 15px;
   margin-right: 0.4em;
-  margin-top: 5px;
   color: $green;
   cursor: pointer;
 }
@@ -240,12 +271,28 @@ export default {
   z-index: 300;
   margin-left: -1px;
   max-height: 180px;
-  top: 33px;
+  top: 38px;
   left: 0;
   overflow-y: auto;
+
+  &.open-top {
+    top: auto;
+    bottom: 41px;
+  }
+}
+
+.field--narrow {
+  .select-input {
+    top: 33px;
+  }
 }
 
 .field .label {
   padding-top: 5px;
+}
+
+.down-icon.white {
+  color: $white;
+  margin-right: 0.8em;
 }
 </style>
