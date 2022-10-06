@@ -23,8 +23,8 @@ Available:
 
 Work in progress:
 
-  - Maya
-  - Adobe Photoshop
+- Maya
+- Adobe Photoshop
 
 ## Installation
 
@@ -117,7 +117,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
 #### On macOS
 
 - DMG installer:
-  
+
   - Double-click on the installer (Kitsu-publisher-{version}.dmg), a window should open.
 
   - Drag and drop the Kitsu logo on the "Applications" folder and it will install directly the app.
@@ -133,7 +133,7 @@ All comands have the keyword {version} in the filenames, you need to replace the
 - Zip portable application:
 
   - Double-click on the zip (Kitsu-publisher-{version}-mac.zip) to expand the zip.
- 
+
   - Double-click on the Kitsu publisher icon it will launch the app.
 
 ### Installation of the DCCs connectors

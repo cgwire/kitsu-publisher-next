@@ -169,7 +169,9 @@
                   'select-input': true,
                   'is-disabled': isCurrentlyOnTake
                 }"
-                @change="(event) => DCCClients[port].setCamera(event.target.value)"
+                @change="
+                  (event) => DCCClients[port].setCamera(event.target.value)
+                "
               >
                 <option
                   v-for="camera in DCCClients[port].cameras"
@@ -191,7 +193,9 @@
                   'select-input': true,
                   'is-disabled': isCurrentlyOnTake
                 }"
-                @change="(event) => DCCClients[port].setRenderer(event.target.value)"
+                @change="
+                  (event) => DCCClients[port].setRenderer(event.target.value)
+                "
               >
                 <option
                   v-for="renderer in DCCClients[port].renderers"
@@ -213,7 +217,9 @@
                   'select-input': true,
                   'is-disabled': isCurrentlyOnTake
                 }"
-                @change="(event) => DCCClients[port].setSequence(event.target.value)"
+                @change="
+                  (event) => DCCClients[port].setSequence(event.target.value)
+                "
               >
                 <option
                   v-for="sequence in DCCClients[port].sequences"
@@ -393,9 +399,13 @@ export default {
               newClient.getRenderers().then(() => {
                 newClient.getExtensions(true).then(() => {
                   newClient.getExtensions(false).then(() => {
-                    newClient.getSequences().then().catch().finally(() => {
-                      this.DCCClients[port] = newClient
-                    })
+                    newClient
+                      .getSequences()
+                      .then()
+                      .catch()
+                      .finally(() => {
+                        this.DCCClients[port] = newClient
+                      })
                   })
                 })
               })

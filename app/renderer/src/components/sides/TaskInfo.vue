@@ -1073,14 +1073,19 @@ export default {
     },
 
     updateDurationValue() {
-      peopleApi.getUserTaskTimeSpent(this.task.id, moment(this.selectedDate).format('YYYY-MM-DD'), (err, timeSpent) => {
-        if (!err && timeSpent) {
-          this.durationValue = timeSpent.duration ? timeSpent.duration / 60 : 0
+      peopleApi.getUserTaskTimeSpent(
+        this.task.id,
+        moment(this.selectedDate).format('YYYY-MM-DD'),
+        (err, timeSpent) => {
+          if (!err && timeSpent) {
+            this.durationValue = timeSpent.duration
+              ? timeSpent.duration / 60
+              : 0
+          } else {
+            this.durationValue = 0
+          }
         }
-        else {
-          this.durationValue = 0
-        }
-      })
+      )
     }
   },
 
@@ -1100,9 +1105,13 @@ export default {
 
     durationValue() {
       if (!this.updatedDurationValue) {
-        peopleApi.setTimeSpent(this.task.id, this.user.id, moment(this.selectedDate).format('YYYY-MM-DD'), this.durationValue)
-      }
-      else {
+        peopleApi.setTimeSpent(
+          this.task.id,
+          this.user.id,
+          moment(this.selectedDate).format('YYYY-MM-DD'),
+          this.durationValue
+        )
+      } else {
         this.updatedDurationValue = false
       }
     }

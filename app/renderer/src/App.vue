@@ -1680,7 +1680,7 @@ th.validation-cell {
   }
 }
 
-.theme .v3dp__divider{
+.theme .v3dp__divider {
   visibility: hidden;
   margin: 0px;
 }

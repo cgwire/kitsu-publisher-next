@@ -123,17 +123,17 @@ function HTTPDaemon(parent) {
     this.socket.deleteLater()
   }
 
-  this.setTimeout = function(fc) {
+  this.setTimeout = function (fc) {
     timer = new QTimer()
     timer.interval = 300
     timer.singleShot = true
-    timer.timeout.connect(this, function(){
-        fc.call()
+    timer.timeout.connect(this, function () {
+      fc.call()
     })
     timer.start()
   }
 
-  this.waitForLock = function() {
+  this.waitForLock = function () {
     if (this.lock === true) {
       this.setTimeout(this.waitForLock)
     }
@@ -147,7 +147,7 @@ function HTTPDaemon(parent) {
 
     if (this.lock === true) {
       this.waitForLock()
-    } 
+    }
     this.lock = true
     this.socket = new QTcpSocket(this)
     this.socket.readyRead.connect(this, 'readClient')
