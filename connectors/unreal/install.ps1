@@ -70,7 +70,7 @@ function Installer-Installation {
         throw "Unreal Editor is not installed on this computer." 
     }
     foreach ($InstallLocationUnreal in $InstallLocationsUnreal) {
-        Write-Output "Found installer installation of Unreal Editor in $InstallLocation."
+        Write-Output "Found installer installation of Unreal Editor in $InstallLocationUnreal."
             $PythonExecutable = [IO.Path]::Combine($InstallLocationUnreal, "Engine\Binaries\ThirdParty\Python3\Win64\python.exe")
             Install-Pip
             Install-Plugin
