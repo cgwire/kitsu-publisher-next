@@ -96,6 +96,8 @@
                   <entity-thumbnail
                     :empty-width="60"
                     :empty-height="40"
+                    :width="60"
+                    :height="40"
                     :entity="{ preview_file_id: task.entity_preview_file_id }"
                     :with-link="false"
                   />

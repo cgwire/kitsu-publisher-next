@@ -16,6 +16,7 @@
             :empty-width="120"
             :empty-height="50"
             :width="120"
+            :height="50"
             :with-link="false"
           />
         </span>

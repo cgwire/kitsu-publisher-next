@@ -663,10 +663,6 @@ body {
   }
 } // End dark theme
 
-#app .router-link-active {
-  color: #00d1b2;
-}
-
 .loading-info {
   background: white;
 }

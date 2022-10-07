@@ -131,8 +131,6 @@
                 :entity="getEntity(task.entity.id)"
                 :width="50"
                 :height="33"
-                :empty-width="50"
-                :empty-height="33"
                 :with-link="false"
               />
             </td>
