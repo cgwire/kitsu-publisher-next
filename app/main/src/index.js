@@ -80,7 +80,8 @@ const createWindow = async () => {
     show: false, // Use 'ready-to-show' event to show window
     webPreferences: {
       preload: join(__dirname, '../../preload/dist/index.cjs'),
-      webSecurity: false // TODO : REENABLE TO ENABLE CORS
+      webSecurity: false, // TODO : REENABLE TO ENABLE CORS
+      sandbox: false // TODO : REENABLE SANDBOX
     },
     x: mainWindowState.x,
     y: mainWindowState.y,
