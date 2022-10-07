@@ -90,6 +90,12 @@ const api = {
   ipcRenderer: {
     on: (channel, listener) => {
       ipcRenderer.on(channel, listener)
+    },
+    removeListener: (channel, listener) => {
+      ipcRenderer.removeListener(channel, listener)
+    },
+    removeAllListeners: (channel) => {
+      ipcRenderer.removeAllListeners(channel)
     }
   }
 }

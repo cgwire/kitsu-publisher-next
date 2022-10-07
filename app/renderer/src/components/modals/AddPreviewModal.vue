@@ -143,7 +143,7 @@
         <div
           v-for="port in Object.keys(DCCClients)"
           :key="port"
-          class="box content"
+          class="box content box-content-dcc"
         >
           <h3 class="title">
             {{ DCCClients[port].DCCName }} v{{ DCCClients[port].DCCVersion }}
@@ -529,14 +529,15 @@ export default {
                 { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
               )
               formData.append('file', file, file.name)
-              this.forms = [formData]
+              this.forms = this.forms.concat(formData)
               this.$emit('fileselected', this.forms)
               this.isCurrentlyOnTake = false
             } else {
               if (isAnimation) DCCClient.isCurrentlyOnTakeAnimation = true
               else DCCClient.isCurrentlyOnTakeScreenshot = true
+
               window.electron.ipcRenderer.on(
-                'commandOutput',
+                'commandOutput', 
                 (_, commandOutput) => {
                   this.exportCommandOutput = commandOutput
                   this.exportCommandOutput.output = this.AnsiUp.ansi_to_html(
@@ -549,11 +550,12 @@ export default {
                     { type: isAnimation ? 'video/mpeg' : 'image/jpeg' }
                   )
                   formData.append('file', file, file.name)
-                  this.forms = [formData]
+                  this.forms = this.forms.concat(formData)
                   this.$emit('fileselected', this.forms)
                   this.isCurrentlyOnTake = false
                   if (isAnimation) DCCClient.isCurrentlyOnTakeAnimation = false
                   else DCCClient.isCurrentlyOnTakeScreenshot = false
+                  window.electron.ipcRenderer.removeAllListeners('commandOutput')
                 }
               )
             }
@@ -663,5 +665,9 @@ h3.subtitle {
 .preview-name span {
   cursor: pointer;
   float: right;
+}
+
+.box-content-dcc {
+  padding: 0.5em 1em 1em 1em
 }
 </style>
