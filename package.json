@@ -61,7 +61,7 @@
     "archiver": "5.3.1",
     "browserslist": "4.21.4",
     "cross-env": "7.0.3",
-    "electron": "21.1.0",
+    "electron": "19.1.1",
     "electron-builder": "23.3.3",
     "electron-devtools-installer": "3.2.0",
     "eslint": "8.24.0",
@@ -73,7 +73,7 @@
     "vite-plugin-eslint": "1.8.1"
   },
   "browserslist": [
-    "Chrome 96"
+    "Chrome 106"
   ],
   "engines": {
     "node": ">=16.11",

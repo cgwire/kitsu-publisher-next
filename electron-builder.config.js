@@ -1,7 +1,7 @@
 const config = {
   appId: 'com.cgwire.kitsupublisher',
   productName: 'Kitsu publisher',
-  copyright: 'Copyright © 2021 ${author}',
+  copyright: 'Copyright © 2022 ${author}',
   directories: {
     output: 'dist',
     buildResources: 'build_resources'
